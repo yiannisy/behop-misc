@@ -1,0 +1,4 @@
+*~
+data/*pdf
+data/logs/*
+*.o

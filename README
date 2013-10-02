@@ -1,0 +1,7 @@
+This directory contains the following with regards to the be-hop deployment.
+
++ ap-utils : utilities installed at the AP (sta_manager, mon_to_tap)
++ attitude_rootfs_files : files that will be installed at the rootfs image (treat it as being the root dir / at the AP)
++ data : parsing/plotting
++ utils : partition USB drive, pssh/pscp etc.
++ usb-rootfs-min : The contents of the USB drive. Basic scripts and utilities to setup the USB FS for full-blown operation.

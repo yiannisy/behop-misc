@@ -1,0 +1,1 @@
+pssh -h pi-aps.txt -l root -o /tmp/pssh-out -e /tmp/pssh-err -x "-o StrictHostKeyChecking=no" -t 10 $@

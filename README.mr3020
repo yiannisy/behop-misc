@@ -1,0 +1,67 @@
+Starting from vanilla mr3020 attitude adjustment
+
+
+### Setting up usb-based rootfs
+
+- opkg update
+- opkg install kmod-usb-storage (also install dependencies for scsi)
+- opkg install kmod-fs-ext4
+- opkg install kmod-scsi-generic
+- opkg install block-mount
+
+### Prepare for USB-based rootfs
+The above should be enough to enable extroot and load the rootfs overlay from usb.
+We assume that the USB drive is already configures as an ext4.
+
+- edit /etc/config/fstab to mount sda1 at /overlay and enable 1
+mount /dev/sda1 /mnt
+rm -rf /mnt/*
+tar -C /overlay -cvf - . | tar -C /mnt -xf -
+reboot
+
+Check if the rootfs is loaded from the USB drive (df -h gives 7.2G for rootfs - that's a good sign).
+
+### Prepare USB-rootfs for operation
+
+- opkg udpate (you need to update again for the new rootfs..)
+- opkg install jansson
+- opkg install openvswitch-switch
+- opkg install python
+- opkg install kmod-veth
+- opkg install tcpdump
+- opkg install ath9k
+
+
+
+### Setup OVS
+ovsdb-tool create /etc/openvswitch/conf-pi.db /usr/share/openvswitch/vswitch.wireless.ovsschema
+o
+
+### Misc
+- upgrade busybox for ip link option (had to manually scp ipk file)
+- copy /opt/utils
+- copy /etc/rc.local
+- setup /etc/config/wireless
+- copy /etc/init.d/openvswitch
+- copy /etc/config/network (both on squashfs and usb)
+- add br0 to ovsdb-server before setting the IP address to br0
+- copy /etc/opkg.conf
+
+### Initialization
+iw dev wlan0 interface add mon0 type monitor
+ifconfig mon0 up
+ip link add type veth
+ifconfig veth0 up
+ifconfig veth1 up
+
+ovs-vsctl add-br br0
+ovs-vsctl add-port br0 veth1
+ovs-vsctl set-controller br0 tcp:192.168.11.10:6635
+ovs-vsctl set-manager tcp:192.168.11.10:9935
+ifconfig br0 up
+
+
+### Cross-Compiling sta-manager
+- update jansson package from 2.2.1 to 2.4
+- add TARGET_LDFLAGS += -lm to fix uclibc issue with Jansson and __isnan
+- implement nl_send_sync to sta_manager as libnl_tiny only has nl_send_auto_complete...
