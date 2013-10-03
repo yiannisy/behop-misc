@@ -1,6 +1,6 @@
 #STAGING_DIR=/home/yiannis/of/attitude/staging_dir/toolchain-mips_r2_gcc-4.6-linaro_uClibc-0.9.33.2/bin/
-#CCPREFIX=/home/yiannis/of/attitude/staging_dir/toolchain-mips_r2_gcc-4.6-linaro_uClibc-0.9.33.2/bin/mips-openwrt-linux-uclibc-
-#HPREFIX=/home/yiannis/of/attitude/staging_dir/target-mips_r2_uClibc-0.9.33.2
+CCPREFIX=/home/yiannis/of/attitude/staging_dir/toolchain-mips_r2_gcc-4.6-linaro_uClibc-0.9.33.2/bin/mips-openwrt-linux-uclibc-
+HPREFIX=/home/yiannis/of/attitude/staging_dir/target-mips_r2_uClibc-0.9.33.2
 #CC=${CCPREFIX}gcc
 #LD=${CCPREFIX}ld
 #CFLAGS=-c -Wall -I/usr/include/libnl3
