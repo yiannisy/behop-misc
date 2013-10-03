@@ -22,6 +22,7 @@ ovs-vsctl set-manager tcp:${CONTROLLER}:9935
 echo "Enabling SNMP"
 uci set mini_snmpd.@mini_snmpd[0].enabled=1
 uci commit mini_snmpd
+/etc/init.d/mini_snmpd enable
 
 echo "Enabling new network configuration and startup scripts"
 cp ${EXTRA_FILES}/network /etc/config/network
