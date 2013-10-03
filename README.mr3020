@@ -65,3 +65,11 @@ ifconfig br0 up
 - update jansson package from 2.2.1 to 2.4
 - add TARGET_LDFLAGS += -lm to fix uclibc issue with Jansson and __isnan
 - implement nl_send_sync to sta_manager as libnl_tiny only has nl_send_auto_complete...
+
+### Upgrade USB through pssh/pscp
+./pi_pssh.sh "rm -rf /overlay/*"                                                                                            
+./pi_pssh.sh "reboot"                                                                                                       
+./pi_pscp.sh -r ../usb-rootfs-min/* /overlay/
+./pi_pssh.sh /opt/setup_usb.sh
+./pi_pssh.sh -t 0 /opt/setup_usb.sh
+./pi_pssh.sh reboot    
