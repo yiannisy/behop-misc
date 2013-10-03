@@ -8,9 +8,9 @@ HPREFIX=/home/yiannis/of/attitude/staging_dir/target-mips_r2_uClibc-0.9.33.2
 CFLAGS=-c -Wall -I${HPREFIX}/usr/include/ -I${HPREFIX}/usr/include/libnl/ -I${HPREFIX}/usr/include/libnl-tiny/
 LDFLAGS= -L${HPREFIX}/lib -L${HPREFIX}/usr/lib/ -lnl-tiny -ljansson
 
-SOURCES=sta_manager.c
+SOURCES=mon_to_tap.c
 OBJECTS=$(SOURCES:.c=.o)
-EXECUTABLE=sta_manager
+EXECUTABLE=mon_to_tap
 
 all: $(EXECUTABLE)
 
@@ -20,8 +20,8 @@ $(EXECUTABLE): $(OBJECTS)
 .c.o:
 	$(CC) $(CFLAGS) $< -o $@
 
-sta_manager.o:
-	$(CC) $(CFLAGS) sta_manager.c
+mon_to_tap.o:
+	$(CC) $(CFLAGS) mon_to_tap.c
 
 clean: 
-	rm -rf *.o sta_manager
+	rm -rf *.o mon_to_tap
