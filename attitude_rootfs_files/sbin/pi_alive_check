@@ -1,0 +1,12 @@
+#!/bin/sh
+
+FILES="/tmp/ping_test"
+logger "Testing files"
+for file in $FILES
+do
+  current=`date +%s`
+  last_modified=`date +%s -r $file`
+  if [ $(($current-$last_modified)) -gt 180 ]; then
+    /sbin/reboot
+  fi
+done
