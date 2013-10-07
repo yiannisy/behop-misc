@@ -26,6 +26,10 @@
 #define ADD_VBEACON_DEBUGFS_FILE "/sys/kernel/debug/ieee80211/phy0/ath9k/addbeacon"
 #define DEL_VBEACON_DEBUGFS_FILE "/sys/kernel/debug/ieee80211/phy0/ath9k/delbeacon"
 
+#define MON_ID_STA 0
+#define MON_ID_CHANNEL 1
+#define MON_ID_BSSID 2
+#define MON_ID_POWER 3
 
 #define MONITOR_OVSDB "{\"method\":\"monitor\",\"params\":[\"Open_vSwitch\",0,{\"Wireless\":[{\"columns\":[\"channel\",\"power\",\"ssid\"]}]}],\"id\":1}"
 
@@ -340,49 +344,39 @@ int ovsdb_subscribe(int fd)
   struct json_t * monitor_request_array;
   char * json_dump;
 
-  struct json_t * packed_req;
+  struct json_t * packed_req_channel, *packed_req_power, *packed_req_bssidmask, * packed_req_sta;
 
-  packed_req = json_pack("{s:s,s:[s,i,{s:[{s:[s,s],s:{s:b}}]}],s:i}",
-			 "method","monitor","params","Open_vSwitch",0,
-			 "WifiSta","columns","addr","vbssid","select","initial",0,"id",1);
-  json_dump = json_dumps(packed_req, JSON_ENCODE_ANY);
+  packed_req_sta = json_pack("{s:s,s:[s,i,{s:[{s:[s,s],s:{s:b}}]}],s:i}",
+				"method","monitor","params","Wifi_vSwitch",MON_ID_STA,
+				"WifiSta","columns","addr","vbssid","select","initial",0,"id",1);
+  packed_req_channel = json_pack("{s:s,s:[s,i,{s:[{s:[s],s:{s:b}}]}],s:i}",
+			     "method","monitor","params","Wifi_vSwitch",MON_ID_CHANNEL,
+			     "WifiConfig","columns","channel","select","initial",0,"id",2);
+  packed_req_bssidmask = json_pack("{s:s,s:[s,i,{s:[{s:[s],s:{s:b}}]}],s:i}",
+			     "method","monitor","params","Wifi_vSwitch",MON_ID_BSSID,
+			     "WifiConfig","columns","bssidmask","select","initial",0,"id",3);
+  packed_req_power = json_pack("{s:s,s:[s,i,{s:[{s:[s],s:{s:b}}]}],s:i}",
+			     "method","monitor","params","Wifi_vSwitch",MON_ID_POWER,
+			     "WifiConfig","columns","power","select","initial",0,"id",4);
+
+  json_dump = json_dumps(packed_req_channel, JSON_ENCODE_ANY);
+  printf("JSON_PACKED:%s\n",json_dump);
+  bytes_sent = write(fd, json_dump, strlen(json_dump));
+
+  json_dump = json_dumps(packed_req_power, JSON_ENCODE_ANY);
+  printf("JSON_PACKED:%s\n",json_dump);
+  bytes_sent = write(fd, json_dump, strlen(json_dump));
+
+  json_dump = json_dumps(packed_req_bssidmask, JSON_ENCODE_ANY);
+  printf("JSON_PACKED:%s\n",json_dump);
+  bytes_sent = write(fd, json_dump, strlen(json_dump));
+
+
+  json_dump = json_dumps(packed_req_sta, JSON_ENCODE_ANY);
   printf("JSON_PACKED:%s\n",json_dump);
   bytes_sent = write(fd, json_dump, strlen(json_dump));
   
   printf("sent %d bytes\n", bytes_sent);
-
-  /* no need to manually build json message... */
-
-  /* monitor_select = json_object(); */
-  /* json_object_set(monitor_select,"initial",json_false()); */
-  
-  /* monitor_request = json_object(); */
-  /* json_object_set(monitor_request,"select",monitor_select); */
-
-  /* monitor_request_array = json_array(); */
-  /* json_array_append(monitor_request_array, monitor_request); */
-
-  /* request = json_object(); */
-  /* json_object_set(request,"WifiSta",monitor_request_array); */
-  
-
-  /* params_array = json_array(); */
-  /* json_array_append(params_array,json_string("Open_vSwitch")); */
-  /* json_array_append(params_array, json_integer(0)); */
-  /* json_array_append(params_array, request); */
-  
-  /* json_obj = json_object(); */
-  /* json_object_set(json_obj,"method",json_string("monitor")); */
-  /* json_object_set(json_obj,"params",params_array); */
-
-  /* json_object_set(json_obj,"id",json_integer(1)); */
-
-  /* json_dump = json_dumps(json_obj, JSON_ENCODE_ANY); */
-  /* printf("JSON-DUMP:%s\n",json_dump); */
-
-  /* json_dump = json_dumps(packed_req, JSON_ENCODE_ANY); */
-  /* printf("JSON_PACKED:%s\n",json_dump); */
-  /* bytes_sent = write(fd, json_dump, strlen(json_dump)); */
 
   return 0;
 }
