@@ -5,3 +5,4 @@ This directory contains the following with regards to the be-hop deployment.
 + data : parsing/plotting
 + utils : partition USB drive, pssh/pscp etc.
 + usb-rootfs-min : The contents of the USB drive. Basic scripts and utilities to setup the USB FS for full-blown operation.
++ behop-web : website for the sign-up process.

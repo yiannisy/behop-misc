@@ -1,0 +1,13 @@
+# jemdoc: nodefaultcss,addcss{css/behop.css},analytics{UA-7834129-3}
+{{<head><meta http-equiv="REFRESH" content="5;url=http://www.stanford.edu/~yiannisy/behop/index.html"></head>}}
+~~~
+{}{img_left}{img/home.png}{alt text}{150px}{120px}
+= Stanford University - BeHop Project
+~~~
+
+{{<hr>}}
+~~~
+{}{raw}
+<center><b><i>thank you, thank you, thank you!!!</i></b></center>
+<center>you'll be redirected to the main website in a few secs...</center>
+~~~
