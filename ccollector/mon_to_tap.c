@@ -11,6 +11,11 @@
 #include <linux/filter.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include "conf.h"
+
+#define UDP
 
 static int
 device_index(int fd, const char *devname)
@@ -53,6 +58,33 @@ open_monitor_socket(char * devname){
   return fd;
 }
 
+static int
+open_udp_socket(char * devname){
+  int fd;
+
+  if ((fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0){
+    printf("Could not create packet socket : %s\n", strerror(errno));
+    return -1;
+  }
+  return fd;
+  
+}
+
+static int
+create_udp_addr(struct sockaddr_in *sin) {
+  memset(sin, 0, sizeof(struct sockaddr_in));
+
+  sin->sin_family = AF_INET;
+  sin->sin_port = htons(SRV_PORT);
+  if (inet_aton(SRV_IP, &sin->sin_addr)==0) {
+    fprintf(stderr, "inet_aton() failed\n");
+    //exit(1);
+    return -1;
+  }
+
+  return 0;
+}
+
 void usage(){
   printf("usage : mon_to_tap\n");
   printf("mon_to_tap -m mon0 -t tap0: forwards packets from a monitor interface to a tap interface and vice-verca.\n" \
@@ -64,6 +96,8 @@ void usage(){
 int main(int argc, char **argv){
   char *tap_intf, * mon_intf;
   int mon_fd, tap_fd; // one socket for each interface
+  int ctl_fd;
+  struct sockaddr_in ctl_sin;
   int rc;
   char buf[8092];
   int r_bytes, w_bytes, bytes_left;
@@ -124,11 +158,23 @@ struct sock_filter MGMT_BPF[] =
     exit(0);
   }
 
+#ifndef UDP
   tap_fd = open_monitor_socket(tap_intf);
   if (tap_fd <= 0){
     printf("Cannot open socket to tap interface...\n");
     exit(0);
   }
+#else
+  ctl_fd = open_udp_socket(tap_intf);
+  if (ctl_fd <= 0) {
+    printf("Could not create udp socket\n");
+    exit(0);
+  }
+  if (create_udp_addr(&ctl_sin) < 0) {
+    printf("Could not create ctrl interface sin struct\n");
+    exit(0);
+  }
+#endif
 
   /* Thinks look good - let's fork and exit */
   /* Daemonize code from : http://www.netzmafia.de/skripten/unix/linux-daemon-howto.html */
@@ -152,7 +198,7 @@ struct sock_filter MGMT_BPF[] =
   /* close(STDOUT_FILENO); */
   /* close(STDERR_FILENO); */
   
-
+#ifndef UDP
   while (1){
     FD_ZERO(&rfds);
     FD_ZERO(&wfds);
@@ -196,5 +242,39 @@ struct sock_filter MGMT_BPF[] =
     }
   }
 
+#else
+  while (1){
+    FD_ZERO(&rfds);
+    FD_ZERO(&wfds);
+    FD_SET(mon_fd, &rfds);
+    //FD_SET(mon_fd, &wfds);
+    //FD_SET(ctl_fd, &rfds);
+    FD_SET(ctl_fd, &wfds);
+    rc = select(sizeof(rfds)*8, &rfds, NULL, NULL, NULL);
+    if (rc == -1){
+      printf("select failed\n");
+      exit(0);
+    }
+
+    if (rc > 0){
+      if (FD_ISSET(mon_fd, &rfds)){ // && FD_ISSET(tap_fd,&wfds)) {
+	r_bytes = recv(mon_fd,buf, 8092,0);
+	bytes_left = r_bytes > 1500? 1500 : r_bytes;
+	printf("received %d bytes from mon\n",r_bytes);
+	while(bytes_left > 0){
+	  //w_bytes = send(tap_fd, buf, bytes_left,0);
+	  w_bytes = sendto(ctl_fd, buf, bytes_left, 0, &ctl_sin, sizeof(ctl_sin));
+
+	  if (w_bytes < 0){
+	    printf("failed to send data over udp ctl interface (%s)\n", strerror(errno));
+	    exit(0);
+	  }
+	  bytes_left -= w_bytes;
+	}
+      }
+    }
+  }
+
+#endif
 }
   

@@ -82,7 +82,7 @@ class UdpAggregator(Aggregator):
   '''A UDP aggregator to receive trace information from AP collectors'''
   def subscribe(self):
     self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    self.socket.bind((UDP_IP, UDP_PORT))
+    self.socket.bind((self.IP, self.PORT))
 
 class LinkAggregator(Aggregator):
     def __init__(self, url, interval=10):
@@ -576,10 +576,16 @@ class PiAggregator(Aggregator):
         self.f.close()
 
 class PiUdpAggregator(UdpAggregator):
-    def __init__(self, interval=1, filter=DEF_AGG_FILTER, MAXLEN=10000):
+    def __init__(self, TEST_MODE, interval=1, filter=DEF_AGG_FILTER, MAXLEN=10000):
         """
         @interval: how often to export a summary
         """
+	self.TEST_MODE = TEST_MODE
+	self.IP = UDP_IP
+	if TEST_MODE:
+	  self.PORT = UDP_PORT_TEST
+	else:
+	  self.PORT = UDP_PORT_PROD
         UdpAggregator.__init__(self)
         self.interval = interval
         self.filter = filter
@@ -615,20 +621,48 @@ class PiUdpAggregator(UdpAggregator):
 	    #if len(self.resp_log) > 2000:
 	    #  break
 
-	    json_len_s = str(resp[0:4])
-	    json_len = int(json_len_s)
+	    if COLLECTOR_MODEL == 'pycollector':
+	      #--------------------------
+	      # pycollector model
+	      #--------------------------
+	      json_len_s = str(resp[0:4])
+	      json_len = int(json_len_s)
 
-	    #print json_len_s, json_len
+	      #print json_len_s, json_len
 
-	    ser = json.loads(resp[4:(4+json_len)])
-	    #print ser
+	      ser = json.loads(resp[4:(4+json_len)])
+	      #print ser
 
-	    pkt_content = resp[(4+json_len):]
-	    #print len(pkt_content)
+	      pkt_content = resp[(4+json_len):]
+	      #print len(pkt_content)
 
-            ts = ser['ts']
-	    ts_rcv = time.time()
-	    apid = ser['id']
+	      ts = ser['ts']
+	      ts_rcv = time.time()
+	      apid = ser['id']
+	      #-------------------------
+
+	    elif COLLECTOR_MODEL == 'ccollector':
+	      #--------------------------
+	      # ccollector model
+	      #--------------------------
+	      json_len_s = str(resp[0:4])
+	      json_len = int(json_len_s)
+
+	      #print json_len_s, json_len
+
+	      ser = json.loads(resp[4:(4+json_len)])
+	      #print ser
+
+	      pkt_content = resp[(4+json_len):]
+	      #print len(pkt_content)
+
+	      ts = ser['ts']
+	      ts_rcv = time.time()
+	      apid = ser['id']
+	      #-------------------------
+	    else:
+	      print 'Bad collector model'
+	      sys.exit(0)
 
 
             if last_ts == 0:

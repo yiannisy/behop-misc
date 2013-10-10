@@ -10,13 +10,14 @@ import math
 import traceback
 import collections
 import itertools
+import os
 
 def timing(f):
     def wrap(*args):
         time1 = time.time()
         ret = f(*args)
         time2 = time.time()
-        print '%s function took %0.3f ms' % (f.func_name, (time2-time1)*1000.0)
+        ##print '%s function took %0.3f ms' % (f.func_name, (time2-time1)*1000.0)
         return ret
     return wrap
 
@@ -77,6 +78,12 @@ class QueryWorker(threading.Thread):
     self.rlock = threading.RLock()
     self.setDaemon(True)
 
+    #regular output
+    #self.stdout = sys.stdout		
+
+    #quiet
+    self.stdout = open(os.devnull,"w")
+
   def run(self):
     self.running = True
     while (self.running):
@@ -130,7 +137,7 @@ class QW_snr_summary(QueryWorker):
 
   @timing
   def compute(self):
-    print 'QW_snr_summary compute'
+    print >> self.stdout, 'QW_snr_summary compute'
     #d={'ts':ts,'apid':apid,'link_id':link_id,'src_phy':src_phy,'seq':seq,'pkt_len':pkt_len,'snr':snr, 'type':ieee_type, 'subtype':ieee_subtype, 'tag':tag}
     #try:
     #  print self.db[-1]

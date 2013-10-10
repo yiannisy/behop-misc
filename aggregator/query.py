@@ -5,6 +5,8 @@ import time
 import sys
 import json
 import time
+import os
+
 
 BUFFER_SIZE = 1024
 
@@ -12,11 +14,12 @@ class QueryHandler():
     def __init__(self, qc):
 	self.qTCPClient = qc
 
+
     def handle(self, query):
         try:
             data = json.loads(query)
             # process the data, i.e. print it:
-            print data
+            print >> QUERY_STDOUT, data
             # send some 'ok' back
             #self.request.sendall(json.dumps({'return':'ok'}))
         except Exception, e:
@@ -125,12 +128,12 @@ class QueryTCPClient(threading.Thread):
           query = query.strip()
       #MESSAGE = "Hello, World!"
       #self.s.send(MESSAGE)
-      print 'Query handler received query: %s' % query
+      print >> QUERY_STDOUT, 'Query handler received query: %s' % query
 
       res = self.query_handler.handle(query)
-      print 'Query handler returned response: %s' % res
+      print >> QUERY_STDOUT, 'Query handler returned response: %s' % res
 
-      print 'Sending back response'
+      print >> QUERY_STDOUT, 'Sending back response'
       try:
           self.send_channel(res)
       except:

@@ -166,10 +166,11 @@ def run_pi_cmd(parent, filter='', nodes=[]):
       traceback.print_exc(file=sys.stdout)
       print '-'*60
 
-def run_piudp_cmd(parent, filter=DEF_AGG_FILTER, nodes=[]):
+def run_piudp_cmd(parent, TEST_MODE, filter=DEF_AGG_FILTER, nodes=[]):
     try:
       print 'creating piudp aggregator'
-      pi_aggr = PiUdpAggregator(interval=5, filter=filter)
+      print 'TEST_MODE: %s' % TEST_MODE
+      pi_aggr = PiUdpAggregator(TEST_MODE, interval=5, filter=filter)
 
       print 'initializing piudp infobase queries'
       pi_aggr.get_info_base().init_queries()
@@ -273,13 +274,24 @@ class Wcap(cmd.Cmd):
 	run_pi_cmd(self, filter)
 
     def do_piudp(self,arg):
+        TEST_MODE = False
+	print 'arg=%s' % arg
+	#raw_input()
     	if len(arg) > 0:
-	  #filter = DEF_AGG_FILTER + ' and (' + arg + ')'
-	  filter = arg
+	  if arg[0] == 'test':
+	    #filter = arg[1:]
+	    filter = ' '.join(arg[1:])
+	    TEST_MODE = True
+	  else:
+	    #filter = DEF_AGG_FILTER + ' and (' + arg + ')'
+	    filter = arg
 	else:
 	  filter = DEF_AGG_FILTER
-	print 'Running piudp aggregator with filter=%s' % filter
-	run_piudp_cmd(self, filter)
+	if TEST_MODE:
+	  print 'Running piudp (TEST_MODE) aggregator with filter=%s' % filter
+	else:
+	  print 'Running piudp aggregator with filter=%s' % filter
+	run_piudp_cmd(self, TEST_MODE, filter)
 
     def do_link(self,arg):
         'Get the links for the traffic from the specific AP.'

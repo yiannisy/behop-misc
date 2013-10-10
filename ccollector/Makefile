@@ -25,3 +25,4 @@ mon_to_tap.o:
 
 clean: 
 	rm -rf *.o mon_to_tap
+	rm -rf ccollector
