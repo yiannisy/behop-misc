@@ -1,0 +1,17 @@
+#!/bin/sh
+HOSTS="nile.stanford.edu"
+logger "running ping test"
+# no ping request
+COUNT=10
+RECCOUNT=0
+for myHost in $HOSTS
+do
+  count=$(ping -c $COUNT $myHost | grep 'received' | awk -F',' '{ print $2 }' | awk '{ print $1 }')
+   
+  RECCOUNT=$(($RECCOUNT + $count))
+done
+
+if [ $RECCOUNT -ge 10 ]; then
+  # touching file
+  touch /tmp/ping_test 
+fi

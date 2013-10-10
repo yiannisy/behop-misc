@@ -18,6 +18,8 @@ ovs-vsctl add-port br0 veth1 -- set interface veth1 ofport_request=2
 ovs-vsctl add-port br0 wlan0 -- set interface wlan0 ofport_request=3
 ovs-vsctl set-controller br0 tcp:${CONTROLLER}:6635
 ovs-vsctl set-manager tcp:${CONTROLLER}:9935
+# add wifi-config entry
+ovsdb-client transact '["Wifi_vSwitch",{"op":"insert","table":"WifiConfig","row":{"channel":11,"power":20,"bssidmask":"ffffffffffff"}}]' 
 
 echo "Enabling SNMP"
 uci set mini_snmpd.@mini_snmpd[0].enabled=1

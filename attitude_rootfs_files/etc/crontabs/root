@@ -1,0 +1,3 @@
+* * * * * /sbin/pi_ping_test
+*/2 * * * * /sbin/pi_alive_check
+
