@@ -34,10 +34,10 @@
 #define MONITOR_OVSDB "{\"method\":\"monitor\",\"params\":[\"Open_vSwitch\",0,{\"Wireless\":[{\"columns\":[\"channel\",\"power\",\"ssid\"]}]}],\"id\":1}"
 
 static const char ifname[] = "wlan0";
-static size_t sta_rates_len = 9;
-static uint8_t sta_rates[9] = {2,11,12,18,24,48,72,96,108};
-static uint16_t sta_aid = 1;
-static uint16_t sta_interval =8;
+//static size_t sta_rates_len = 9;
+//static uint8_t sta_rates[9] = {2,11,12,18,24,48,72,96,108};
+//static uint16_t sta_aid = 1;
+//static uint16_t sta_interval =8;
 
 struct station;
 static struct station stations;
@@ -50,6 +50,16 @@ struct station
   uint8_t vbssid[ETH_ALEN];
   struct list_head list;
 };
+
+struct ieee80211_ht_capabilities
+{
+  uint16_t ht_capabilities_info;
+  uint8_t a_mpdu_params;
+  uint8_t supported_mcs_set[16];
+  uint16_t ht_extended_capabilities;
+  uint32_t tx_bf_capability_info;
+  uint8_t asel_capabilities;
+} STRUCT_PACKED;
 
 static int wifi_set_ap_mode(struct nl_sock * sock)
 {
@@ -170,6 +180,23 @@ void str_to_mac(const char * str, uint8_t * addr)
   }
 }
 
+/* Transforms a hex-byte-string to a byte array. Returns 
+ * the number of bytes transformed.
+ */
+size_t str_to_barray(const char * str, uint8_t * buf)
+{
+  int i;
+  char byte[2];
+  size_t len;
+  len = strlen(str)/2;
+  for (i=0; i < len; i++){
+    memcpy(byte, &str[2*i], 2);
+    buf[i] = (uint8_t) strtoul(byte, NULL, 16);
+  }
+  return len;
+}
+
+
 int send_sync(struct nl_sock * sk, struct nl_msg * msg)
 {
   int err;
@@ -234,16 +261,39 @@ void add_station(struct nl_sock * sock, json_t * update)
   int sta_exists = 0;
   struct list_head *pos, *q;
   struct station *tmp, *sta;
+  uint16_t sta_aid, sta_interval, sta_capability;
+  uint8_t sta_rates[16];
+  size_t sta_rates_len = 0;
+  uint8_t sta_ext_rates[16];
+  size_t sta_ext_rates_len = 0;
+  const char * sta_rates_str, * ext_rates_str,  * mcs_str;
 
+  struct ieee80211_ht_capabilities ht_capa;
 
   /* Get station and vbssid from ovsdb update. */
-  //printf("%s\n",json_dumps(update, JSON_ENCODE_ANY));
+  printf("%s\n",json_dumps(update, JSON_ENCODE_ANY));
   addr_str = json_string_value(json_object_get(json_object_get(update,"new"), "addr"));
   vbssid_str = json_string_value(json_object_get(json_object_get(update,"new"), "vbssid"));
-  printf("Adding Station :  address : %s | vbssid : %s\n",addr_str, vbssid_str);
+  sta_aid = json_integer_value(json_object_get(json_object_get(update,"new"),"sta_aid"));
+  sta_interval = json_integer_value(json_object_get(json_object_get(update,"new"),"sta_interval"));
+  sta_capability = json_integer_value(json_object_get(json_object_get(update,"new"),"sta_capability"));
+  sta_rates_str = json_string_value(json_object_get(json_object_get(update,"new"),"sup_rates"));
+  ext_rates_str = json_string_value(json_object_get(json_object_get(update,"new"),"ext_rates"));
+  ht_capa.ht_capabilities_info = json_integer_value(json_object_get(json_object_get(update,"new"), "ht_capa_info"));
+  ht_capa.a_mpdu_params = json_integer_value(json_object_get(json_object_get(update,"new"), "ht_capa_ampdu"));
+  mcs_str = json_string_value(json_object_get(json_object_get(update,"new"),"ht_capa_mcs"));
+  str_to_barray(mcs_str, ht_capa.supported_mcs_set);
+  ht_capa.ht_extended_capabilities = json_integer_value(json_object_get(json_object_get(update,"new"), "ht_capa_ext"));
+  ht_capa.tx_bf_capability_info = json_integer_value(json_object_get(json_object_get(update,"new"), "ht_capa_txbf"));
+  ht_capa.asel_capabilities = json_integer_value(json_object_get(json_object_get(update,"new"), "ht_capa_asel"));
 
+  printf("Adding Station :  address : %s | vbssid : %s | sta_aid : %d | sta_interval : %d | sup_rates : %s | ext_rates : %s\n",
+	 addr_str, vbssid_str, sta_aid, sta_interval, sta_rates_str, ext_rates_str);
+  
   str_to_mac(vbssid_str, vbssid);
   str_to_mac(addr_str, addr);
+  sta_rates_len = str_to_barray(sta_rates_str,sta_rates);
+  sta_rates_len += str_to_barray(ext_rates_str, sta_rates+sta_rates_len);
 
   /* Get the id for nl80211 */
   nl80211_id = genl_ctrl_resolve(sock,"nl80211");
@@ -258,6 +308,14 @@ void add_station(struct nl_sock * sock, json_t * update)
   NLA_PUT(msg, NL80211_ATTR_STA_SUPPORTED_RATES, sta_rates_len, sta_rates);
   NLA_PUT_U16(msg, NL80211_ATTR_STA_AID, sta_aid);
   NLA_PUT_U16(msg, NL80211_ATTR_STA_LISTEN_INTERVAL, sta_interval);
+  NLA_PUT_U16(msg, NL80211_ATTR_STA_CAPABILITY, sta_capability);
+
+  /* Check for HT attributes. We assume that if ht_capa_info == 0
+   * sta doesn't support them... */
+  if (ht_capa.ht_capabilities_info){
+    NLA_PUT(msg, NL80211_ATTR_HT_CAPABILITY,
+	    sizeof(ht_capa), &ht_capa);
+  }
 
   memset(&upd, 0, sizeof(upd));
   /* add the authorized bit... */
@@ -339,9 +397,9 @@ int ovsdb_subscribe(int fd)
 
   struct json_t * packed_req_channel, *packed_req_power, *packed_req_bssidmask, * packed_req_sta;
 
-  packed_req_sta = json_pack("{s:s,s:[s,i,{s:[{s:[s,s],s:{s:b}}]}],s:i}",
+  packed_req_sta = json_pack("{s:s,s:[s,i,{s:[{s:{s:b}}]}],s:i}",
 				"method","monitor","params","Wifi_vSwitch",MON_ID_STA,
-				"WifiSta","columns","addr","vbssid","select","initial",0,"id",1);
+				"WifiSta","select","initial",0,"id",1);
   packed_req_channel = json_pack("{s:s,s:[s,i,{s:[{s:[s],s:{s:b}}]}],s:i}",
 			     "method","monitor","params","Wifi_vSwitch",MON_ID_CHANNEL,
 			     "WifiConfig","columns","channel","select","initial",0,"id",2);
