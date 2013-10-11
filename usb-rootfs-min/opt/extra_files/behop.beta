@@ -1,0 +1,4 @@
+config 'behop' 'ap'
+       option 'ofcontroller' 'tcp:172.24.74.50:6635'
+       option 'ovsdbcontroller' 'tcp:172.24.74.50:9935'
+       option 'aggregator' ''
