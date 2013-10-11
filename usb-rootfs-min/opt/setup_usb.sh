@@ -1,5 +1,6 @@
 EXTRA_FILES=/opt/extra_files
-CONTROLLER='172.24.74.179'
+OFCONTROLLER=`uci get behop.ap.ofcontroller`
+OVSDBCONTROLLER=`uci get behop.ap.ovsdbcontroller`
 echo "Disabling dnsmasq"
 /etc/init.d/dnsmasq stop
 /etc/init.d/dnsmasq disable
@@ -16,8 +17,8 @@ ovs-vsctl add-br br0
 ovs-vsctl add-port br0 eth0 -- set interface eth0 ofport_request=1
 ovs-vsctl add-port br0 veth1 -- set interface veth1 ofport_request=2
 ovs-vsctl add-port br0 wlan0 -- set interface wlan0 ofport_request=3
-ovs-vsctl set-controller br0 tcp:${CONTROLLER}:6635
-ovs-vsctl set-manager tcp:${CONTROLLER}:9935
+ovs-vsctl set-controller br0 ${OFCONTROLLER}
+ovs-vsctl set-manager ${OVSDBCONTROLLER}
 # add wifi-config entry
 ovsdb-client transact '["Wifi_vSwitch",{"op":"insert","table":"WifiConfig","row":{"channel":11,"power":20,"bssidmask":"ffffffffffff"}}]' 
 
@@ -52,5 +53,4 @@ echo "Setting up Wireless"
 }
 rm -f /tmp/wireless.tmp
 wifi
-
 echo "Configuration completed - reboot AP to apply all changes!"
