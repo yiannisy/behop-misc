@@ -10,5 +10,5 @@ echo +++\"${DEF_COL_FILTER}\"+++
 
 FILTER_TEXT="${DEF_COL_FILTER}"
 
-echo ./ccol -m mon0 -t br0 -f "${FILTER_TEXT}"
-./ccol -m mon0 -t br0 -f "${FILTER_TEXT}"
+echo ./ccol -m mon0 -t br0 -d ${UDP_IP}:${UDP_PORT} -f "${FILTER_TEXT}"
+./ccol -m mon0 -t br0 -d ${UDP_IP}:${UDP_PORT} -f "${FILTER_TEXT}"

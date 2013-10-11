@@ -23,10 +23,12 @@
 static char apid[20];
 
 void usage(){
-  printf("usage : mon_to_tap\n");
-  printf("mon_to_tap -m mon0 -t tap0: forwards packets from a monitor interface to a tap interface and vice-verca.\n" \
+  printf("usage : ccol\n");
+  printf("ccol -m mon0 -t br0 -d 172.24.74.179:5588 : forwards log entries from a monitor interface to a tap interface.\n" \
 	 "\t-m : the monitor interface to capture \n" \
-	 "\t-t : the tap interface to capture\n"
+	 "\t-t : the tap interface that identifies the AP (used only for obtaining IP address as AP identity)\n"
+	 "\t-d : destination ip:port of log entries\n"
+	 "\t-f : filter text in tcpdump filter format\n"
 	 );
 }
 
@@ -85,7 +87,7 @@ open_udp_socket(char * devname){
 }
 
 static int
-create_udp_addr(struct sockaddr_in *sin) {
+create_udp_addr(struct sockaddr_in *sin, char *SRV_IP, char *SRV_PORT) {
   memset(sin, 0, sizeof(struct sockaddr_in));
 
   sin->sin_family = AF_INET;
@@ -166,7 +168,7 @@ serialize_log(char * pkt_buf, int r_bytes, char * ser_buf, int ser_buf_len) {
 }
 
 static int 
-udp_loop(int mon_fd, int ctl_fd) {
+udp_loop(int mon_fd, int ctl_fd, char *SRV_IP, char *SRV_PORT) {
   char buf[BUFLEN];
   int r_bytes, w_bytes;
   fd_set rfds, wfds;
@@ -177,7 +179,7 @@ udp_loop(int mon_fd, int ctl_fd) {
   int ser_len;
 
 
-  if (create_udp_addr(&ctl_sin) < 0) {
+  if (create_udp_addr(&ctl_sin, SRV_IP, SRV_PORT) < 0) {
     printf("Could not create ctrl interface sin struct\n");
     exit(0);
   }
@@ -276,10 +278,11 @@ tap_loop(int mon_fd, int tap_fd) {
 #endif 
 
 int main(int argc, char **argv){
-  char *tap_intf, * mon_intf, *filter_text;
+  char *tap_intf, * mon_intf, *filter_text, *dst_ip_port = NULL;
   int mon_fd, tap_fd; // one socket for each interface
   int ctl_fd;
   int c;
+  char *SRV_IP, *SRV_PORT;
 
   struct sock_fprog filter;
 
@@ -289,7 +292,7 @@ int main(int argc, char **argv){
     exit(0);
   }
 
-  while ((c = getopt(argc, argv, "m:t:f:")) != -1)
+  while ((c = getopt(argc, argv, "m:t:d:f:")) != -1)
     switch(c)
       {
       case 'm':
@@ -297,6 +300,9 @@ int main(int argc, char **argv){
 	break;
       case 't':
 	tap_intf = optarg;
+	break;
+      case 'd':
+	dst_ip_port = optarg;
 	break;
       case 'f':
 	filter_text = optarg;
@@ -312,6 +318,7 @@ int main(int argc, char **argv){
   printf("capturing interfaces : %s -> %s\n",mon_intf, tap_intf);
 
   get_ip_of_intf(tap_intf, apid);
+  printf("AP identity: %s\n", apid);
 
   mon_fd = open_monitor_socket(mon_intf);
   if (mon_fd <= 0){
@@ -330,6 +337,12 @@ int main(int argc, char **argv){
   filter.len = 13;
   filter.filter = MGMT_BPF;
 #else
+  if (get_dst_ip_port(dst_ip_port, &SRV_IP, &SRV_PORT) < 0) {
+    printf("Could not set destination ip:port\n");
+    exit(0);
+  }
+  printf("Destination IP: %s, Port: %s\n", SRV_IP, SRV_PORT);
+
   ctl_fd = open_udp_socket(tap_intf);
   if (ctl_fd <= 0) {
     printf("Could not create udp socket\n");
@@ -373,7 +386,7 @@ int main(int argc, char **argv){
 #ifndef UDP
   tap_loop(mon_fd, tap_fd);
 #else
-  udp_loop(mon_fd, ctl_fd);
+  udp_loop(mon_fd, ctl_fd, SRV_IP, SRV_PORT);
 #endif
 
   return 0;

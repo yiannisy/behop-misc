@@ -37,6 +37,19 @@ get_ip_of_intf(char * intf, char * ip) {
  return 0;
 }
 
+static inline int
+get_dst_ip_port(char *dst_ip_port, char **SRV_IP, char **SRV_PORT) {
+  char del = ':';
+  if (dst_ip_port == NULL) {
+    printf("No valid destination ip:port input found\n");
+    return -1;
+  }
+  *SRV_IP = strtok(dst_ip_port, &del);
+  *SRV_PORT = strtok(NULL, &del);
+
+  return 0;
+}
+
 
 static inline int
 install_filter(char * intf, char * filter_text, struct sock_fprog *filter) {
