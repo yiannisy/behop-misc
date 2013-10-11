@@ -11,7 +11,7 @@ config mount
 	option device	/dev/sda1
 	option fstype	ext4
 	option options	rw,sync
-	option enabled	1
+	option enabled	0
 	option enabled_fsck 0
 
 config swap
