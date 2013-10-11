@@ -33,6 +33,10 @@
 
 #define MONITOR_OVSDB "{\"method\":\"monitor\",\"params\":[\"Open_vSwitch\",0,{\"Wireless\":[{\"columns\":[\"channel\",\"power\",\"ssid\"]}]}],\"id\":1}"
 
+int send_sync(struct nl_sock * sk, struct nl_msg * msg);
+void str_to_mac(const char * str, uint8_t * addr);
+struct json_t;
+
 static const char ifname[] = "wlan0";
 //static size_t sta_rates_len = 9;
 //static uint8_t sta_rates[9] = {2,11,12,18,24,48,72,96,108};
@@ -250,7 +254,7 @@ void del_vbeacon(json_t *update)
 }
 
 
-void add_station(struct nl_sock * sock, json_t * update)
+int add_station(struct nl_sock * sock, json_t * update)
 {
   struct nl_msg *msg;
   int nl80211_id;
@@ -264,8 +268,7 @@ void add_station(struct nl_sock * sock, json_t * update)
   uint16_t sta_aid, sta_interval, sta_capability;
   uint8_t sta_rates[16];
   size_t sta_rates_len = 0;
-  uint8_t sta_ext_rates[16];
-  size_t sta_ext_rates_len = 0;
+
   const char * sta_rates_str, * ext_rates_str,  * mcs_str;
 
   struct ieee80211_ht_capabilities ht_capa;
@@ -349,10 +352,11 @@ void add_station(struct nl_sock * sock, json_t * update)
       list_add( &sta->list, &(stations.list));
     }
   }
-  return;
+  return 0;
 
  nla_put_failure:
   nlmsg_free(msg);
+  return -1;
   //printf("failure\n");
 
 }
@@ -388,11 +392,6 @@ int ovsdb_connect()
 int ovsdb_subscribe(int fd)
 {
   int bytes_sent;
-  char buf[1000];
-  struct json_t * json_obj;
-  struct json_t * params_array;
-  struct json_t * monitor_request, * monitor_select, * request;
-  struct json_t * monitor_request_array;
   char * json_dump;
 
   struct json_t * packed_req_channel, *packed_req_power, *packed_req_bssidmask, * packed_req_sta;
@@ -508,11 +507,7 @@ void ovsdb_monitor(int fd, struct nl_sock *nl_sock)
   char buf[8000];
   json_error_t json_err;
   struct json_t * json_ret;
-  struct json_t * table_updates;
-  void *iter;
-  const char * method, *id;
-  const char *key;
-  json_t * val;
+  const char * method;
 
   while((n = read(fd, buf, sizeof(buf))) > 0){
     decoded = 0;
@@ -572,11 +567,6 @@ int main()
   if(genl_connect(nl_sock)){
     printf("nl80211: Failed to connect to generic netlink\n");
   }
-
-  /* if(wifi_set_ap_mode(nl_sock)){ */
-  /*   printf("nl80211: Failed to set wifi to AP mode\n"); */
-  /*   return 0; */
-  /* } */
 
   if ((ovsdb_fd = ovsdb_connect()) < 0){
     printf("cannot connect to ovsdb-server - quit...\n");

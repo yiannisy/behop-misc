@@ -12,16 +12,22 @@ SOURCES=sta_manager.c
 OBJECTS=$(SOURCES:.c=.o)
 EXECUTABLE=sta_manager
 
-all: $(EXECUTABLE)
+all: sta_manager mon_to_tap
 
-$(EXECUTABLE): $(OBJECTS) 
+$(sta_manager): $(OBJECTS)
+	$(CC) $(OBJECTS) $(LDFLAGS) -o $@
+
+$(mon_to_tap): $(OBJECTS)
 	$(CC) $(OBJECTS) $(LDFLAGS) -o $@
 
 .c.o:
 	$(CC) $(CFLAGS) $< -o $@
 
-sta_manager.o:
+sta_manager.o: sta_manager.c
 	$(CC) $(CFLAGS) sta_manager.c
 
+mon_to_tap.o: mon_to_tap.c
+	$(CC) $(CFLAGS) mon_to_tap.c
+
 clean: 
-	rm -rf *.o sta_manager
+	rm -rf *.o sta_manager mon_to_tap
