@@ -1,7 +1,8 @@
 # Put your custom commands here that should be executed once
 # the system init finished. By default this file does nothing.
 OFCONTROLLER=`uci get behop.ap.ofcontroller`
-OVSDBCONTROLLER=`uci get behop.ap/ovsdbcontroller`
+OVSDBCONTROLLER=`uci get behop.ap.ovsdbcontroller`
+AGGREGATOR=`uci get behop.ap.aggregator`
 ifconfig wlan0 up
 iw dev wlan0 interface add mon0 type monitor
 ifconfig mon0 up
@@ -14,5 +15,5 @@ ovs-vsctl set-manager ${OVSDBCONTROLLER}
 /etc/init.d/openvswitch restart
 /opt/utils/sta_manager &
 /opt/utils/mon_to_tap -m mon0 -t veth0 &
-/opt/collector/udp_pypcap_collector.py &
+/opt/utils/ccol_cmd ${AGGREGATOR} &
 exit 0
