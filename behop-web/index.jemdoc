@@ -1,3 +1,4 @@
+# jemdoc: menu{MENU}{index.html}
 # jemdoc: nodefaultcss,addcss{css/behop.css},analytics{UA-7834129-3}
 {{<head><link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"></head>}}
 {{<head><link rel="icon" href="/favicon.ico" type="image/x-icon"></head>}}
@@ -8,37 +9,17 @@
 ~~~
 
 {{<hr>}}
-*BeHop* is a research project for management of dense WiFi networks. Dense networks are common, both in enterprise networks (e.g. Stanford Campus) and residential networks. 
-A typical home network in San Francisco is surrounded by \~30 neighboring home networks. Similar numbers are observed in enterprise environments (e.g. Stanford Campus network). It's easy to test : look at the available WiFi networks when you are in the city or downtown Palo Alto and you'll get a sense. Our goal is to better understand how these networks co-exist and how we can manage them better : make sure that there are no spots with poor coverage, or that you don't get any rebuffing while watching the last episodes of Breaking Bad..
+The *BeHop* research project is trying to improve the performance of WiFi networks in college dorms. 
+You can learn more details [details.html here]. Our goal is to improve *your* WiFi performance in EV.
+If you participate (it's free), we will work to make your WiFi connection faster and more reliable (better coverage, 
+fewer drop outs and lost connections).
 
-To start with, we are about to deploy such a dense network.  And we want your help! Our pilot network will be at Stanford dorms, and more specifically at the Studio 5 Building in Escondido Village.
+What you need to do:
+. Sign up here!
+. We will deliver and install your very own private WiFi AP in your room. It's small and unobtrusive (see a pic [img/s5-ap.png here] ).
+. That's it!! When everything is up and running, you can also enjoy a [details.html\#reward small reward] :)
 
-== How do I participate?
-BeHop is currently available only for residents of the Studio 5 Building, Escondido Village. If you live there, 
-participation is as easy as 1) /agree/, 2) /setup/, and 3) /enjoy/. 
-
-. *Agree* : You agree to put our AP in your studio, and authorize us to get a list of the devices you've registered with Stanford (the MAC addresses of the devices). With these we can serve your WiFi traffic through our network. 
-. *Setup* : We'll drop by your studio to setup the AP. It shouldn't take more than 5 mins. The AP is small and attaches directly to your wall. Here is a {{<a href="http://stanford.edu/~yiannisy/behop/img/s5-ap.png" target="_blank">picture of an AP</a>}}
-already installed at a studio.
-. *Enjoy* : That's all you need to do. From that point on, part of your traffic will be served by our network. We use the same network name as Stanford (Stanford Residences), so you don't have to do anything extra to connect to it. You'll get to use our network only when it's available - otherwise you'll always fall back to the standard Stanford network.
-
-[http://www.stanford.edu/~yiannisy/behop/bhform.fb *Fill this form to participate*]!!
-
-== What about performance?
-Our goal is to improve your wireless network experience. For example, if you don't have good coverage in your studio your connection should be better after installing our AP. Nevertheless, this is still a research project and there is a small chance that things might not work perfectly all the time :) We'll do our best to keep this transparent to you, please let us know if you experience any issues.
-
-== What is the privacy policy?
-We won't look or store any personal data (like websites visited, P2P applications etc). We'll only collect performance-related statistics (e.g. throughput, latency). We follow all the necessary processes defined by the university 
-regarding research that involves individuals ( [http://humansubjects.stanford.edu details here] )
-
-== Is there anything else?
-Yes, we plan to give away some small rewards to express our graditude for your help! More to be announced soon!
-
-== People
-Yiannis Yiakoumis, Manu Bansal, Adam Covington, Jojan van Reijendam, Sachin Katti, Nick McKeown
-
-== Mailing List
-You can subscribe to [https://mailman.stanford.edu/mailman/listinfo/behop-announce this mailing list] for announcements related to the project.
-
-== Contact
-Send us an [yiannisy@stanford.edu e-mail] if you have any thoughts or questions.
+~~~
+{}{raw}
+<iframe src ="http://www.stanford.edu/~yiannisy/behop/bhform.fb" width="100%" height="300"></iframe>
+~~~
