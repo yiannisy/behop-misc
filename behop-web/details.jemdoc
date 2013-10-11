@@ -17,12 +17,10 @@ To start with, we are about to deploy such a dense network.  And we want your he
 BeHop is currently available only for residents of the Studio 5 Building, Escondido Village. If you live there, 
 participation is as easy as 1) /agree/, 2) /setup/, and 3) /enjoy/. 
 
-. *Agree* : You agree to put our AP in your studio, and authorize us to get a list of the devices you've registered with Stanford (the MAC addresses of the devices). With these we can serve your WiFi traffic through our network. 
-. *Setup* : We'll drop by your studio to setup the AP. It shouldn't take more than 5 mins. The AP is small and attaches directly to your wall. Here is a {{<a href="http://stanford.edu/~yiannisy/behop/img/s5-ap.png" target="_blank">picture of an AP</a>}}
-already installed at a studio.
-. *Enjoy* : That's all you need to do. From that point on, part of your traffic will be served by our network. We use the same network name as Stanford (Stanford Residences), so you don't have to do anything extra to connect to it. You'll get to use our network only when it's available - otherwise you'll always fall back to the standard Stanford network.
-
 [http://www.stanford.edu/~yiannisy/behop/index.html *Fill this form to participate*]!!
+
+== Terms of Agreement
+By participating in BeHop you agree to install your AP in your studio. You also authorize us to get a list of the devices you've registered with Stanford (the MAC addresses of the devices) and serve your traffic through this network.
 
 == What about performance?
 Our goal is to improve your wireless network experience. For example, if you don't have good coverage in your studio your connection should be better after installing our AP. Nevertheless, this is still a research project and there is a small chance that things might not work perfectly all the time :) We'll do our best to keep this transparent to you, please let us know if you experience any issues.
