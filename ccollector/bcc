@@ -1,0 +1,4 @@
+#make clean && ./build_cmd && ./picp pi-ap4
+#make clean && ./build_cmd && ./picp pi-ap8
+#./build_cmd && ./picp pi-ap8
+make && make test && ./picp pi-ap8

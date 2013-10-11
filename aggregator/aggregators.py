@@ -17,6 +17,7 @@ from infobases import PiInfoBase
 from conf import *
 import json
 from ap_hw_ids import *
+import struct
 
 
 
@@ -639,16 +640,18 @@ class PiUdpAggregator(UdpAggregator):
 	      ts = ser['ts']
 	      ts_rcv = time.time()
 	      apid = ser['id']
+	      orig_len = ser['len']
 	      #-------------------------
 
 	    elif COLLECTOR_MODEL == 'ccollector':
 	      #--------------------------
 	      # ccollector model
 	      #--------------------------
-	      json_len_s = str(resp[0:4])
-	      json_len = int(json_len_s)
-
+	      json_len_s = resp[0:4]
+	      json_len = struct.unpack('i',json_len_s)[0]
+	      json_len = socket.ntohl(json_len)
 	      #print json_len_s, json_len
+	      #print type(json_len_s)
 
 	      ser = json.loads(resp[4:(4+json_len)])
 	      #print ser
@@ -656,9 +659,15 @@ class PiUdpAggregator(UdpAggregator):
 	      pkt_content = resp[(4+json_len):]
 	      #print len(pkt_content)
 
-	      ts = ser['ts']
-	      ts_rcv = time.time()
+	      tss = ser['tss']
+	      tsu = ser['tsu']
+	      ts = tss + 1e-6 * tsu
+
 	      apid = ser['id']
+	      orig_len = ser['len']
+
+	      print tss, tsu, ts, apid, len(pkt_content)
+	      ts_rcv = time.time()
 	      #-------------------------
 	    else:
 	      print 'Bad collector model'
@@ -687,7 +696,7 @@ class PiUdpAggregator(UdpAggregator):
 
 
             #pkt_len = len(pkt) - util.get_rdtap_len(rdtap)
-            pkt_len = ser['len'] - util.get_rdtap_len(rdtap)
+            pkt_len = orig_len - util.get_rdtap_len(rdtap)
 	    max_pkt_size = max(max_pkt_size, pkt_len)
 
             #ap,client,src,dst = util.get_link(ieee_pkt)
@@ -702,7 +711,7 @@ class PiUdpAggregator(UdpAggregator):
 							#return sa, src, dst, da, bssid for ack
 	    ieee_type = ieee_pkt.type
 	    ieee_subtype = ieee_pkt.subtype
-	    if ieee_type == 2:	#data
+	    if ieee_type == 2:			#data
 	      seq = socket.ntohs(ieee_pkt.data_frame.frag_seq)
 	      ap,client,src,dst,bssid = link_id
 	      src_phy = virt_to_phy(src)
@@ -710,7 +719,7 @@ class PiUdpAggregator(UdpAggregator):
 		tag = 'DAT_TO_AP'
 	      else:
 		tag = 'DAT_FR_AP'
-	    elif util.is_ack(ieee_pkt):
+	    elif util.is_ack(ieee_pkt):		#ack
 	      seq = 0
 	      sa, src, dst, da, bssid= link_id 		#return sa, src, dst, da, bssid for ack
 	      #if (util.is_ack_to_ap(dst, self.ap_hw_id_list)):
@@ -724,7 +733,10 @@ class PiUdpAggregator(UdpAggregator):
 	      tag = 'ACK_TO_AP'
 	      src_phy = None
 	    else:
-	      print 'unhandled frame type'
+	      print 'unhandled frame type, continuing...'
+	      continue
+
+	    print 'handled frame type'
 
 	    d={'ts_rcv':ts_rcv,'ts':ts,'apid':apid,'link_id':link_id,'src_phy':src_phy,'seq':seq,'pkt_len':pkt_len,'snr':snr, 'type':ieee_type, 'subtype':ieee_subtype, 'tag':tag}
 	    #print tag, d

@@ -11,6 +11,7 @@
 #include <linux/filter.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <jansson.h>
 
 static int
 device_index(int fd, const char *devname)
@@ -61,6 +62,7 @@ void usage(){
 	 );
 }
 
+
 int main(int argc, char **argv){
   char *tap_intf, * mon_intf;
   int mon_fd, tap_fd; // one socket for each interface
@@ -70,20 +72,20 @@ int main(int argc, char **argv){
   fd_set rfds, wfds;
   int c;
 
-struct sock_filter MGMT_BPF[] = 
-  {{ 0x30, 0, 0, 0x00000003 },
-   { 0x64, 0, 0, 0x00000008 },
-   { 0x7, 0, 0, 0x00000000 },
-   { 0x30, 0, 0, 0x00000002 },
-   { 0x4c, 0, 0, 0x00000000 },
-   { 0x2, 0, 0, 0x00000000 },
-   { 0x7, 0, 0, 0x00000000 },
-   { 0x50, 0, 0, 0x00000000 },
-   { 0x45, 2, 0, 0x0000000c },
-   { 0x54, 0, 0, 0x000000fc },
-   { 0x15, 0, 1, 0x00000080 },
-   { 0x6, 0, 0, 0x00000000 },
-   { 0x6, 0, 0, 0x0000ffff }};
+  struct sock_filter MGMT_BPF[] = 
+    {{ 0x30, 0, 0, 0x00000003 },
+     { 0x64, 0, 0, 0x00000008 },
+     { 0x7, 0, 0, 0x00000000 },
+     { 0x30, 0, 0, 0x00000002 },
+     { 0x4c, 0, 0, 0x00000000 },
+     { 0x2, 0, 0, 0x00000000 },
+     { 0x7, 0, 0, 0x00000000 },
+     { 0x50, 0, 0, 0x00000000 },
+     { 0x45, 2, 0, 0x0000000c },
+     { 0x54, 0, 0, 0x000000fc },
+     { 0x15, 0, 1, 0x00000080 },
+     { 0x6, 0, 0, 0x00000000 },
+     { 0x6, 0, 0, 0x0000ffff }};
  struct sock_fprog filter;
  filter.len = 13;
  filter.filter = MGMT_BPF;

@@ -1,0 +1,14 @@
+UDP_IP="172.24.74.179"
+UDP_PORT_PROD=5588                              #aggregator port
+UDP_PORT_TEST=5589                              #aggregator port
+
+UDP_PORT=${UDP_PORT_TEST}
+
+DEF_COL_FILTER='((not (dst host '${UDP_IP}' and dst port '${UDP_PORT}')) and (type ctl and subtype ack) and (radio[4] & 0x08 = 0x08))' #recursion-safe, only acks, uplink frames only -- hacky!
+
+echo +++\"${DEF_COL_FILTER}\"+++
+
+FILTER_TEXT="${DEF_COL_FILTER}"
+
+echo ./ccol -m mon0 -t br0 -f "${FILTER_TEXT}"
+./ccol -m mon0 -t br0 -f "${FILTER_TEXT}"

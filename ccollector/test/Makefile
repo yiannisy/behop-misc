@@ -11,9 +11,9 @@ LDFLAGS= -L${HPREFIX}/lib -L${HPREFIX}/usr/lib/ -lnl-tiny -ljansson
 CC=mips-openwrt-linux-uclibc-gcc 
 LD=mips-openwrt-linux-uclibc-ld
 
-SOURCES=ccol.c
+SOURCES=test.c
 OBJECTS=$(SOURCES:.c=.o)
-EXECUTABLE=ccol
+EXECUTABLE=test
 
 all: $(EXECUTABLE)
 
@@ -23,15 +23,8 @@ $(EXECUTABLE): $(OBJECTS)
 .c.o:
 	$(CC) $(CFLAGS) $< -o $@
 
-ccol.o: ccol.c conf.h util.h
-	$(CC) $(CFLAGS) ccol.c
+test.o: test.c
+	$(CC) $(CFLAGS) test.c
 
 clean: 
-	rm -rf *.o ccol
-	rm -rf ccollector
-
-test: force_look
-	$(MAKE) -C test
-
-force_look:
-	true
+	rm -rf *.o test
