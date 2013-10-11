@@ -159,6 +159,9 @@ serialize_log(char * pkt_buf, int r_bytes, char * ser_buf, int ser_buf_len) {
   memcpy(&ser_buf[4], json_dump, jso_len);
   memcpy(&ser_buf[4 + jso_len], pkt_buf, hdr_len);
 
+  json_decref(json_packed);
+  free(json_dump);
+
   return ser_len;
 }
 
