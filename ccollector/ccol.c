@@ -101,7 +101,6 @@ create_udp_addr(struct sockaddr_in *sin) {
 
 static int 
 serialize_log(char * pkt_buf, int r_bytes, char * ser_buf, int ser_buf_len) {
-  //struct json_t * json_packed;
   json_t * json_packed;
   char * json_dump;
   struct timeval tv;
@@ -111,23 +110,19 @@ serialize_log(char * pkt_buf, int r_bytes, char * ser_buf, int ser_buf_len) {
   int ser_len;
 
   hdr_len = r_bytes < MAX_HDR_LEN ? r_bytes : MAX_HDR_LEN;
-  printf("hdr_len: %d\n", hdr_len);
+  //printf("hdr_len: %d\n", hdr_len);
   pkt_buf[hdr_len] = '\0';	//null terminate before serialization
 
-  printf("ser_buf_len: %d\n", ser_buf_len);
+  //printf("ser_buf_len: %d\n", ser_buf_len);
 
   gettimeofday(&tv,NULL);
   //tv.tv_sec // seconds
   //tv.tv_usec // microseconds
 
-//  json_packed = json_pack("{s:s,s:[s,i,{s:[{s:{s:b}}]}],s:i}",
-//				"method","monitor","params","Wifi_vSwitch",MON_ID_STA,
-//				"WifiSta","select","initial",0,"id",1);
+  //printf("tss: %ld, tsu: %ld\n", tv.tv_sec, tv.tv_usec);
+  //printf("r_bytes: %d\n", r_bytes);
 
-  printf("tss: %ld, tsu: %ld\n", tv.tv_sec, tv.tv_usec);
-  printf("r_bytes: %d\n", r_bytes);
-
-  printf("packing\n");
+  //printf("packing\n");
   json_packed = json_pack("{s:i,s:i,s:i,s:s}", 
   	"tss", tv.tv_sec, 
 	"tsu", tv.tv_usec, 
@@ -136,21 +131,18 @@ serialize_log(char * pkt_buf, int r_bytes, char * ser_buf, int ser_buf_len) {
 	"id", apid
 	);
 
-//  json_packed = json_pack("{s:i}", 
-//	"len", r_bytes
-//	);
   if (json_packed == NULL) {
     printf("Error in json packing\n");
     return -1;
   }
 
-  printf("dumping\n");
+  //printf("dumping\n");
   json_dump = json_dumps(json_packed, JSON_ENCODE_ANY);
   if (json_dump == NULL) {
     printf("Error in json dumping\n");
     return -1;
   }
-  printf("dumped\n");
+  //printf("dumped\n");
 
   jso_len = strlen(json_dump);
 
@@ -161,11 +153,9 @@ serialize_log(char * pkt_buf, int r_bytes, char * ser_buf, int ser_buf_len) {
     return -1;
   }
 
-  printf("jso_len=%d\n", jso_len);
+  //printf("jso_len=%d\n", jso_len);
   int _jso_len = htonl(jso_len);
   memcpy(ser_buf, &_jso_len, sizeof(_jso_len));
- // this is the most confusing c statement I've seen over the last 1-2 years:)
- //((unsigned int *)ser_buf)[0] =  htonl(jso_len);
   memcpy(&ser_buf[4], json_dump, jso_len);
   memcpy(&ser_buf[4 + jso_len], pkt_buf, hdr_len);
 
@@ -175,7 +165,7 @@ serialize_log(char * pkt_buf, int r_bytes, char * ser_buf, int ser_buf_len) {
 static int 
 udp_loop(int mon_fd, int ctl_fd) {
   char buf[BUFLEN];
-  int r_bytes, w_bytes, bytes_left;
+  int r_bytes, w_bytes;
   fd_set rfds, wfds;
   struct sockaddr_in ctl_sin;
   int rc;
@@ -193,8 +183,6 @@ udp_loop(int mon_fd, int ctl_fd) {
     FD_ZERO(&rfds);
     FD_ZERO(&wfds);
     FD_SET(mon_fd, &rfds);
-    //FD_SET(mon_fd, &wfds);
-    //FD_SET(ctl_fd, &rfds);
     FD_SET(ctl_fd, &wfds);
     rc = select(sizeof(rfds)*8, &rfds, NULL, NULL, NULL);
     if (rc == -1){
@@ -205,30 +193,23 @@ udp_loop(int mon_fd, int ctl_fd) {
     if (rc > 0){
       if (FD_ISSET(mon_fd, &rfds)){ // && FD_ISSET(tap_fd,&wfds)) {
 	r_bytes = recv(mon_fd,buf, BUFLEN,0);
-	bytes_left = r_bytes > 1500? 1500 : r_bytes;
-	printf("received %d bytes from mon\n",r_bytes);
+	//printf("received %d bytes from mon\n",r_bytes);
 
 	if ((ser_len = serialize_log(buf, r_bytes, ser_buf, LOG_ENTRY_SIZE)) < 0) {
 	  printf("Error serializing log entry\n");
 	  exit(0);
 	}
 
-	printf("sending\n");
-	printf("sending length: %d\n", ser_len);
-	//while(bytes_left > 0){
-	  //w_bytes = send(tap_fd, buf, bytes_left,0);
-	  //bytes_sent = write(fd, json_dump, strlen(json_dump));
-	  //w_bytes = sendto(ctl_fd, buf, bytes_left, 0, &ctl_sin, sizeof(ctl_sin));
+	//printf("sending\n");
+	//printf("sending length: %d\n", ser_len);
 	w_bytes = sendto(ctl_fd, ser_buf, ser_len, 0, &ctl_sin, sizeof(ctl_sin));
 
 	if (w_bytes < 0){
 	  printf("failed to send data over udp ctl interface (%s)\n", strerror(errno));
 	  exit(0);
 	}
-	else {
-	  printf("Sent %d bytes\n", w_bytes);
-	}
-	  //bytes_left -= w_bytes;
+	//else {
+	//  printf("Sent %d bytes\n", w_bytes);
 	//}
       }
     }

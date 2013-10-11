@@ -666,7 +666,7 @@ class PiUdpAggregator(UdpAggregator):
 	      apid = ser['id']
 	      orig_len = ser['len']
 
-	      print tss, tsu, ts, apid, len(pkt_content)
+	      #print tss, tsu, ts, apid, len(pkt_content)
 	      ts_rcv = time.time()
 	      #-------------------------
 	    else:
@@ -736,7 +736,7 @@ class PiUdpAggregator(UdpAggregator):
 	      print 'unhandled frame type, continuing...'
 	      continue
 
-	    print 'handled frame type'
+	    #print 'handled frame type'
 
 	    d={'ts_rcv':ts_rcv,'ts':ts,'apid':apid,'link_id':link_id,'src_phy':src_phy,'seq':seq,'pkt_len':pkt_len,'snr':snr, 'type':ieee_type, 'subtype':ieee_subtype, 'tag':tag}
 	    #print tag, d
