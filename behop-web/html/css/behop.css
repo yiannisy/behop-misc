@@ -427,3 +427,12 @@ color:#FFFFFF;
 font-size:11px;
 font-weight:bold;
 }
+
+#stylized a.current:link, #stylized a.current:visited {
+	color: #C41E3A;
+	border-bottom: 1px gray solid;
+}
+#stylized a:link, #stylized a:visited, #stylized a:hover {
+	color: #C41E3A;
+	text-decoration: none;
+}
