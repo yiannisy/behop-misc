@@ -11,6 +11,7 @@ $studio = $_POST["studio"];
 $ip = $_SERVER["REMOTE_ADDR"];
 $date = date("Y:m:d|H:i:s");
 $log = $person . "," . $person_webauth . "," . $studio . "," . $agree . "," . $ip . "," . $date . "\n";
+mail("yiannisy@stanford.edu","BeHop Sign-Up",$log,"From:behop-signup@stanford.edu");
 // Write the contents to the file, 
 // using the FILE_APPEND flag to append the content to the end of the file
 // and the LOCK_EX flag to prevent anyone else writing to the file at the same time
