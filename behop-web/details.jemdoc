@@ -23,17 +23,18 @@ participation is as easy as 1) /agree/, 2) /setup/, and 3) /enjoy/.
 By participating in BeHop you agree to install your AP in your studio. You also authorize us to get a list of the devices you've registered with Stanford (the MAC addresses of the devices) and serve your traffic through this network.
 
 == What about performance?
-Our goal is to improve your wireless network experience. For example, if you don't have good coverage in your studio your connection should be better after installing our AP. Nevertheless, this is still a research project and there is a small chance that things might not work perfectly all the time :) We'll do our best to keep this transparent to you, please let us know if you experience any issues.
+Our goal is to improve your wireless network experience. For example, if you don't have good coverage in your studio your connection should be better after installing our AP. Nevertheless, this is still a research project and there is a small chance that things might not work perfectly all the time :) We'll do our best to keep this transparent to you, please let us know if you experience any [feedback.html issues].
 
 == What is the privacy policy?
-We won't look or store any personal data (like websites visited, P2P applications etc). We'll only collect performance-related statistics (e.g. throughput, latency). We follow all the necessary processes defined by the university 
+We are not interested in, and will not collect any personal data (like websites you visited, P2P applications etc). 
+We'll only collect performance-related statistics (e.g. throughput, latency). We follow all the necessary processes defined by the university 
 regarding research that involves individuals ( [http://humansubjects.stanford.edu details here] )
 
 == Is there anything else?
 Yes, we plan to give away some small rewards to express our graditude for your help! More to be announced soon!
 
 == People
-Yiannis Yiakoumis, Manu Bansal, Adam Covington, Jojan van Reijendam, Sachin Katti, Nick McKeown
+Yiannis Yiakoumis, Manu Bansal, Adam Covington, Johan van Reijendam, Sachin Katti, Nick McKeown
 
 == Mailing List
 You can subscribe to [https://mailman.stanford.edu/mailman/listinfo/behop-announce this mailing list] for announcements related to the project.
