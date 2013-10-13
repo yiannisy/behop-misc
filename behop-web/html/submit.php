@@ -1,7 +1,6 @@
 <html>
-<head><meta http-equiv="REFRESH" content="1;url=http://www.stanford.edu/~yiannisy/cgi-bin/behop/thanks.html"></head>
+<head><meta http-equiv="REFRESH" content="0;url=http://www.stanford.edu/~yiannisy/cgi-bin/behop/thanks.html"></head>
 <body>
-Submitting...
 <?php
 $file = 'people.txt';
 // The new person to add to the file
