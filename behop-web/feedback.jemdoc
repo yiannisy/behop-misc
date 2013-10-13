@@ -1,0 +1,14 @@
+# jemdoc: menu{MENU}{terms.html}
+# jemdoc: nodefaultcss,addcss{css/behop.css},analytics{UA-7834129-3}
+{{<head><link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"></head>}}
+{{<head><link rel="icon" href="/favicon.ico" type="image/x-icon"></head>}}
+
+~~~
+{}{img_left}{img/home.png}{alt text}{150px}{120px}
+= Stanford University - BeHop Project
+~~~
+
+~~~
+{}{raw}
+<iframe src="https://docs.google.com/forms/d/1JHc1TxLYCE1hmPSxIl5dG8MdMT3w0MCcqTT1nO3nrto/viewform?embedded=true" width="760" height="500" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
+~~~

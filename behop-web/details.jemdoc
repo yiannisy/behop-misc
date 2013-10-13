@@ -17,13 +17,13 @@ To start with, we are about to deploy such a dense network.  And we want your he
 BeHop is currently available only for residents of the Studio 5 Building, Escondido Village. If you live there, 
 participation is as easy as 1) /agree/, 2) /setup/, and 3) /enjoy/. 
 
-[http://www.stanford.edu/~yiannisy/behop/index.html *Fill this form to participate*]!!
+[index.html *Go here to participate*]!!
 
 == Terms of Agreement
 By participating in BeHop you agree to install your AP in your studio. You also authorize us to get a list of the devices you've registered with Stanford (the MAC addresses of the devices) and serve your traffic through this network.
 
 == What about performance?
-Our goal is to improve your wireless network experience. For example, if you don't have good coverage in your studio your connection should be better after installing our AP. Nevertheless, this is still a research project and there is a small chance that things might not work perfectly all the time :) We'll do our best to keep this transparent to you, please let us know if you experience any [feedback.html issues].
+Our goal is to improve your wireless network experience. For example, if you don't have good coverage in your studio your connection should be better after installing our AP. Nevertheless, this is still a research project and there is a small chance that things might not work perfectly all the time :) We'll do our best to keep this transparent to you, please let us know if you experience any [feedbak.html issues].
 
 == What is the privacy policy?
 We are not interested in, and will not collect any personal data (like websites you visited, P2P applications etc). 
@@ -40,4 +40,4 @@ Yiannis Yiakoumis, Manu Bansal, Adam Covington, Johan van Reijendam, Sachin Katt
 You can subscribe to [https://mailman.stanford.edu/mailman/listinfo/behop-announce this mailing list] for announcements related to the project.
 
 == Contact
-Send us an [yiannisy@stanford.edu e-mail] if you have any thoughts or questions.
+Send us a note [feedback.html here] if you have any thoughts or questions.
