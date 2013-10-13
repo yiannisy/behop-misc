@@ -54,7 +54,7 @@ function checkForm()
 <input type="text" name="studio" id="studio" value="e.g. 542"/>
 
 <label>
-<span class="small">I agree to the <a href="terms.html">terms of participation</a> of the behop project.</span>
+<span class="small">I agree to the <a href="terms.html">terms of participation</a> of the BeHop project.</span>
 </label>
 <input type="checkbox" id="agree" name="agree" value="yes"/>
 
