@@ -374,10 +374,10 @@ table.imgtable, table.imgtable td {
 
 .myform{
 //margin:0 auto;
-width:400px;
+max-width:400px;
 padding:14px;
-margin-left:auto;
-margin-right:auto;
+/*margin-left:auto;
+margin-right:auto;*/
 }
 
 /* ----------- stylized ----------- */
