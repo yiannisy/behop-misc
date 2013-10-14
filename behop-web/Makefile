@@ -14,7 +14,7 @@ update : $(PHDOCS)
 	@echo ' done.'
 
 html/%.html : %.jemdoc
-	./jemdoc.py -o $@ $<
+	./jemdoc.py -c behop.conf -o $@ $<
 
 .PHONY : clean
 clean :
