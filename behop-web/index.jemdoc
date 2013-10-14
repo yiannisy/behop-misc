@@ -1,7 +1,7 @@
 # jemdoc: menu{MENU}{index.html}
 # jemdoc: nodefaultcss,addcss{css/behop.css},analytics{UA-7834129-3}
-{{<head><link rel="shortcut icon" href="/favicon.ico" type="image/x-icon"></head>}}
-{{<head><link rel="icon" href="/favicon.ico" type="image/x-icon"></head>}}
+{{<head profile="http://www.w3.org/2005/10/profile"><link rel="icon" type="image/png" href="img/home.png" /></head>}}
+#{{<head><link rel="icon" href="/favicon.ico" type="image/x-icon"></head>}}
 
 ~~~
 {}{img_left}{img/home.png}{alt text}{150px}{120px}

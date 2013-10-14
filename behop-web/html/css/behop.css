@@ -10,7 +10,11 @@ body {
 	background: white;
 	font-family: Georgia, serif;
 	padding-bottom: 8px;
-	margin: 0;
+	/*
+	margin-left: auto;
+	margin-right: auto;
+	*/
+	max-width: 900px;
 }
 
 #layout-menu {
@@ -39,6 +43,7 @@ body {
     background: white;
     text-align: left;
     vertical-align: top;
+	background: #fcfcfc;
 }
 
 #layout-menu a {
@@ -373,6 +378,8 @@ table.imgtable, table.imgtable td {
 //margin:0 auto;
 width:400px;
 padding:14px;
+margin-left:auto;
+margin-right:auto;
 }
 
 /* ----------- stylized ----------- */

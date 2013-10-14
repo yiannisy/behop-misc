@@ -1,0 +1,99 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+  "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<meta name="generator" content="jemdoc, see http://jemdoc.jaboc.net/" />
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<link rel="stylesheet" href="css/behop.css" type="text/css" />
+<title></title>
+</head>
+<head profile="http://www.w3.org/2005/10/profile"><link rel="icon" type="image/png" href="http://snsg.stanford.edu/~manub/be-hop-misc/behop-web/html/img/home.png" /></head>
+<body>
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+    var pageTracker = _gat._getTracker("UA-7834129-3");
+    pageTracker._trackPageview();
+} catch(err) {}</script>
+<table summary="Table for page layout." id="tlayout">
+<tr valign="top">
+<td id="layout-menu">
+<div class="menu-category">BeHop</div>
+<div class="menu-item"><a href="index.html" class="current">Participate</a></div>
+<div class="menu-item"><a href="details.html">Details</a></div>
+<div class="menu-item"><a href="terms.html">Terms</a></div>
+<div class="menu-item"><a href="feedback.html">Feedback</a></div>
+</td>
+<td id="layout-content">
+<table class="imgtable"><tr><td>
+<img src="img/home.png" alt="alt text" width="150px" height="120px" />&nbsp;</td>
+<td align="left"><h1>Stanford University - BeHop Project</h1>
+</td></tr></table>
+<p><hr>
+The <b>BeHop</b> research project is trying to improve the performance of WiFi networks in college dorms. 
+You can learn more details <a href="details.html">here</a>. Our goal is to improve <b>your</b> WiFi performance in EV.
+If you participate (it's free), we will work to make your WiFi connection faster and more reliable (better coverage, 
+fewer drop outs and fewer lost connections).</p>
+<p><b> BeHop is currenty available only for residents of EV Studio 5 Building. </b></p>
+<p>What you need to do:</p>
+<ol>
+<li><p>Sign up below!</p>
+</li>
+<li><p>We will deliver and install your very own private WiFi AP in your room. It's small and unobtrusive (see a pic <a href="img/s5-ap.jpg">here</a> ).</p>
+</li>
+<li><p>That's it!! When everything is up and running, you can also enjoy a small reward :)</p>
+</li>
+</ol>
+<script>
+function checkForm()
+{
+	var intRegex = /^\d+$/;
+	if(intRegex.test(document.getElementById('studio').value) == false){
+	   alert("Your studio number should be an integer (for example : 542)");
+	   return false;
+	}	   
+	if (document.getElementById('agree').checked ){
+	   return true;
+	}
+	else{
+	   alert("You have to agree to the terms of participation.");
+	   return false;
+	}
+}
+</script>
+<div id="stylized" class="myform">
+<h1>BeHop Sign-up</h1>
+<form name="bhform" id="bhform" action="submit.php" method="post" onsubmit="return checkForm()">
+<label>SUNetID
+<span class="small">Your SUNet ID</span>
+</label>
+<input type="text" name="fname" value=<!--#echo var="REMOTE_USER"--> readonly="readonly"/>
+
+<label>Studio 5 APT
+<span class="small">Your studio info.</span>
+</label>
+<input type="text" name="studio" id="studio" value="e.g. 542"/>
+
+<label>
+<span class="small">I agree to the <a href="terms.html">terms of participation</a> of the BeHop project.</span>
+</label>
+<input type="checkbox" id="agree" name="agree" value="yes"/>
+
+<button type="submit">I am up for it!</button>
+<div class="spacer"></div>
+
+</form>
+</div>
+<div id="footer">
+<div id="footer-text">
+Page generated 2013-10-13 17:29:27 PDT, by <a href="http://jemdoc.jaboc.net/">jemdoc</a>.
+</div>
+</div>
+</td>
+</tr>
+</table>
+</body>
+</html>
