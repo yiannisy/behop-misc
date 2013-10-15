@@ -13,7 +13,7 @@ then
     do
 	airport -I > ${out_tmp}
 	date=`date`
-	ping=`ping -c 1 -t 1 thetida.stanford.edu | grep time | awk -F' ' '{ print $7 }' | awk -F'=' '{print $2}'`
+	ping=`ping -c 1 -t 1 172.24.74.179 | grep time | awk -F' ' '{ print $7 }' | awk -F'=' '{print $2}'`
 	bssid=`awk '/BSSID/' ${out_tmp} | awk -F': ' '{ print $2}'`
 	rate=`awk '/lastTxRate/' ${out_tmp} | awk -F': ' '{ print $2}'`    
 	channel=`awk '/channel/' ${out_tmp} | awk -F': ' '{ print $2}'`
@@ -28,7 +28,7 @@ else
     do
 	iwconfig wlan0 > ${out_tmp}
 	date=`date`
-	ping=`ping -c 1 -t 1 thetida.stanford.edu | grep "time=" | awk -F' ' '{print $8}' | awk -F'=' '{print $2}'`
+	ping=`ping -c 1 -w 1 -W 1 172.24.74.179 | grep "time=" | awk -F' ' '{print $8}' | awk -F'=' '{print $2}'`
 	bssid=`awk '/Access Point/' /tmp/out.txt | awk -F'Access Point: ' '{print $2}'`
 	rate=`awk '/Bit Rate/' /tmp/out.txt | awk -F' ' '{print $2}' | awk -F '=' '{print $2}'`
 	channel=`awk '/Frequency/' /tmp/out.txt | awk -F' ' '{print $2}' | awk -F ':' '{print $2}'`
