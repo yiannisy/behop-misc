@@ -21,6 +21,9 @@ ovs-vsctl set-controller br0 ${OFCONTROLLER}
 ovs-vsctl set-manager ${OVSDBCONTROLLER}
 # add wifi-config entry
 ovsdb-client transact '["Wifi_vSwitch",{"op":"insert","table":"WifiConfig","row":{"channel":11,"power":20,"bssidmask":"ffffffffffff"}}]' 
+# copy behop-config entry
+cp ${EXTRA_FILES}/behop /etc/config/behop
+
 
 echo "Enabling SNMP"
 uci set mini_snmpd.@mini_snmpd[0].enabled=1
