@@ -32,13 +32,15 @@ logs = [
     #'openwrt-vanilla',
     'openwrt-vanilla-1',
     'tp_link_auto_dl',
-    'meraki_auto_dl'
+    'meraki_auto_dl',
+    'pi_meraki_auto_dl',
+    'pi_openwrt_vanilla_auto_dl'
     ]
 
 fig = pylab.figure(figsize=(16,12))
 lns = None
 for log in logs:
-    iperf_log = "%s_iperf.log" % log
+    iperf_log = "./logs/%s_iperf.log" % log
     f = open(iperf_log,'r')
     throughput = []
     for line in f.readlines():
@@ -46,9 +48,10 @@ for log in logs:
         kbps = int(vals[-1])/1000
         throughput.append(kbps)
     if lns:
-        lns += pylab.plot(throughput,label=log)
+        lns += pylab.step(range(0, len(throughput)), throughput,label=log)
     else:
-        lns = pylab.plot(throughput, label=log)
+        lns = pylab.step(range(0, len(throughput)), throughput, label=log)
+    f.close()
 
 labels = [l.get_label() for l in lns]
 pylab.xlabel('time (s)')
