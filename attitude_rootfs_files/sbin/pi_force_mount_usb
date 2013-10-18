@@ -1,0 +1,13 @@
+#!/bin/sh
+
+if [ -f /opt/pi_version ]; then
+    echo "Mounting jffs2, setting flag and rebooting."
+    # that's good we are in usb mode.
+    mount -t jffs2 /dev/mtdblock3 /mnt
+    uci -c "/mnt/etc/config" set fstab.@mount[0].enable=1
+    uci -c "/mnt/etc/config" commit
+    umount /dev/mtdblock3
+    reboot
+else
+    echo "Currently in jffs2 mode---use pi_check_mount_usb"
+fi
