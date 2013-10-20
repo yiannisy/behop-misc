@@ -24,17 +24,19 @@ def time_str_to_sec(timestr,base,offset=0):
     return time
 
 logs = [
-    'malakas_auto_dl',
+    'behop-gates-1',
+    'behop-gates-nonec-1'
+    #'malakas_auto_dl',
     #'malakas_no_col_auto_dl',
     #'malakas_no_nec_auto_dl', 
-    'malakas_no_nec_1_auto_dl',
-    'malakas_no_nec_no_col_auto_dl',
+    #'malakas_no_nec_1_auto_dl',
+    #'malakas_no_nec_no_col_auto_dl',
     #'openwrt-vanilla',
-    'openwrt-vanilla-1',
-    'tp_link_auto_dl',
-    'meraki_auto_dl',
-    'pi_meraki_auto_dl',
-    'pi_openwrt_vanilla_auto_dl'
+    #'openwrt-vanilla-1',
+    #'tp_link_auto_dl',
+    #'meraki_auto_dl',
+    #'pi_meraki_auto_dl',
+    #'pi_openwrt_vanilla_auto_dl'
     ]
 
 fig = pylab.figure(figsize=(16,12))
