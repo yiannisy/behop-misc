@@ -324,10 +324,19 @@ int add_station(struct nl_sock * sock, json_t * update)
   /* add the authorized bit... */
   upd.mask = 1 << NL80211_STA_FLAG_AUTHORIZED;
   upd.mask |= 1 << NL80211_STA_FLAG_SHORT_PREAMBLE;
+  upd.mask |= 1 << NL80211_STA_FLAG_WME;
   upd.set = upd.mask;
   
   NLA_PUT(msg, NL80211_ATTR_STA_FLAGS2, sizeof(upd), &upd);
   NLA_PUT(msg, NL80211_ATTR_STA_EXT_CAPABILITY, ETH_ALEN, vbssid);
+
+  struct nlattr *wme = nla_nest_start(msg, NL80211_ATTR_STA_WME);
+  if (!wme)
+    goto nla_put_failure;
+  NLA_PUT_U8(msg, NL80211_STA_WME_UAPSD_QUEUES,
+  	     0);
+  NLA_PUT_U8(msg, NL80211_STA_WME_MAX_SP,0);
+  nla_nest_end(msg, wme);
 
 
   err = send_sync(sock, msg);
