@@ -13,7 +13,10 @@ UDP_PORT=$(echo $arg | cut -d':' -f2)
 
 echo ip=$UDP_IP, port=$UDP_PORT
 
-DEF_COL_FILTER='((not (dst host '${UDP_IP}' and dst port '${UDP_PORT}')) and (type ctl and subtype ack) and (radio[4] & 0x08 = 0x08))' #recursion-safe, only acks, uplink frames only -- hacky!
+#DEF_COL_FILTER='((not (dst host '${UDP_IP}' and dst port '${UDP_PORT}')) and (type ctl and subtype ack) and (radio[4] & 0x08 = 0x08))' #recursion-safe, only acks, uplink frames only -- hacky!
+
+#include 802.11n blockack's too (frame type_subtype == 25, 25 --hex--> 0x19 --endian-swap--> 0x91 --take-lower-byte,<<2 it, & 0xc it--> 0x94)
+DEF_COL_FILTER='((not (dst host '${UDP_IP}' and dst port '${UDP_PORT}')) and ((type ctl and subtype ack) or (wlan[0:1] & 0xfc == 0x94)) and (radio[4] & 0x08 = 0x08))' 
 
 echo +++\"${DEF_COL_FILTER}\"+++
 
