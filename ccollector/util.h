@@ -38,14 +38,26 @@ get_ip_of_intf(char * intf, char * ip) {
 }
 
 static inline int
-get_dst_ip_port(char *dst_ip_port, char **SRV_IP, char **SRV_PORT) {
+get_dst_ip_port(char *dst_ip_port, char **SRV_IP, uint32_t *iSRV_PORT) {
   char del = ':';
+  char *SRV_PORT;
+  char reSRV_PORT[20];
+
   if (dst_ip_port == NULL) {
     printf("No valid destination ip:port input found\n");
     return -1;
   }
   *SRV_IP = strtok(dst_ip_port, &del);
-  *SRV_PORT = strtok(NULL, &del);
+  SRV_PORT = strtok(NULL, &del);
+  *iSRV_PORT = atoi(SRV_PORT);
+
+  sprintf(reSRV_PORT, "%d", *iSRV_PORT);
+  if (strcmp(reSRV_PORT, SRV_PORT) != 0) {
+    printf("ERROR: Port conversion from ascii to int failed\n");
+  }
+  else {
+    printf("Integer converted port: %u\n", *iSRV_PORT);
+  }
 
   return 0;
 }
@@ -70,7 +82,7 @@ install_filter(char * intf, char * filter_text, struct sock_fprog *filter) {
   fp = popen(cmd, "r");
   if (fp == NULL) {
     printf("Failed to run command\n" );
-    exit;
+    exit(0);
   }
 
 

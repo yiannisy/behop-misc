@@ -87,7 +87,7 @@ open_udp_socket(char * devname){
 }
 
 static int
-create_udp_addr(struct sockaddr_in *sin, char *SRV_IP, char *SRV_PORT) {
+create_udp_addr(struct sockaddr_in *sin, char *SRV_IP, uint32_t SRV_PORT) {
   memset(sin, 0, sizeof(struct sockaddr_in));
 
   sin->sin_family = AF_INET;
@@ -168,7 +168,7 @@ serialize_log(char * pkt_buf, int r_bytes, char * ser_buf, int ser_buf_len) {
 }
 
 static int 
-udp_loop(int mon_fd, int ctl_fd, char *SRV_IP, char *SRV_PORT) {
+udp_loop(int mon_fd, int ctl_fd, char *SRV_IP, uint32_t SRV_PORT) {
   char buf[BUFLEN];
   int r_bytes, w_bytes;
   fd_set rfds, wfds;
@@ -282,7 +282,8 @@ int main(int argc, char **argv){
   int mon_fd, tap_fd; // one socket for each interface
   int ctl_fd;
   int c;
-  char *SRV_IP, *SRV_PORT;
+  char *SRV_IP;
+  uint32_t SRV_PORT;
 
   struct sock_fprog filter;
 
@@ -341,7 +342,7 @@ int main(int argc, char **argv){
     printf("Could not set destination ip:port\n");
     exit(0);
   }
-  printf("Destination IP: %s, Port: %s\n", SRV_IP, SRV_PORT);
+  printf("Destination IP: %s, Port: %u\n", SRV_IP, SRV_PORT);
 
   ctl_fd = open_udp_socket(tap_intf);
   if (ctl_fd <= 0) {
