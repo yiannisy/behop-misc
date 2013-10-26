@@ -601,6 +601,7 @@ class PiUdpAggregator(UdpAggregator):
 	self.db = collections.deque(maxlen=MAXLEN)	#circular buffer of length MAXLEN
 	self.dblock = threading.RLock()
 
+	print 'piudp aggregator receiving on port', self.PORT
 	print 'creating pi info base'
 	self.set_info_base(PiInfoBase(self))
 	print 'created pi info base'
@@ -732,8 +733,15 @@ class PiUdpAggregator(UdpAggregator):
 	      #They may not all be from stations - they could also be from other aps.
 	      tag = 'ACK_TO_AP'
 	      src_phy = None
+	      #print tag,'snr=',snr,'link_id=',link_id
+	    elif util.is_blockack(ieee_pkt):	#blockack (11n)
+	      #print 'blockack frame type=%s,subtype=%s, continuing...' % (ieee_type, ieee_subtype)
+	      ##tag = 'BCK_TO_AP'
+	      tag = 'ACK_TO_AP'
+	      #print tag,'snr=',snr,'link_id=',link_id
+	      src_phy = None
 	    else:
-	      print 'unhandled frame type, continuing...'
+	      print 'unhandled frame type=%s,subtype=%s, continuing...' % (ieee_type, ieee_subtype)
 	      continue
 
 	    #print 'handled frame type'

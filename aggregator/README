@@ -1,0 +1,82 @@
+1. Download necessary dependencies (dpkt, pyzmq, etc)
+2. Run the sample aggregator : python test.py
+3. Run the data collector : sudo python packet_collector.py -i wlan0
+
+===
+where wlan0 is a wireless interface set in monitor mode. to do that
+- ifconfig wlan0 down
+- iw dev wlan0 set type monitor
+- ifconfig wlan0 up
+
+
+======
+Run aggregator as wcap> pi type data or (type ctl and subtype ack)
+Run aggregator as wcap> piudp type data or (type ctl and subtype ack)
+
+====================
+Query framework demo
+[outdated]
+====================
+
+To test the query framework on thetida:
+
+1. In stats-aggregator/, start the test query client running as a TCP server:
+$ python query.py sv
+This creates a shell in which queries can be typed after a query client has
+connected. Examples queries are in step 4.
+
+2. In stats-aggregator/, start the aggregator framework:
+$ python wcap.py
+This will create a query handler interface and run it as a TCP client. This
+TCP client will connect to the query-client TCP server spawed in step 1.
+
+3. Start the piudp aggregator:
+wcap>>> piudp
+This aggregator will start a UDP server that can receive logs from AP aggregators.
+It will also create and start the Pi Information Base that maintains stats on the
+logs received by the Pi UDP Aggregator and provides implementations for answering
+queries from the controller.
+
+4. Make some test queries from the query client running as TCP server:
+
+query>> {'query':'snr_summary'}
+(See the wcap shell for some response)
+
+query>> {'query':'random_query'}
+(See the wcap shell for some response)
+
+query>> {'query':'station_snr','sta':'0020000002'}
+(See the wcap shell for some response)
+
+==================
+Setup instructions
+==================
+
+Running collectors
+------------------
+
+1. Copy stats-aggregator/picp to /opt/ on the ap
+2. Run picp on the ap to create a folder /opt/collector and copy required files into it
+3. $ /opt/collector/udp_pypcap_collector.py  to run the collector
+
+Running aggregator
+------------------
+1. In stats-aggregator on thetida, run the aggregator without wcap shell as
+$ python wcap.py piudp >> snr_trace/<logfilename>.txt 
+
+You can then monitor the progress with:
+$ tail -f snr_trace/<logfilename>.txt | grep farid | grep <bssid> 
+
+Eg.:
+$ tail -f snr_trace/log3.txt | grep farid | grep 020000800000
+
+1'. Alternative to aggregator run with wcap shell (not recommended for now):
+
+$ python wcap.py
+wcap>> piudp
+
+2. To plot snr trace, in stats_aggregator/snr_trace:
+$ ./genplot.sh <logfilename>.txt <bssid>
+
+Eg.:
+$ ./genplot.sh log3.txt 020000800000

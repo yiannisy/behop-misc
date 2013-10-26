@@ -8,6 +8,7 @@ import string
 import socket
 import fcntl
 import struct
+import dpkt
 
 def get_ip_address(ifname):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -32,6 +33,9 @@ def get_mac_address(intf):
 
 def is_ack(pkt):
     return pkt.type == 1 and pkt.subtype == 13	#ACK
+
+def is_blockack(pkt):
+    return pkt.type == 1 and pkt.subtype == 9	#BLOCKACK
 
 #def is_ack_to_ap(ackdst, ap_hw_ids):
 #    return ackdst in ap_hw_ids
@@ -73,6 +77,7 @@ def get_rdtap_len(rdtap):
     return rdtap.length >> 8
 
 def get_ieee_from_pkt(pkt):
+    ie = None
     rdtap = dpkt.radiotap.Radiotap(pkt)
     if has_bad_fcs(rdtap):
     	#print 'get_ieee_from_pkt:bad_fcs'
@@ -82,20 +87,34 @@ def get_ieee_from_pkt(pkt):
 	with_fcs = True
         try:
             ie = dpkt.ieee80211.IEEE80211(pkt[rd_len:-4])	#assuming fcs
-            return ie
+            #return ie
         except Exception as e:
 	    #print e
     	    #print 'get_ieee_from_pkt:exception'
             #return None
 	    with_fcs = False
 
-        try:
-            ie = dpkt.ieee80211.IEEE80211(pkt[rd_len:])		#assuming no fcs
-            return ie
-        except Exception as e:
-	    #print e
-    	    #print 'get_ieee_from_pkt:exception'
-            return None
+	if ie == None:
+	  try:
+	      ie = dpkt.ieee80211.IEEE80211(pkt[rd_len:])		#assuming no fcs
+	      #return ie
+	  except Exception as e:
+	      #print e
+	      #print 'get_ieee_from_pkt:exception'
+	      return None
+
+	if is_blockack(ie):
+	  class MyBLOCKACK(dpkt.Packet):
+	    __hdr__ = (
+		('dst', '6s', '\x00' * 6),
+		('src', '6s', '\x00' * 6),
+		)
+	  #print 'setting ie.myblockack'
+	  ie.myblockack = MyBLOCKACK(pkt[rd_len+ie.__hdr_len__:])
+	  #ie.myblockack = MyBLOCKACK(pkt[rd_len+4:])
+
+	return ie
+
 
 def get_link(pkt):
     ap=client=dst=src=None
@@ -109,8 +128,15 @@ def get_link(pkt):
             client = binascii.hexlify(pkt.mgmt.src)
             src = client
             dst = ap
-    elif (pkt.type == 1 and pkt.subtype == 13):	#ACK
+    #elif (pkt.type == 1 and pkt.subtype == 13):	#ACK
+    elif is_ack(pkt): 
 	ack_dst = binascii.hexlify(pkt.ack.dst)
+
+    elif is_blockack(pkt):
+	ack_dst = binascii.hexlify(pkt.myblockack.dst)
+	ack_src = binascii.hexlify(pkt.myblockack.src)
+	#print 'blockack:', ack_dst, ack_src
+
     elif (pkt.type == 2 and (pkt.subtype == 0 or pkt.subtype == 4 or pkt.subtype == 8)):
         #interDS data.
         if (pkt.to_ds and pkt.from_ds):
@@ -129,8 +155,13 @@ def get_link(pkt):
         src = client
         dst = ap
 
-    if (pkt.type == 1 and pkt.subtype == 13):	#ACK
+    #if (pkt.type == 1 and pkt.subtype == 13):	#ACK
+    if is_ack(pkt):  
       dst = ack_dst
+
+    if is_blockack(pkt):
+      dst = ack_dst
+      src = ack_src
 
     return ap,client,src,dst,bssid
 
