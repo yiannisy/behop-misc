@@ -22,9 +22,9 @@
 #define OVSDB_PORT 6632
 #define LOCALHOST "127.0.0.1"
 #define OVSDB_UNIX_FILE "/var/run/db.sock"
-#define BSSIDMASK_DEBUGFS_FILE "/sys/kernel/debug/ieee80211/phy0/ath9k/bssidmask"
-#define ADD_VBEACON_DEBUGFS_FILE "/sys/kernel/debug/ieee80211/phy0/ath9k/addbeacon"
-#define DEL_VBEACON_DEBUGFS_FILE "/sys/kernel/debug/ieee80211/phy0/ath9k/delbeacon"
+#define BSSIDMASK_DEBUGFS_FILE "/sys/kernel/debug/ieee80211/phy1/ath9k/bssidmask"
+#define ADD_VBEACON_DEBUGFS_FILE "/sys/kernel/debug/ieee80211/phy1/ath9k/addbeacon"
+#define DEL_VBEACON_DEBUGFS_FILE "/sys/kernel/debug/ieee80211/phy1/ath9k/delbeacon"
 
 #define MON_ID_STA 0
 #define MON_ID_CHANNEL 1
@@ -37,7 +37,7 @@ int send_sync(struct nl_sock * sk, struct nl_msg * msg);
 void str_to_mac(const char * str, uint8_t * addr);
 struct json_t;
 
-static const char ifname[] = "wlan0";
+static const char ifname[] = "wlan1";
 //static size_t sta_rates_len = 9;
 //static uint8_t sta_rates[9] = {2,11,12,18,24,48,72,96,108};
 //static uint16_t sta_aid = 1;
