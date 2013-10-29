@@ -24,8 +24,12 @@ def time_str_to_sec(timestr,base,offset=0):
     return time
 
 logs = [
-    'behop-gates-1',
-    'behop-gates-nonec-1'
+    'meraki_auto_dl',
+    'caltrain-5ghz-40mhz-1',
+    'openwrt-vanilla-1',
+    'gates-behop-agg-lin-2',
+    'behop-gates-agg-1'
+
     #'malakas_auto_dl',
     #'malakas_no_col_auto_dl',
     #'malakas_no_nec_auto_dl', 
