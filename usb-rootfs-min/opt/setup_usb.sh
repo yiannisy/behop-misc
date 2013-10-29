@@ -1,4 +1,7 @@
 EXTRA_FILES=/opt/extra_files
+# copy behop-config entry
+cp ${EXTRA_FILES}/behop /etc/config/behop
+
 OFCONTROLLER=`uci get behop.ap.ofcontroller`
 OVSDBCONTROLLER=`uci get behop.ap.ovsdbcontroller`
 echo "Disabling dnsmasq"
@@ -17,12 +20,12 @@ ovs-vsctl add-br br0
 ovs-vsctl add-port br0 eth0 -- set interface eth0 ofport_request=1
 ovs-vsctl add-port br0 veth1 -- set interface veth1 ofport_request=2
 ovs-vsctl add-port br0 wlan0 -- set interface wlan0 ofport_request=3
+ovs-vsctl add-port br0 veth3 -- set interface veth3 ofport_request=4
+ovs-vsctl add-port br0 wlan1 -- set interface wlan1 ofport_request=5
 ovs-vsctl set-controller br0 ${OFCONTROLLER}
 ovs-vsctl set-manager ${OVSDBCONTROLLER}
 # add wifi-config entry
 ovsdb-client transact '["Wifi_vSwitch",{"op":"insert","table":"WifiConfig","row":{"channel":11,"power":20,"bssidmask":"ffffffffffff"}}]' 
-# copy behop-config entry
-cp ${EXTRA_FILES}/behop /etc/config/behop
 
 
 echo "Enabling SNMP"
@@ -53,6 +56,15 @@ echo "Setting up Wireless"
     uci set wireless.@wifi-iface[0].hidden=1
     uci set wireless.@wifi-iface[0].wmm=1
     uci set wireless.@wifi-iface[0].macaddr=02:00:00:00:00:00
+
+    uci set wireless.radio1.disabled=1
+    uci set wireless.radio1.beacon_int=1000
+    uci set wireless.radio1.htmode=HT40+
+    uci set wireless.radio1.noscan=1
+    uci delete.wireless.@wifi-iface[1].network
+    uci set wireless.@wifi-iface[1].hidden=1
+    uci set wireless.@wifi-iface[1].wmm=1
+    uci set wireless.@wifi-iface[1].macaddr=02:00:00:00:00:00
 
     uci commit wireless
 }
