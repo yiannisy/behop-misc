@@ -22,9 +22,13 @@
 #define OVSDB_PORT 6632
 #define LOCALHOST "127.0.0.1"
 #define OVSDB_UNIX_FILE "/var/run/db.sock"
-#define BSSIDMASK_DEBUGFS_FILE "/sys/kernel/debug/ieee80211/phy1/ath9k/bssidmask"
-#define ADD_VBEACON_DEBUGFS_FILE "/sys/kernel/debug/ieee80211/phy1/ath9k/addbeacon"
-#define DEL_VBEACON_DEBUGFS_FILE "/sys/kernel/debug/ieee80211/phy1/ath9k/delbeacon"
+#define WLAN0_BSSIDMASK_DEBUGFS_FILE "/sys/kernel/debug/ieee80211/phy0/ath9k/bssidmask"
+#define WLAN0_ADD_VBEACON_DEBUGFS_FILE "/sys/kernel/debug/ieee80211/phy0/ath9k/addbeacon"
+#define WLAN0_DEL_VBEACON_DEBUGFS_FILE "/sys/kernel/debug/ieee80211/phy0/ath9k/delbeacon"
+#define WLAN1_BSSIDMASK_DEBUGFS_FILE "/sys/kernel/debug/ieee80211/phy1/ath9k/bssidmask"
+#define WLAN1_ADD_VBEACON_DEBUGFS_FILE "/sys/kernel/debug/ieee80211/phy1/ath9k/addbeacon"
+#define WLAN1_DEL_VBEACON_DEBUGFS_FILE "/sys/kernel/debug/ieee80211/phy1/ath9k/delbeacon"
+
 
 #define MON_ID_STA 0
 #define MON_ID_CHANNEL 1
@@ -94,38 +98,6 @@ nla_put_failure:
   return ret;
 }
 
-void update_bssidmask()
-{
-  struct station *tmp = NULL;
-  uint8_t bssidmask[ETH_ALEN];
-  int i;
-  FILE * f = NULL;
-
-  memset(bssidmask, 0xff, ETH_ALEN);
-
-  list_for_each_entry(tmp, &stations.list, list){
-    if (tmp == NULL)
-      continue;
-    for (i = 0; i < ETH_ALEN; i++){
-      bssidmask[i] &= ~(tmp->vbssid[i] ^ base_hw_addr[i]);
-    }
-  }
-
-  printf("This is the updated mask : %hhx:%hhx:%hhx:%hhx:%hhx:%hhx\n",bssidmask[0], bssidmask[1], bssidmask[2],
-	 bssidmask[3],bssidmask[4],bssidmask[5]);
-
-
-  /* now write the value to debugfs */
-  if ((f = fopen(BSSIDMASK_DEBUGFS_FILE, "w")) == NULL){
-    printf("cannot open bssidmask file...\n");
-    return;
-  }
-  fprintf(f,"%hhx:%hhx:%hhx:%hhx:%hhx:%hhx\n",bssidmask[0], bssidmask[1], bssidmask[2],
-	  bssidmask[3],bssidmask[4],bssidmask[5]);
-  if (f)
-    fclose(f);
-}
-
 void remove_station(struct nl_sock *sock, json_t * update)
 {
   struct nl_msg *msg;
@@ -133,12 +105,14 @@ void remove_station(struct nl_sock *sock, json_t * update)
   int err;
   uint8_t addr[6];
   const char * addr_str;
+  const char * intf;
   struct list_head *pos, *q;
   struct station *tmp;
 
   /* Get station from ovsdb update. */
   //printf("%s\n",json_dumps(update, JSON_ENCODE_ANY));
   addr_str = json_string_value(json_object_get(json_object_get(update,"old"), "addr"));
+  intf = json_string_value(json_object_get(json_object_get(update,"new"),"intf"));
   str_to_mac(addr_str, addr);
 
   printf("Removing Station :  address : %s \n",addr_str);
@@ -148,7 +122,7 @@ void remove_station(struct nl_sock *sock, json_t * update)
   
   msg = nlmsg_alloc();
   genlmsg_put(msg, NL_AUTO_PID, NL_AUTO_SEQ, nl80211_id, 0, 0, NL80211_CMD_DEL_STATION, 0);
-  NLA_PUT_U32(msg, NL80211_ATTR_IFINDEX, if_nametoindex(ifname));
+  NLA_PUT_U32(msg, NL80211_ATTR_IFINDEX, if_nametoindex(intf));
   NLA_PUT(msg, NL80211_ATTR_MAC, ETH_ALEN, addr);
   
   //printf("About to send nl msg to remove station : %s\n", addr_str);
@@ -216,12 +190,25 @@ void add_vbeacon(json_t *update)
 {
   uint8_t vbssid[6];
   const char * vbssid_str;
+  const char * intf;
+  char * vbeacon_fname;
+
   FILE * f = NULL;
 
   /* Get station and vbssid from ovsdb update. */
   vbssid_str = json_string_value(json_object_get(json_object_get(update,"new"), "vbssid"));
-  //printf("Opening vbeacon file\n");
-  if ((f = fopen(ADD_VBEACON_DEBUGFS_FILE,"w")) == NULL){
+  intf = json_string_value(json_object_get(json_object_get(update,"new"),"intf"));
+
+
+  if (strcmp(intf,"wlan0") == 0){
+    vbeacon_fname = WLAN0_ADD_VBEACON_DEBUGFS_FILE;
+  }
+  else if(strcmp(intf, "wlan1") == 0){
+    vbeacon_fname = WLAN1_ADD_VBEACON_DEBUGFS_FILE;
+  }
+
+
+  if ((f = fopen(vbeacon_fname,"w")) == NULL){
     printf("cannot open addbeacon file...\n");
     return;
   }
@@ -237,11 +224,22 @@ void del_vbeacon(json_t *update)
 {
   uint8_t vbssid[6];
   const char * vbssid_str;
+  const char * intf;
+  char * vbeacon_fname;
   FILE * f = NULL;
 
   /* Get station and vbssid from ovsdb update. */
   vbssid_str = json_string_value(json_object_get(json_object_get(update,"old"), "vbssid"));
-  if ((f = fopen(DEL_VBEACON_DEBUGFS_FILE,"w")) == NULL){
+  intf = json_string_value(json_object_get(json_object_get(update,"new"),"intf"));
+
+  if (strcmp(intf,"wlan0") == 0){
+    vbeacon_fname = WLAN0_DEL_VBEACON_DEBUGFS_FILE;
+  }
+  else if(strcmp(intf, "wlan1") == 0){
+    vbeacon_fname = WLAN1_DEL_VBEACON_DEBUGFS_FILE;
+  }
+
+  if ((f = fopen(vbeacon_fname,"w")) == NULL){
     printf("cannot open delbeacon file...\n");
     return;
   }
@@ -262,6 +260,7 @@ int add_station(struct nl_sock * sock, json_t * update)
   uint8_t addr[6], vbssid[6];
   struct nl80211_sta_flag_update upd;
   const char * vbssid_str, * addr_str;
+  const char * intf;
   int sta_exists = 0;
   struct list_head *pos, *q;
   struct station *tmp, *sta;
@@ -277,6 +276,7 @@ int add_station(struct nl_sock * sock, json_t * update)
   printf("%s\n",json_dumps(update, JSON_ENCODE_ANY));
   addr_str = json_string_value(json_object_get(json_object_get(update,"new"), "addr"));
   vbssid_str = json_string_value(json_object_get(json_object_get(update,"new"), "vbssid"));
+  intf = json_string_value(json_object_get(json_object_get(update,"new"),"intf"));
   sta_aid = json_integer_value(json_object_get(json_object_get(update,"new"),"sta_aid"));
   sta_interval = json_integer_value(json_object_get(json_object_get(update,"new"),"sta_interval"));
   sta_capability = json_integer_value(json_object_get(json_object_get(update,"new"),"sta_capability"));
@@ -306,7 +306,7 @@ int add_station(struct nl_sock * sock, json_t * update)
   genlmsg_put(msg, NL_AUTO_PID, NL_AUTO_SEQ, nl80211_id, 0, 0, NL80211_CMD_NEW_STATION, 0);
     
   /* Add attributes */
-  NLA_PUT_U32(msg, NL80211_ATTR_IFINDEX, if_nametoindex(ifname));
+  NLA_PUT_U32(msg, NL80211_ATTR_IFINDEX, if_nametoindex(intf));
   NLA_PUT(msg, NL80211_ATTR_MAC, ETH_ALEN, addr);
   NLA_PUT(msg, NL80211_ATTR_STA_SUPPORTED_RATES, sta_rates_len, sta_rates);
   NLA_PUT_U16(msg, NL80211_ATTR_STA_AID, sta_aid);
@@ -447,14 +447,10 @@ void process_sta_update(struct nl_sock *nl_sock, struct json_t * json_obj){
   json_object_foreach(table_updates, key, val){
     if ((iter = json_object_iter_at(val,"new")) != NULL){
       add_station(nl_sock, val);
-      //printf("Updating BSSID mask!!\n");
-      //update_bssidmask();
       add_vbeacon(val);
     }
     else if((iter = json_object_iter_at(val, "old")) != NULL){
       remove_station(nl_sock, val);
-      //printf("Updating BSSID mask!!\n");
-      //update_bssidmask();
       del_vbeacon(val);
     }
     else{
@@ -466,6 +462,8 @@ void process_sta_update(struct nl_sock *nl_sock, struct json_t * json_obj){
 void process_bssidmask_update(struct json_t * update){
   FILE * f = NULL;
   const char * bssidmask_str;
+  const char * intf;
+  const char * bssid_fname;
   uint8_t bssidmask[6];
   struct json_t * table_update;
   const char *key;
@@ -476,17 +474,24 @@ void process_bssidmask_update(struct json_t * update){
   json_object_foreach(table_update, key, val){
     if ((iter = json_object_iter_at(val, "new")) != NULL){
       bssidmask_str = json_string_value(json_object_get(json_object_get(val,"new"), "bssidmask"));
-      if (!bssidmask_str){
-	printf("cannot decode bssidmask - skipping\n");
+      intf = json_string_value(json_object_get(json_object_get(val,"new"),"intf"));
+      if (!bssidmask_str || !intf){
+	printf("cannot decode bssidmask/intf - skipping\n");
 	return;
       }
       break;
     }
   }
   str_to_mac(bssidmask_str, bssidmask);
-  
+  if (strcmp(intf,"wlan0") == 0){
+    bssid_fname = WLAN0_BSSIDMASK_DEBUGFS_FILE;
+  }
+  else if(strcmp(intf, "wlan1") == 0){
+    bssid_fname = WLAN1_BSSIDMASK_DEBUGFS_FILE;
+  }
+
   /* now write the value to debugfs */
-  if ((f = fopen(BSSIDMASK_DEBUGFS_FILE, "w")) == NULL){
+  if ((f = fopen(bssid_fname, "w")) == NULL){
     printf("cannot open bssidmask file...\n");
     return;
   }
