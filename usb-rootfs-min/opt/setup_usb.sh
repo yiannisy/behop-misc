@@ -25,7 +25,9 @@ ovs-vsctl add-port br0 wlan1 -- set interface wlan1 ofport_request=5
 ovs-vsctl set-controller br0 ${OFCONTROLLER}
 ovs-vsctl set-manager ${OVSDBCONTROLLER}
 # add wifi-config entry
-ovsdb-client transact '["Wifi_vSwitch",{"op":"insert","table":"WifiConfig","row":{"channel":11,"power":20,"bssidmask":"ffffffffffff"}}]' 
+ovsdb-client transact '["Wifi_vSwitch",{"op":"insert","table":"WifiConfig","row":{"intf":wlan0,"channel":11,"power":20,"bssidmask":"ffffffffffff"}}]' 
+ovsdb-client transact '["Wifi_vSwitch",{"op":"insert","table":"WifiConfig","row":{"intf":wlan1,"channel":36,"power":20,"bssidmask":"ffffffffffff"}}]' 
+
 
 
 echo "Enabling SNMP"
