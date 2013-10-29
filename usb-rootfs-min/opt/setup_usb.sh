@@ -17,7 +17,7 @@ opkg install jansson python kmod-veth tcpdump kmod-ath9k openvswitch-switch pyth
 echo "Setting-up openvswitch"
 /etc/init.d/openvswitch start
 ovs-vsctl add-br br0
-ovs-vsctl add-port br0 eth0 -- set interface eth0 ofport_request=1
+ovs-vsctl add-port br0 eth1 -- set interface eth1 ofport_request=1
 ovs-vsctl add-port br0 veth1 -- set interface veth1 ofport_request=2
 ovs-vsctl add-port br0 wlan0 -- set interface wlan0 ofport_request=3
 ovs-vsctl add-port br0 veth3 -- set interface veth3 ofport_request=4
