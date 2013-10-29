@@ -7,6 +7,6 @@ do
   current=`date +%s`
   last_modified=`date +%s -r $file`
   if [ $(($current-$last_modified)) -gt 180 ]; then
-    /sbin/reboot
+    /sbin/reboot -f
   fi
 done

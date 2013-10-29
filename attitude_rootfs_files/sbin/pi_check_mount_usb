@@ -5,5 +5,5 @@ if [ -f /opt/pi_version ]; then
 else 
 	echo "Enable USB mount and rebooting";
 	/sbin/pi_enable_mount_usb
-	reboot
+	reboot -f
 fi
