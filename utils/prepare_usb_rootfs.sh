@@ -2,7 +2,7 @@
 EXTRA_FILES="../usb-rootfs-min/opt/extra_files"
 if [ $# -lt 1 ]
 then
-    echo "Usage : $0 setup_type (dev, beta, or production)"
+    echo "Usage : $0 setup_type (dev, beta, netgear, or production)"
     exit
 fi
 
@@ -18,6 +18,10 @@ beta)
 production)
 	echo "Setting up usb-rootfs-min for production environment"
 	cp ${EXTRA_FILES}/behop.production ${EXTRA_FILES}/behop
+	;;
+netgear)
+	echo "Setting up usb-rootfs-min for netgear dev environment"
+	cp ${EXTRA_FILES}/behop.netgear ${EXTRA_FILES}/behop
 	;;
 *) echo "Invalid option : $@"
 	exit
