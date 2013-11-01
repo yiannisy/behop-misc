@@ -21,6 +21,7 @@
 #define UDP
 
 static char apid[20];
+static char * mon_intf;
 
 void usage(){
   printf("usage : ccol\n");
@@ -125,12 +126,13 @@ serialize_log(char * pkt_buf, int r_bytes, char * ser_buf, int ser_buf_len) {
   //printf("r_bytes: %d\n", r_bytes);
 
   //printf("packing\n");
-  json_packed = json_pack("{s:i,s:i,s:i,s:s}", 
+  json_packed = json_pack("{s:i,s:i,s:i,s:s,s:s}", 
   	"tss", tv.tv_sec, 
 	"tsu", tv.tv_usec, 
 	"len", ser_buf_len,
 	//"id", "deadbeef"
-	"id", apid
+	"id", apid,
+	"mi", mon_intf
 	);
 
   if (json_packed == NULL) {
@@ -278,7 +280,8 @@ tap_loop(int mon_fd, int tap_fd) {
 #endif 
 
 int main(int argc, char **argv){
-  char *tap_intf, * mon_intf, *filter_text, *dst_ip_port = NULL;
+  //char *tap_intf, * mon_intf, *filter_text, *dst_ip_port = NULL;
+  char *tap_intf, *filter_text, *dst_ip_port = NULL;
   int mon_fd, tap_fd; // one socket for each interface
   int ctl_fd;
   int c;

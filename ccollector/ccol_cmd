@@ -23,5 +23,9 @@ echo +++\"${DEF_COL_FILTER}\"+++
 FILTER_TEXT="${DEF_COL_FILTER}"
 
 CCOL_PATH="/opt/utils"
-echo $CCOL_PATH/ccol -m mon0 -t br0 -d ${UDP_IP}:${UDP_PORT} -f "${FILTER_TEXT}"
-$CCOL_PATH/ccol -m mon0 -t br0 -d ${UDP_IP}:${UDP_PORT} -f "${FILTER_TEXT}"
+
+echo $CCOL_PATH/ccol -m mon0 -t br0 -d ${UDP_IP}:${UDP_PORT} -f "${FILTER_TEXT}" &
+$CCOL_PATH/ccol -m mon0 -t br0 -d ${UDP_IP}:${UDP_PORT} -f "${FILTER_TEXT}" &
+
+echo $CCOL_PATH/ccol -m mon1 -t br0 -d ${UDP_IP}:${UDP_PORT} -f "${FILTER_TEXT}" &
+$CCOL_PATH/ccol -m mon1 -t br0 -d ${UDP_IP}:${UDP_PORT} -f "${FILTER_TEXT}" &

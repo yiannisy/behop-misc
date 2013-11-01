@@ -665,9 +665,10 @@ class PiUdpAggregator(UdpAggregator):
 	      ts = tss + 1e-6 * tsu
 
 	      apid = ser['id']
+	      intf = ser['mi']		#monitor interface
 	      orig_len = ser['len']
 
-	      #print tss, tsu, ts, apid, len(pkt_content)
+	      #print tss, tsu, ts, apid, intf, len(pkt_content)
 	      ts_rcv = time.time()
 	      #-------------------------
 	    else:
