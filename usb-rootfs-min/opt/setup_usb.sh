@@ -46,6 +46,9 @@ cp ${EXTRA_FILES}/authorized_keys /etc/dropbear
 cp ${EXTRA_FILES}/passwd /etc/
 cp ${EXTRA_FILES}/shadow /etc/
 
+# Copy collector/survey.
+cp -r ${EXTRA_FILES}/wifisurvey /opt/utils/
+
 echo "Setting up Wireless"
 /sbin/wifi detect > /tmp/wireless.tmp
 [ -s /tmp/wireless.tmp ] && {

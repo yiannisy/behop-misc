@@ -28,7 +28,12 @@ netgear)
 	;;
 esac
 
+#
+cd ../ap-utils;./build_cmd;cd ../utils;
+cd ../ccollector;./build_cmd;cd ../utils;
+
 cp ../ap-utils/sta_manager ${EXTRA_FILES}/
 cp ../ap-utils/mon_to_tap  ${EXTRA_FILES}/
 cp ../ccollector/ccol_cmd ${EXTRA_FILES}/
 cp ../ccollector/ccol ${EXTRA_FILES}/
+cp -r ../wifisurvey ${EXTRA_FILES}/

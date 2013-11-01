@@ -3,6 +3,7 @@
 OFCONTROLLER=`uci get behop.ap.ofcontroller`
 OVSDBCONTROLLER=`uci get behop.ap.ovsdbcontroller`
 AGGREGATOR=`uci get behop.ap.aggregator`
+SURVEY_AGGREGATOR=`uci get behop.ap.survey_aggregator`
 ifconfig wlan0 up
 iw dev wlan0 interface add mon0 type monitor
 ifconfig mon0 up
@@ -23,4 +24,5 @@ ovs-vsctl set-manager ${OVSDBCONTROLLER}
 /opt/utils/mon_to_tap -m mon0 -t veth0 &
 /opt/utils/mon_to_tap -m mon1 -t veth2 &
 /opt/utils/ccol_cmd ${AGGREGATOR} &
+/opt/utils/wifisurvey/chutil_cmd ${SURVEY_AGGREGATOR} &
 exit 0
