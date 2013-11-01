@@ -35,7 +35,7 @@ class UdpJsonTransmitter(threading.Thread):
             try:
 	      ts = time.time()
 	      sample = self.sampler.next()
-	      print sample
+	      #print sample
             except:
                 print "UdpJsonTransmitter could not get sample, continuing..."
 	        time.sleep(self.interval)

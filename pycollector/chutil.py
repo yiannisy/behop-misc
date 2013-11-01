@@ -109,7 +109,22 @@ class ChUtilSampler(GenericSampler):
       else:
 	  self.last_raw_utils, last_utils = self.update_stats(self.last_raw_utils)
 
+      self.printChUtilToFile(last_utils)
+
       return last_utils
+
+  def printChUtilToFile(self, last_utils):
+    #print '------'
+    last_utils = sorted(last_utils, key=lambda x:x['active'], reverse=True)
+    #print last_utils
+
+    fname = '/var/run/wifi-survey-%s' % self.intf
+    f = open(fname, 'w')
+
+    print >>f, 'ts:%s,freq:%s,active:%d,busy:%d,receive:%d,transmit:%d' % (last_utils[0]['timestamp'],last_utils[0]['freq'], last_utils[0]['active'], last_utils[0]['busy'], last_utils[0]['receive'], last_utils[0]['transmit'])
+
+    f.close()
+
 
 
 def log_stats(self, utils):
