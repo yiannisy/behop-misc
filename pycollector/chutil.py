@@ -21,7 +21,7 @@ class ChUtilSampler(GenericSampler):
       self.CMD_SURVEY="iw dev %s survey dump" % self.intf
 
       self.mac_addr = get_mac_address(INTF)
-      print self.mac_addr
+      #print self.mac_addr
       #hostname = get_hostname()
       self.hostname = 'deadbeef'
 
@@ -117,14 +117,6 @@ def log_stats(self, utils):
 	if util['active'] != 0:
 	    if options.verbose:
 		print "%s" % (util)
-	    #if options.mongo:
-	    #    try:
-	    #        if options.loop:
-	    #            db.cross_stats.insert(util)
-	    #        else:
-	    #            db.serve_stats.insert(util)
-	    #    except AutoReconnect:
-	    #        print "Log to DB failed - disconnected..."
                     
 if __name__=="__main__":
     parser = OptionParser()
@@ -137,9 +129,6 @@ if __name__=="__main__":
     parser.add_option("-u","--updev",dest="updev",
                       default='br0',
                       help="upward network device to send back log entries")
-    #parser.add_option("-m","--mongo",dest="mongo",
-    #                  action="store_true", default=False,
-    #                  help="If set, send logs to a MongoDB server.")
     parser.add_option("-v","--verbose",dest="verbose",
                       action="store_true", default=False,
                       help="verbose output.")
@@ -163,30 +152,8 @@ if __name__=="__main__":
     (options, args) = parser.parse_args()
 
 
-    
-
-    #if options.fake:
-    #    last_raw_utils = init_stats_sim()
-    #else:
-    #    last_raw_utils = init_stats()
-    time.sleep(5)
-
     channels = [1,6,11]
     channel = 1
-
-    #while(True):
-    #    if options.fake:
-    #        last_raw_utils, last_utils = update_stats_sim(last_raw_utils)
-    #    else:
-    #        last_raw_utils, last_utils = update_stats(last_raw_utils)
-    #    log_stats(last_utils)
-    #    #if options.loop:            
-    #    #    channel = channels[(channels.index(channel) + 1) % 3]
-    #    #    print "switching to channel %d" % channel
-    #    #    switch_channel(channel)
-    #    #    time.sleep(1)
-    #    #    last_raw_utils = init_stats()
-    #    time.sleep(options.interval)
 
     #UPWARD_DEVICE = 'br0'
     #DST_IP = "172.24.74.179"

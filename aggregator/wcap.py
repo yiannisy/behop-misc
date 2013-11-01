@@ -201,6 +201,41 @@ def run_piudp_cmd(parent, TEST_MODE, filter=DEF_AGG_FILTER, nodes=[]):
       print '-'*60
 
 
+def run_piudpchutil_cmd(parent, args):
+    try:
+      ip = args[0]
+      port = int(args[1])
+      print 'creating piudpchutil aggregator'
+      pichutil_aggr = PiUdpChUtilAggregator(ip, port, interval=5)
+
+      #print 'initializing piudpchutil infobase queries'
+      #pichutil_aggr.get_info_base().init_queries()
+      #qs = pichutil_aggr.get_info_base().get_queries_provided()
+
+      #print 'piudpchutil provides these queries:', qs
+      ##parent.queryServer.register_query_provider(pichutil_aggr, qs)
+
+      #print 'registering piudpchutil infobase'
+      #parent.queryTCPClient.register_query_provider(pichutil_aggr, qs)
+
+      print 'starting piudpchutil thread'
+      pichutil_aggr.setDaemon(True)
+      pichutil_aggr.start()
+      print 'started piudpchutil thread'
+
+      while(True):
+	  try:
+	      time.sleep(60)
+	  except KeyboardInterrupt as e:
+	      stop_aggregators([pichutil_aggr])
+	      break
+
+    except Exception as e:
+      print '-'*60
+      print e
+      traceback.print_exc(file=sys.stdout)
+      print '-'*60
+
 def stop_aggregators(active_aggs):
     for agg in active_aggs:
         agg.stop()
@@ -214,8 +249,9 @@ class Wcap(cmd.Cmd):
 
 	#self.queryServer = QueryServer()
 	#self.queryServer.start()
+
 	self.queryTCPClient = QueryTCPClient()
-	self.queryTCPClient.start()
+	#self.queryTCPClient.start()
 
         self.proxy = Proxy()
         self.proxy.setDaemon(True)
@@ -293,6 +329,12 @@ class Wcap(cmd.Cmd):
 	  print 'Running piudp aggregator with filter=%s' % filter
 	run_piudp_cmd(self, TEST_MODE, filter)
 
+    def do_piudpchutil(self,arg):
+	print 'arg=%s' % arg
+	#raw_input()
+	print 'Running piudpchutil aggregator' 
+	run_piudpchutil_cmd(self, arg)
+
     def do_link(self,arg):
         'Get the links for the traffic from the specific AP.'
         filter = ''
@@ -333,5 +375,10 @@ if __name__ == '__main__':
 	Wcap().do_piudp(sys.argv[2:])
       else:
 	Wcap().do_piudp([])
+    if len(sys.argv) > 1 and sys.argv[1] == 'piudpchutil':
+      if len(sys.argv) > 2:
+	Wcap().do_piudpchutil(sys.argv[2:])
+      else:
+	Wcap().do_piudpchutil([])
     else:
       Wcap().cmdloop()

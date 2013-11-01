@@ -766,3 +766,68 @@ class PiUdpAggregator(UdpAggregator):
 	self.trace.close()
 	print 'dumped self.resp_log'
 
+
+class PiUdpChUtilAggregator(UdpAggregator):
+    def __init__(self, UDP_IP, UDP_PORT, interval=1, MAXLEN=10000):
+        """
+        @interval: how often to export a summary
+        """
+	self.IP = UDP_IP
+	self.PORT = UDP_PORT
+        UdpAggregator.__init__(self)
+        self.interval = interval
+
+	self.trace = open('piudp-trace.pkl','wb')
+	self.resp_log = []
+
+	self.db = collections.deque(maxlen=MAXLEN)	#circular buffer of length MAXLEN
+	self.dblock = threading.RLock()
+
+	print 'piudpchutil aggregator receiving on port', self.PORT
+	#print 'creating pi info base'
+	#self.set_info_base(PiInfoBase(self))
+	#print 'created pi info base'
+
+	#self.ap_hw_id_list = ap_hw_ids()
+               
+    def run(self):
+        last_ts = 0
+        bits = 0
+        rbits = 0
+        pkts = 0
+        duration = 0
+        snrs = []
+        max_pkt_size = 0
+        while(self.running):
+	    resp = self.socket.recv(1024).strip()
+	    #self.resp_log.append(resp)
+	    #if len(self.resp_log) > 2000:
+	    #  break
+
+	    #--------------------------
+	    # pycollector model
+	    #--------------------------
+	    ser = json.loads(resp)
+	    print ser
+
+	    ts = ser['ts']
+	    ts_rcv = time.time()
+	    apid = ser['id']
+	    sample = ser['sample']
+	    #-------------------------
+
+
+
+            if last_ts == 0:
+                last_ts = ts
+
+
+	    d={'ts_rcv':ts_rcv,'ts':ts,'apid':apid,'util':sample}
+	    #print tag, d
+	    with self.dblock:
+	      self.db.append(d)
+
+            
+            if ts - last_ts > self.interval:
+	      ##print "max_pkt_size: %d, max_snr: %f, min_snr: %f" % (max_pkt_size, max(snrs), min(snrs))
+	      pass

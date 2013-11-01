@@ -23,7 +23,6 @@ class UdpJsonTransmitter(threading.Thread):
 	self.filter = filter
 
         self.socket = None
-	#self.bpf = pcapy.compile(127, 1500, self.filter, 0, 1)
 
 	print "UDP target IP:", self.dst_ip
 	print "UDP target port:", self.dst_port
@@ -32,22 +31,15 @@ class UdpJsonTransmitter(threading.Thread):
 	sock = socket.socket(socket.AF_INET, # Internet
                      socket.SOCK_DGRAM) # UDP
 
-        #print "opening %s" % self.intf
-        #p = pcap.pcap(self.intf)
-	#p.setfilter(self.filter)
         while True:
-            #try:
-	    ts = time.time()
-	    sample = self.sampler.next()
-	    print sample
-            #except:
-            #    print "UdpJsonTransmitter could not get sample, continuing..."
-	    #    time.sleep(self.interval)
-            #    continue
-
-	    #ser = json.dumps({"ts":ts, 'id':self.id, 'len':len(pkt)})
-	    #json_len_s = '%04d' % len(ser)
-	    #dgram = json_len_s + ser + pkt_content
+            try:
+	      ts = time.time()
+	      sample = self.sampler.next()
+	      print sample
+            except:
+                print "UdpJsonTransmitter could not get sample, continuing..."
+	        time.sleep(self.interval)
+                continue
 
 	    ser = json.dumps({"ts":ts, 'id':self.id, 'sample':sample})
 	    dgram = ser
@@ -58,7 +50,6 @@ class UdpJsonTransmitter(threading.Thread):
 
 
 def main():
-    #print "message:", MESSAGE
     UPWARD_PORT = 'br0'
     DST_IP = "172.24.74.179"
     DST_PORT = 5590
