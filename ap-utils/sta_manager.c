@@ -112,7 +112,7 @@ void remove_station(struct nl_sock *sock, json_t * update)
   /* Get station from ovsdb update. */
   //printf("%s\n",json_dumps(update, JSON_ENCODE_ANY));
   addr_str = json_string_value(json_object_get(json_object_get(update,"old"), "addr"));
-  intf = json_string_value(json_object_get(json_object_get(update,"new"),"intf"));
+  intf = json_string_value(json_object_get(json_object_get(update,"old"),"intf"));
   str_to_mac(addr_str, addr);
 
   printf("Removing Station :  address : %s \n",addr_str);
@@ -139,6 +139,8 @@ void remove_station(struct nl_sock *sock, json_t * update)
       }
     }
   }
+
+  printf("Removed Station :  address : %s \n",addr_str);
   //printf("Sent nl msg to remove station : %s\n", addr_str);
   return;
   
@@ -230,7 +232,12 @@ void del_vbeacon(json_t *update)
 
   /* Get station and vbssid from ovsdb update. */
   vbssid_str = json_string_value(json_object_get(json_object_get(update,"old"), "vbssid"));
-  intf = json_string_value(json_object_get(json_object_get(update,"new"),"intf"));
+  intf = json_string_value(json_object_get(json_object_get(update,"old"),"intf"));
+
+  if (!vbssid_str || !intf){
+    printf("cannot parse vbssid or intf---skipping...\n");
+    return;
+  }
 
   if (strcmp(intf,"wlan0") == 0){
     vbeacon_fname = WLAN0_DEL_VBEACON_DEBUGFS_FILE;
@@ -238,6 +245,9 @@ void del_vbeacon(json_t *update)
   else if(strcmp(intf, "wlan1") == 0){
     vbeacon_fname = WLAN1_DEL_VBEACON_DEBUGFS_FILE;
   }
+
+  printf("deleting vbeacon\n");
+  printf("using %s\n",vbeacon_fname);
 
   if ((f = fopen(vbeacon_fname,"w")) == NULL){
     printf("cannot open delbeacon file...\n");
@@ -408,15 +418,15 @@ int ovsdb_subscribe(int fd)
   packed_req_sta = json_pack("{s:s,s:[s,i,{s:[{s:{s:b}}]}],s:i}",
 				"method","monitor","params","Wifi_vSwitch",MON_ID_STA,
 				"WifiSta","select","initial",0,"id",1);
-  packed_req_channel = json_pack("{s:s,s:[s,i,{s:[{s:[s],s:{s:b}}]}],s:i}",
+  packed_req_channel = json_pack("{s:s,s:[s,i,{s:[{s:[s,s],s:{s:b}}]}],s:i}",
 			     "method","monitor","params","Wifi_vSwitch",MON_ID_CHANNEL,
-			     "WifiConfig","columns","channel","select","initial",0,"id",2);
-  packed_req_bssidmask = json_pack("{s:s,s:[s,i,{s:[{s:[s],s:{s:b}}]}],s:i}",
+				 "WifiConfig","columns","channel","intf","select","initial",0,"id",2);
+  packed_req_bssidmask = json_pack("{s:s,s:[s,i,{s:[{s:[s,s],s:{s:b}}]}],s:i}",
 			     "method","monitor","params","Wifi_vSwitch",MON_ID_BSSIDMASK,
-			     "WifiConfig","columns","bssidmask","select","initial",0,"id",3);
-  packed_req_power = json_pack("{s:s,s:[s,i,{s:[{s:[s],s:{s:b}}]}],s:i}",
+				   "WifiConfig","columns","bssidmask","intf","select","initial",0,"id",3);
+  packed_req_power = json_pack("{s:s,s:[s,i,{s:[{s:[s,s],s:{s:b}}]}],s:i}",
 			     "method","monitor","params","Wifi_vSwitch",MON_ID_POWER,
-			     "WifiConfig","columns","power","select","initial",0,"id",4);
+			       "WifiConfig","columns","power","intf","select","initial",0,"id",4);
 
   json_dump = json_dumps(packed_req_channel, JSON_ENCODE_ANY);
   bytes_sent = write(fd, json_dump, strlen(json_dump));
