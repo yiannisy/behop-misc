@@ -28,8 +28,6 @@ ovs-vsctl set-manager ${OVSDBCONTROLLER}
 ovsdb-client transact '["Wifi_vSwitch",{"op":"insert","table":"WifiConfig","row":{"intf":wlan0,"channel":11,"power":20,"bssidmask":"ffffffffffff"}}]' 
 ovsdb-client transact '["Wifi_vSwitch",{"op":"insert","table":"WifiConfig","row":{"intf":wlan1,"channel":36,"power":20,"bssidmask":"ffffffffffff"}}]' 
 
-
-
 echo "Enabling SNMP"
 uci set mini_snmpd.@mini_snmpd[0].enabled=1
 uci commit mini_snmpd
@@ -59,17 +57,18 @@ echo "Setting up Wireless"
     uci set wireless.@wifi-iface[0].wmm=1
     uci set wireless.@wifi-iface[0].macaddr=02:00:00:00:00:00
 
-    uci set wireless.radio1.disabled=1
+    uci set wireless.radio1.disabled=0
     uci set wireless.radio1.beacon_int=1000
     uci set wireless.radio1.htmode=HT40+
     uci set wireless.radio1.noscan=1
     uci delete.wireless.@wifi-iface[1].network
     uci set wireless.@wifi-iface[1].hidden=1
     uci set wireless.@wifi-iface[1].wmm=1
-    uci set wireless.@wifi-iface[1].macaddr=02:00:00:00:00:00
+    uci set wireless.@wifi-iface[1].macaddr=06:00:00:00:00:00
 
     uci commit wireless
 }
 rm -f /tmp/wireless.tmp
 wifi
 echo "Configuration completed - reboot AP to apply all changes!"
+/sbin/pi_force_mount_usb

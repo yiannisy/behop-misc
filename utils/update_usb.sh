@@ -10,12 +10,7 @@ echo `date` ":"  "Rebooting into usb mode."
 ./pi_pssh.sh -t 10 "/sbin/pi_check_mount_usb"
 echo `date` ":"  "Waiting for reboot..."
 sleep 90
-echo `date` ":"  "Setting up usb-filesystem."
+echo `date` ":"  "Setting up usb-filesystem. When this completes, the system will reboot on usb mode."
 ./pi_pssh.sh -t 0 "/opt/setup_usb.sh"
-echo `date` ":"  "Done! Rebooting into JFFS."
-./pi_pssh.sh "reboot"
-echo `date` ":" "Waiting for APs to reboot in jffs mode."
-sleep 60
-echo `date` ":" "Rebooting into usb and we should be good to do. APs should be up in ~2mins."
-./pi_pssh.sh "/sbin/pi_check_mount_usb"
+
 
