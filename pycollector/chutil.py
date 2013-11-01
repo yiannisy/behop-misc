@@ -77,23 +77,23 @@ class ChUtilSampler(GenericSampler):
 	      'active':1000,'busy':600,'receive':200,'transmit':200, 'intf':self.intf,'description':self.description}]
 
   def init_stats(self):
-      pipe = Popen(CMD_SURVEY,shell=True,stdout=PIPE)
+      pipe = Popen(self.CMD_SURVEY,shell=True,stdout=PIPE)
       out,err = pipe.communicate()
       if (err):
 	  print "iw failed - exiting...(%s)" % err
 	  sys.exit(0)
       else:
-	  raw_utils = parse_iw_output(out)
+	  raw_utils = self.parse_iw_output(out)
 	  return raw_utils
       
   def update_stats(self, last_raw_utils):
-      pipe = Popen(CMD_SURVEY,shell=True,stdout=PIPE)
+      pipe = Popen(self.CMD_SURVEY,shell=True,stdout=PIPE)
       out,err = pipe.communicate()
       if (err):
 	  print "iw failed - exiting...(%s)" % err
 	  sys.exit(0)
       else:
-	  raw_utils = parse_iw_output(out)
+	  raw_utils = self.parse_iw_output(out)
 	  utils = []
 	  for raw_util,last_raw_util in zip(raw_utils, last_raw_utils):
 	      utils.append({'timestamp':raw_util['timestamp'],'freq':raw_util['freq'],'mac_addr':self.mac_addr,'hostname':self.hostname, 'intf':self.intf,'description':self.description,
