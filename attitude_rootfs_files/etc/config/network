@@ -4,6 +4,6 @@ config interface 'loopback'
        option ipaddr '127.0.0.1'
        option netmask '255.0.0.0'
 
-config interface 'lan'
-       option ifname 'eth0'
+config interface 'wan'
+       option ifname 'eth1'
        option proto 'dhcp'
