@@ -7,17 +7,26 @@ import json
 #from util_ap import get_ip_address
 from util_ap import get_mac_address
 
+#for testing
+from GenericSampler import *
+
 MESSAGE = "Hello, World!"
 
 class UdpJsonTransmitter(threading.Thread):
-    def __init__(self, intf='wlan0', port=5590, id='deadbeef', filter=''):
+    def __init__(self, sampler, dst_ip, dst_port, interval=5, id='deadbeef', filter=''):
         threading.Thread.__init__(self)
-        self.intf = intf
-        self.socket = None
-        self.port = port
+	self.sampler = sampler
+        self.dst_port = dst_port
+	self.dst_ip = dst_ip
+	self.interval = interval
         self.id = id
 	self.filter = filter
+
+        self.socket = None
 	#self.bpf = pcapy.compile(127, 1500, self.filter, 0, 1)
+
+	print "UDP target IP:", self.dst_ip
+	print "UDP target port:", self.dst_port
     
     def run(self):
 	sock = socket.socket(socket.AF_INET, # Internet
@@ -27,29 +36,39 @@ class UdpJsonTransmitter(threading.Thread):
         #p = pcap.pcap(self.intf)
 	#p.setfilter(self.filter)
         while True:
-            try:
-                ts,pkt = p.next()
-            except StopIteration:
-                print "pcap file ended..."
-                break
-	    pkt_content = pkt[0:min(len(pkt),800)]
-	    ser = json.dumps({"ts":ts, 'id':self.id, 'len':len(pkt)})
-	    json_len_s = '%04d' % len(ser)
-	    dgram = json_len_s + ser + pkt_content
-            sock.sendto(dgram, (UDP_IP, UDP_PORT))
+            #try:
+	    ts = time.time()
+	    sample = self.sampler.next()
+	    print sample
+            #except:
+            #    print "UdpJsonTransmitter could not get sample, continuing..."
+	    #    time.sleep(self.interval)
+            #    continue
 
-            time.sleep(0.0005)
+	    #ser = json.dumps({"ts":ts, 'id':self.id, 'len':len(pkt)})
+	    #json_len_s = '%04d' % len(ser)
+	    #dgram = json_len_s + ser + pkt_content
+
+	    ser = json.dumps({"ts":ts, 'id':self.id, 'sample':sample})
+	    dgram = ser
+
+            sock.sendto(dgram, (self.dst_ip, self.dst_port))
+
+            time.sleep(self.interval)
 
 
 def main():
-    print "UDP target IP:", UDP_IP
-    print "UDP target port:", UDP_PORT
     #print "message:", MESSAGE
+    UPWARD_PORT = 'br0'
+    DST_IP = "172.24.74.179"
+    DST_PORT = 5590
+
+    sampler = TestSampler()
 
     
     #ID = get_ip_address(UPWARD_PORT)
     ID = get_mac_address(UPWARD_PORT)
-    udpJsonTransmitter = UdpJsonTransmitter(intf=INTF,filter=FILTER, id=ID)
+    udpJsonTransmitter = UdpJsonTransmitter(sampler, DST_IP, DST_PORT, 1, ID)
 
     udpJsonTransmitter.setDaemon(True)
     udpJsonTransmitter.start()

@@ -1,1 +1,1 @@
-python chutil.py -v -f
+python chutil.py -s 172.24.74.179 -p 5900 -u br0 -i wlan0 -f
