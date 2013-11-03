@@ -1,4 +1,5 @@
 config 'behop' 'ap'
-       option 'ofcontroller' 'tcp:172.24.74.50:6635'
-       option 'ovsdbcontroller' 'tcp:172.24.74.50:9935'
-       option 'aggregator' ''
+       option 'ofcontroller' 'tcp:172.24.74.50:6637'
+       option 'ovsdbcontroller' 'tcp:172.24.74.50:9937'
+       option 'aggregator' '172.24.74.50:5589'
+       option 'survey_aggregator' '172.24.74.50:5590'
