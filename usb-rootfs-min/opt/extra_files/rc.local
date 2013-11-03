@@ -24,5 +24,6 @@ ovs-vsctl set-manager ${OVSDBCONTROLLER}
 /opt/utils/mon_to_tap -m mon0 -t veth0 &
 /opt/utils/mon_to_tap -m mon1 -t veth2 &
 /opt/utils/ccol_cmd ${AGGREGATOR} &
-/opt/utils/wifisurvey/chutil_cmd ${SURVEY_AGGREGATOR} &
+cd /opt/utils/wifisurvey/
+./chutil_cmd ${SURVEY_AGGREGATOR} &
 exit 0
