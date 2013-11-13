@@ -10,7 +10,7 @@ cp pox.log ${new_log}
 echo '' > pox.log
 
 cp ${new_log} /tmp/.pox.log
-echo "date|msg|label|addr|channel|band" > /tmp/.probes.log
+echo "date|msg|label|dpid|addr|channel|band" > /tmp/.probes.log
 cat /tmp/.pox.log | grep LTSTA | grep PROBE_REQ >> /tmp/.probes.log
 cat /tmp/.pox.log | grep LTSTA | grep ASSOC_REQ > /tmp/.assocs.log
 
