@@ -16,7 +16,7 @@ fewer drop outs and fewer lost connections).
 
 What you need to do:
 . Sign up below!
-. We will provide and install your own private WiFi AP in your room---you don't have to do anything. It's small and unobtrusive (see a pic [http://behop.stanford.edu/installed.jpg here] ).
+. We will provide and install your own private WiFi AP in your room---you don't have to do anything. It's small and unobtrusive (see a pic [img/installed.jpg here] ).
 . That's it!! When everything is up and running, you can also enjoy a small reward :)
 
 ~~~
@@ -44,7 +44,7 @@ function checkForm()
 <label>SUNetID
 <span class="small">Your SUNet ID</span>
 </label>
-<input type="text" name="fname" value=<!--#echo var="REMOTE_USER"--> readonly="readonly"/>
+<input type="text" name="fname" value="<?php echo $_SERVER['WEBAUTH_USER']?>" readonly="readonly"/>
 
 <label>Studio 5 APT
 <span class="small">Your studio info.</span>

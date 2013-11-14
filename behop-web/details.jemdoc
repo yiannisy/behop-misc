@@ -26,7 +26,7 @@ Our goal is to improve your wireless network experience. First, our Access Point
 == What if it breaks?
 We'll do our best to keep the network in a good state, and when this is not possible to keep it transparent to you. Nevertheless, this is still a research project and there is a small chance that things might not work perfectly all the time :). If and when this happens, you can do one of the following : 
 . Go [feedback.html here] and give us a short description of the issues you have. We'll try to debug and fix it as soon as possible.
-. If you keep experiencing problems that prevent you from using the network, you can give us a "Network Alert". This will temporarily "move" your devices to the legacy Stanford network until everything is back to normal. To give us a network alert you have to press one of the [http://behop.stanford.edu/network_alert.jpg network alert buttons] on your AP.
+. If you keep experiencing problems that prevent you from using the network, you can give us a "Network Alert". This will temporarily "move" your devices to the legacy Stanford network until everything is back to normal. To give us a network alert you have to press one of the [img/network_alert.jpg network alert buttons] on your AP.
 
 == What is the privacy policy?
 We are not interested in, and will not collect any personal data (like websites you visited, P2P applications etc). 

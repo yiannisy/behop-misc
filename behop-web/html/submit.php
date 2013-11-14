@@ -1,5 +1,5 @@
 <html>
-<head><meta http-equiv="REFRESH" content="0;url=http://www.stanford.edu/~yiannisy/cgi-bin/behop/thanks.html"></head>
+<head><meta http-equiv="REFRESH" content="0;url=https://behop.stanford.edu/thanks.html"></head>
 <body>
 <?php
 $file = 'people.txt';
