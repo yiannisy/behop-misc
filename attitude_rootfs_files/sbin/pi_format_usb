@@ -1,0 +1,19 @@
+#!/bin/sh
+fdisk /dev/sda <<EOF
+o
+n
+p
+
+
++7G
+n
+p
+
+
+
+w
+EOF
+
+sleep 5
+
+mkfs.ext4 -q /dev/sda1 

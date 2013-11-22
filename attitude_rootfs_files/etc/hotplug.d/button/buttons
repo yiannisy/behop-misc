@@ -1,0 +1,13 @@
+#!/bin/sh
+#logger "Running hotplug button!!"
+
+#logger $BUTTON
+#logger $ACTION
+
+if [ "$ACTION" == "pressed" ]
+then
+	addr=`ifconfig eth1 | grep HWaddr | awk -F ' ' '{ print tolower($5)}' | sed 's/[:]//g'`
+	logger "soft opt-out for dpid $addr" 
+	wget --no-check-certificate http://mg-xen2.stanford.edu/softoptout.php?dpid=$addr > /dev/null
+fi
+
