@@ -54,4 +54,4 @@ do
 done
 cd ../
 rm -rf .tmp
-#rm -f ${pcapfile}
+rm -f ${pcapfile}
