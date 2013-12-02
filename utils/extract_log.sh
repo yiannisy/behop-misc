@@ -42,7 +42,8 @@ python analyze_video_requests.py
 
 # Store results
 echo "Storing results..."
-mv .tmp/${pcapfile_out} ../data/captures/pcaps/
+tar cvfz ${pcapfile_out}.tgz .tmp/${pcapfile_out}
+mv ${pcapfile_out}.tgz ../data/captures/pcaps/
 [ -e .tmp/youtube.log ] && cat .tmp/youtube.log >> ../data/captures/youtube.log
 [ -e .tmp/netflix.log ] && cat .tmp/netflix.log >> ../data/captures/netflix.log
 [ -e .tmp/youtube_requests.log ] && cat .tmp/youtube_requests.log >> ../data/captures/youtube_requests_all.log
