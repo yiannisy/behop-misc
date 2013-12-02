@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 import string
 
-YOUTUBE_REQS_FNAME='youtube_requests.txt'
-NETFLIX_REQS_FNAME='netflix_requests.txt'
+YOUTUBE_REQS_FNAME='.tmp/youtube_requests.txt'
+NETFLIX_REQS_FNAME='.tmp/netflix_requests.txt'
+YOUTUBE_LOGS_FNAME='.tmp/youtube.log'
+NETFLIX_LOGS_FNAME='.tmp/netflix.log'
 
 # the log format is as follows (two line pattern)
 # ts ip_src -> ip_dst
@@ -10,6 +12,7 @@ NETFLIX_REQS_FNAME='netflix_requests.txt'
 
 
 f = open(YOUTUBE_REQS_FNAME,'r')
+f_out = open(YOUTUBE_LOGS_FNAME,'w')
 lines = f.readlines()
 print "Processing %d web requests from youtube" % (len(lines)/2)
 for i in range(0,len(lines)/2):
@@ -35,10 +38,12 @@ for i in range(0,len(lines)/2):
     # calculate the rate (rate = length_in_bits/duration)
     req_rate = req_len/req['dur']
 
-    print "%s,%s,%s,%d,%f,%f,%s" % (tstamp,ip_src,ip_dst,req_len,req_rate,req['dur'],req['range'])
+    f_out.write("%s,%s,%s,%d,%f,%f,%s" % (tstamp,ip_src,ip_dst,req_len,req_rate,req['dur'],req['range']))
 f.close()
+f_out.close()
 
 f = open(NETFLIX_REQS_FNAME,'r')
+f_out = open(NETFLIX_LOGS_FNAME,'w')
 lines = f.readlines()
 print "Processing %d web requests from netflix" % (len(lines)/2)
 for i in range(0,len(lines)/2):
@@ -60,5 +65,6 @@ for i in range(0,len(lines)/2):
     # calculate the rate (rate = length_in_bits/duration)
     req_rate = req_len/req_dur
 
-    print "%s,%s,%s,%d,%f,%f,%s" % (tstamp,ip_src,ip_dst,req_len,req_rate,req_dur,req_range)
+    f_out.write("%s,%s,%s,%d,%f,%f,%s" % (tstamp,ip_src,ip_dst,req_len,req_rate,req_dur,req_range))
 f.close()
+f_out.close()
