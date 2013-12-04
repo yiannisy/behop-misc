@@ -1,0 +1,17 @@
+if [ $# -lt 1 ]; then
+  echo "Usage: $0 DST_IP:DST_PORT"
+  exit
+fi
+arg="$1"
+UDP_IP=`echo $arg | cut -d':' -f1`
+UDP_PORT=$(echo $arg | cut -d':' -f2)
+
+echo ip=$UDP_IP, port=$UDP_PORT
+
+#python chutil.py -s 172.24.74.179 -p 5590 -u br0 -i wlan0 -f
+
+#python chutil.py -s 172.24.74.179 -p 5590 -u br0 -i wlan0 -I 60 &
+#python chutil.py -s 172.24.74.179 -p 5590 -u br0 -i wlan1 -I 60 &
+
+python chutil.py -s ${UDP_IP} -p ${UDP_PORT} -u br0 -i wlan0 -I 60 &
+python chutil.py -s ${UDP_IP} -p ${UDP_PORT} -u br0 -i wlan1 -I 60 &

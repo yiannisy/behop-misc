@@ -10,7 +10,7 @@ docs : $(PHDOCS)
 .PHONY : update
 update : $(PHDOCS)
 	@echo -n 'Copying to server...'
-	scp -r html/* yiannisy@myth.stanford.edu:~/cgi-bin/behop/
+	sudo cp -r html/* /var/www/behop/
 	@echo ' done.'
 
 html/%.html : %.jemdoc
