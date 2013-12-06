@@ -15,10 +15,13 @@ time tcpdump -e -r ${pcapfile} -nnn "vlan and not port 53"  -w .tmp/studio5-out.
 time tcpdump -e -r ${pcapfile} -nnn "not vlan and not port 53" -w .tmp/studio5-in.pcap
 
 # Extract youtube/netflix requests before throwing-out content.
+# We first need to strip out vlan tags for proper matching...
+echo "Stripping out vlan tags..."
+tcprewrite --enet-vlan=del --infile=.tmp/studio5-out.pcap --outfile=.tmp/studio5-out_novlan.pcap
 echo "Extracting youtube video requests..."
-time ngrep "algorithm=throttle-factor" -I .tmp/studio5-out.pcap -W byline dst port 80 | grep -v "#" | grep -E 'T 201|GET'  > .tmp/youtube_requests.txt
+time ngrep "algorithm=throttle-factor" -I .tmp/studio5-out_novlan.pcap -W byline dst port 80 | grep -v "#" | grep -E 'T |GET'  > .tmp/youtube_requests.txt
 echo "Extracting netflix video requests..."
-time ngrep ".ismv/range" -I .tmp/studio5-out.pcap -W byline dst port 80 | grep -v "#" | grep -E 'T 201|GET'  > .tmp/netflix_requests.txt
+time ngrep ".ismv/range" -I .tmp/studio5-out_novlan.pcap -W byline dst port 80 | grep -v "#" | grep -E 'T |GET'  > .tmp/netflix_requests.txt
 
 # Anonymize incoming/outgoing traffic
 echo "Anonymizing traffic..."
