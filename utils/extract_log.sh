@@ -49,8 +49,8 @@ tar cvfz ${pcapfile_out}.tgz .tmp/${pcapfile_out}
 mv ${pcapfile_out}.tgz ../data/captures/pcaps/
 [ -e .tmp/youtube.log ] && cat .tmp/youtube.log >> ../data/captures/youtube.log
 [ -e .tmp/netflix.log ] && cat .tmp/netflix.log >> ../data/captures/netflix.log
-[ -e .tmp/youtube_requests.log ] && cat .tmp/youtube_requests.log >> ../data/captures/youtube_requests_all.log
-[ -e .tmp/netflix_requests.log ] && cat .tmp/netflix_requests.log >> ../data/captures/netflix_requests_all.log
+[ -e .tmp/youtube_requests.txt ] && cat .tmp/youtube_requests.txt >> ../data/captures/youtube_requests_all.log
+[ -e .tmp/netflix_requests.txt ] && cat .tmp/netflix_requests.txt >> ../data/captures/netflix_requests_all.log
 cd .tmp/
 for i in rtt*.log;
 do 
