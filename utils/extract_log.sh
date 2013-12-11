@@ -19,9 +19,9 @@ time tcpdump -e -r ${pcapfile} -nnn "not vlan and not port 53" -w .tmp/studio5-i
 echo "Stripping out vlan tags..."
 tcprewrite --enet-vlan=del --infile=.tmp/studio5-out.pcap --outfile=.tmp/studio5-out_novlan.pcap
 echo "Extracting youtube video requests..."
-time ngrep "algorithm=throttle-factor" -I .tmp/studio5-out_novlan.pcap -W byline dst port 80 | grep -v "#" | grep -E 'T |GET'  > .tmp/youtube_requests.txt
+time ngrep "algorithm=throttle-factor" -t -I .tmp/studio5-out_novlan.pcap -W byline dst port 80 | grep -v "#" | grep -E 'T |GET'  > .tmp/youtube_requests.txt
 echo "Extracting netflix video requests..."
-time ngrep ".ismv/range" -I .tmp/studio5-out_novlan.pcap -W byline dst port 80 | grep -v "#" | grep -E 'T |GET'  > .tmp/netflix_requests.txt
+time ngrep ".ismv/range" -t -I .tmp/studio5-out_novlan.pcap -W byline dst port 80 | grep -v "#" | grep -E 'T |GET'  > .tmp/netflix_requests.txt
 
 # Anonymize incoming/outgoing traffic
 echo "Anonymizing traffic..."
@@ -41,7 +41,8 @@ python analyze_tcptrace_sum.py
 
 # Analyze video requests
 echo "Running video requests analysis..."
-python analyze_video_requests.py
+[ -e .tmp/youtube_requests.txt ] && ./analyze_video_requests.py -s youtube -i .tmp/youtube_requests.txt -o .tmp/youtube.log
+[ -e .tmp/netflix_requests.txt ] && ./analyze_video_requests.py -s netflix -i .tmp/netflix_requests.txt -o .tmp/netflix.log
 
 # Store results
 echo "Storing results..."
