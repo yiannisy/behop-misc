@@ -1,0 +1,137 @@
+#!/bin/sh
+# 
+#  Copyright (c) 2000-2004 QoSient, LLC
+#  All rights reserved.
+# 
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; either version 2, or (at your option)
+#  any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.  */
+# 
+#
+
+PATH=/bin:/usr/bin
+
+#
+# Try to use $ARGUSDATA and $ARGUSARCHIVE where possible.
+# If these are available, the only thing that we need to
+# know is what is the name of the argus output file.
+#
+# If ARGUSDATA set then don't need to define below.  For
+# cron scripts however, $ARGUSDATA may not be defined, so
+# lets do that here.
+
+ARGUSBIN=/usr/local/bin
+ARGUSDATA=/var/log/argus
+ARGUSARCHIVE=/var/log/argus/archive
+
+RAGATOR=$ARGUSBIN/ragator
+RASORT=$ARGUSBIN/rasort
+
+COMPRESSOR=gzip
+COMPRESSFILEEXT=gz
+
+#COMPRESSOR=bzip2
+#COMPRESSFILEEXT=bz2
+
+#COMPRESSOR=compress
+#COMPRESSFILEEXT=Z
+
+DATAFILE=argus.out
+
+ARCHIVE=argus.`date '+%Y.%m.%d.%H.%M.%S'`
+ARCHIVEZIP=$ARCHIVE.$COMPRESSFILEEXT
+
+YEAR=`echo $ARCHIVE | awk 'BEGIN {FS="."}{print $2}'`
+MONTH=`echo $ARCHIVE | awk 'BEGIN {FS="."}{print $3}'`
+DAY=`echo $ARCHIVE | awk 'BEGIN {FS="."}{print $4}'`
+
+if [ -d $ARGUSDATA ] ; then
+   cd $ARGUSDATA
+else
+   echo "argus data directory $ARGUSDATA not found"
+   exit
+fi
+
+if [ ! -d $ARGUSARCHIVE ] ; then
+   mkdir $ARGUSARCHIVE
+   if [ ! -d $ARGUSARCHIVE ] ; then
+      echo "could not create archive directory $ARGUSARCHIVE"
+      exit
+   fi
+fi
+
+ARGUSARCHIVE=$ARGUSARCHIVE/$YEAR
+
+if [ ! -d $ARGUSARCHIVE ]; then
+   mkdir $ARGUSARCHIVE
+   if [ ! -d $ARGUSARCHIVE ]; then
+      echo "could not create archive directory structure."
+      exit
+   fi
+fi
+
+ARGUSARCHIVE=$ARGUSARCHIVE/$MONTH
+
+if [ ! -d $ARGUSARCHIVE ]; then
+   mkdir $ARGUSARCHIVE
+   if [ ! -d $ARGUSARCHIVE ]; then
+      echo "could not create archive directory structure."
+      exit
+   fi
+fi
+
+ARGUSARCHIVE=$ARGUSARCHIVE/$DAY
+
+if [ ! -d $ARGUSARCHIVE ]; then
+   mkdir $ARGUSARCHIVE
+   if [ ! -d $ARGUSARCHIVE ]; then
+      echo "could not create archive directory structure."
+      exit
+   fi
+fi
+
+if [ -f $DATAFILE ] ; then
+   mv $DATAFILE $ARCHIVE.tmp 2>/dev/null
+else
+   echo "argus data file $ARGUSDATA/$DATAFILE not found"
+   exit
+fi
+
+if [ -f $ARCHIVE.tmp ]; then
+#  $RAGATOR -VRr $ARCHIVE.tmp -w - | $RASORT -w $ARCHIVE
+   $RASORT -r $ARCHIVE.tmp -w $ARCHIVE
+else
+   echo "argus data file not moved."
+   exit
+fi
+
+if [ -f $ARCHIVE ]; then
+   rm -f $ARCHIVE.tmp
+   $COMPRESSOR $ARCHIVE
+else
+   echo "argus data file not moved."
+   exit
+fi
+
+if [ -f $ARCHIVEZIP ]; then
+   ARCHIVESTR=$ARCHIVEZIP
+else
+   ARCHIVESTR=$ARCHIVE
+fi
+
+mv $ARCHIVESTR $ARGUSARCHIVE
+if [ ! -f  $ARGUSARCHIVE/$ARCHIVESTR ]; then
+   echo "storing compressed argus data file failed"
+   echo "leaving as $ARCHIVESTR"
+fi
+
