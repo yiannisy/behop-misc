@@ -1,3 +1,6 @@
+#This is for argus v3.0.6
+#Note: ubuntu repo has v2.x.x. Make sure to build v3.0.6 from source instead of using apt distributed argus.
+
 sudo mkdir /var/log/argus
 sudo cp argusarchive /usr/local/bin/
 sudo cp argus.conf /etc/argus.conf
