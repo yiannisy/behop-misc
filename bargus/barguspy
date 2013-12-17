@@ -1,0 +1,70 @@
+#!/usr/bin/env python
+
+import argparse
+import time
+#from datetime import datetime
+
+#bargus -c bytes -s /tmp/t1 -d /tmp/t2
+
+def aggregate_bytes(srcfile, dstfile, outfile=None, timestamp=None):
+  #ts=datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')+time.strftime('%z')
+  print timestamp
+  #YY,mm,dd,HH,MM,SS=timestamp.split('.')[1:]
+  timestamp=tuple(timestamp.split('.')[1:])
+  timestamp='%s-%s-%s %s:%s:%s.000000' % timestamp
+  ts=timestamp+time.strftime('%z')
+
+  bytes = {}
+  with open(srcfile, 'r') as f:
+    sl = f.readlines()
+  sl = [l.strip() for l in sl]
+  slt = [tuple(l.split(' ')) for l in sl]
+
+  with open(dstfile, 'r') as f:
+    dl = f.readlines()
+  dl = [l.strip() for l in dl]
+  dlt = [tuple(l.split(' ')) for l in dl]
+  dlt = [(ip,ig,outPkts,inPkts,outBytes,inBytes) for (ig,ip,inPkts,outPkts,inBytes,outBytes) in dlt]
+
+  lt = slt + dlt
+
+  for t in lt:
+    #print t
+    ip,_,outPkts,inPkts,outBytes,inBytes = t
+    if not ip.startswith('10.30'):	#to throw out header rows and 0.0.0.0 type IPs
+      continue
+    inBytes = int(inBytes)
+    outBytes = int(outBytes)
+    if not ip in bytes:
+      bytes[ip] = (inBytes, outBytes)
+    else:
+      inby,outby= bytes[ip]
+      bytes[ip] = (inby + inBytes, outby + outBytes)
+
+
+  if outfile != None:
+    with open(outfile, 'w') as f:
+      for ip in bytes:
+        inBy, outBy = bytes[ip]
+        #print ip, inBy, outBy
+	f.write('%s,%s,%s,%s\n' % (ts, ip, inBy, outBy))
+      
+  return bytes
+
+
+def main():
+  parser = argparse.ArgumentParser(description='Process some integers.')
+  parser.add_argument('-c', '--cmd', dest='cmd', action='store', help='command to process')
+  parser.add_argument('-s', '--src_file', dest='srcfile', action='store', help='file with src filter')
+  parser.add_argument('-d', '--dst_file', dest='dstfile', action='store', help='file with dst filter')
+  parser.add_argument('-o', '--out_file', dest='outfile', action='store', help='output file')
+  parser.add_argument('-t', '--timestamp', dest='timestamp', action='store', help='timestamp upto seconds')
+
+  args = parser.parse_args()
+  #print args
+
+  if args.cmd == 'bytes':
+    aggregate_bytes(args.srcfile, args.dstfile, args.outfile, args.timestamp)
+ 
+if __name__ == '__main__':
+  main()

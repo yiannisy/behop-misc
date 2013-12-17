@@ -1,0 +1,78 @@
+#!/bin/bash
+
+#2013.12.16
+#YY=2013
+#mm=12
+#dd=16
+#HHMM=19.00
+
+YY=`date +%Y`
+mm=`date +%m`
+dd=`date +%d`
+HH=`date +%H`
+#MM=`date +%M`
+HHMM=$HH
+
+#/var/log/argus/archive/2013/12/15
+ARCHIVE=/var/log/argus/archive
+DIRIN=$ARCHIVE/$YY/$mm/$dd
+INPF=$DIRIN/argus.$YY.$mm.$dd.$HHMM*.gz
+echo processing $INPF
+bname=`basename $INPF .gz`
+
+STATS=/var/log/argus/stats
+DIROUT=$STATS/$YY/$mm/$dd
+BYTESF=$DIROUT/bytes.$bname.csv
+TS=$bname
+
+if [ ! -d $DIROUT ]; then
+  mkdir -p $DIROUT
+fi
+
+#bytes sent and received by each host
+
+rastrip -M -vlan -r $INPF -w - | racluster -m saddr -s saddr daddr spkts dpkts sbytes dbytes -w - - src net 10.30.0.0/16 and tcp | rasort -m dbytes -s saddr daddr spkts dpkts sbytes dbytes | tr -s ' ' > /tmp/t1
+rastrip -M -vlan -r $INPF -w - | racluster -m daddr -s saddr daddr spkts dpkts sbytes dbytes -w - - dst net 10.30.0.0/16 and tcp | rasort -m sbytes -s saddr daddr spkts dpkts sbytes dbytes | tr -s ' ' > /tmp/t2
+
+echo storing $BYTESF
+./barguspy -c bytes -s /tmp/t1 -d /tmp/t2 -o $BYTESF -t $TS
+
+
+###bitrate sent and received by each host
+##
+##rastrip -M -vlan -r $INPF -w - | racluster -m saddr -s saddr daddr sbytes dbytes sload dload -w - - src net 10.30.0.0/16 and tcp | rasort -m dbytes -s saddr daddr sbytes dbytes sload dload | tr -s ' ' 
+##rastrip -M -vlan -r $INPF -w - | racluster -m daddr -s saddr daddr sbytes dbytes sload dload -w - - dst net 10.30.0.0/16 and tcp | rasort -m sbytes -s saddr daddr sbytes dbytes sload dload | tr -s ' '
+##
+
+
+
+
+
+
+
+#a=`racluster -r $INPF -m saddr -s stime saddr daddr spkts sbytes dbytes -w - - src net 10.30.0.0/16 | rasort -m saddr -s stime saddr daddr spkts dpkts sbytes dbytes`
+##srcBytes are outgoing bytes, dstBytes are incoming bytes
+#
+#echo $a
+#cmd="racluster -r $INPF -m saddr -s stime saddr daddr spkts sbytes dbytes -w - - src net 10.30.0.0/16" 
+#count1=`$cmd | tr -s ' ' | cut -f 3 -d ' ' | grep 10.30 | wc -l`
+#count2=`$cmd | tr -s ' ' | cut -f 3 -d ' ' | grep 10.30 | sort -u | wc -l`
+#echo $count1, $count2
+#
+###racluster -r $INPF -m daddr -s stime saddr daddr spkts sbytes dbytes -w - - dst net 10.30.0.0/16 | rasort -m daddr -s stime saddr daddr spkts dpkts sbytes dbytes | head
+##dstBytes are outgoing bytes, srcBytes are incoming bytes
+
+#racluster -r $INPF -m saddr/16 -s saddr daddr spkts sbytes dbytes - src net 10.30.0.0/16 | tr -s ' ' | cut -f 2 -d ' ' | grep 10.30 | wc -l
+#racluster -r $INPF -m saddr/16 -s saddr daddr spkts sbytes dbytes - src net 10.30.0.0/16 | tr -s ' ' | cut -f 2 -d ' ' | grep 10.30 | sort -u | wc -l
+
+#racluster -r $INPF -m saddr/16 -s saddr daddr spkts sbytes dbytes - src net 10.30.0.0/16 | tr -s ' ' | sort -u -k 1 
+
+
+#racluster -r $INPF -m saddr/16 -s saddr daddr spkts dpkts sbytes dbytes - src net 10.30.0.0/16 | tr -s ' ' 
+#rastrip -M -vlan -r $INPF -w - | racluster -m saddr -s saddr daddr spkts dpkts sbytes dbytes - src net 10.30.0.0/16 | tr -s ' ' 
+##rastrip -M -vlan -r $INPF -w - | racluster -m saddr -s saddr daddr spkts dpkts sbytes dbytes -w - - src net 10.30.0.0/16 | rasort -m dbytes -s stime saddr daddr spkts dpkts sbytes dbytes 
+##rastrip -M -vlan -r $INPF -w - | racluster -m saddr -s saddr daddr spkts dpkts sbytes dbytes -w - - src net 10.30.0.0/16 and tcp | rasort -m dbytes -s stime saddr daddr spkts dpkts sbytes dbytes 
+##srcBytes are outgoing bytes, dstBytes are incoming bytes
+
+##racluster -r $INPF -m daddr/16 -s saddr daddr spkts dpkts sbytes dbytes - dst net 10.30.0.0/16 | tr -s ' ' 
+##dstBytes are outgoing bytes, srcBytes are incoming bytes
