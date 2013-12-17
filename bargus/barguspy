@@ -2,7 +2,7 @@
 
 import argparse
 import time
-#from datetime import datetime
+from datetime import datetime
 
 #bargus -c bytes -s /tmp/t1 -d /tmp/t2
 
@@ -51,6 +51,57 @@ def aggregate_bytes(srcfile, dstfile, outfile=None, timestamp=None):
       
   return bytes
 
+def aggregate_avgrates(srcfile, dstfile, outfile=None, timestamp=None):
+  #ts=datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')+time.strftime('%z')
+  #print timestamp
+  #YY,mm,dd,HH,MM,SS=timestamp.split('.')[1:]
+  #timestamp=tuple(timestamp.split('.')[1:])
+  #timestamp='%s-%s-%s %s:%s:%s.000000' % timestamp
+  #ts=timestamp+time.strftime('%z')
+
+  avgrates = {}
+  with open(srcfile, 'r') as f:
+    sl = f.readlines()
+  sl = [l.strip() for l in sl]
+  slt = [tuple(l.split(' ')) for l in sl]
+
+  with open(dstfile, 'r') as f:
+    dl = f.readlines()
+  dl = [l.strip() for l in dl]
+  dlt = [tuple(l.split(' ')) for l in dl]
+  dlt = [(tv,ip,ig,outBytes,inBytes,outAvgrate,inAvgrate) for (tv,ig,ip,inBytes,outBytes,inAvgrate,outAvgrate) in dlt]
+
+  lt = slt + dlt
+
+  for t in lt:
+    #print t, 
+    tv,ip,_,outs,inBytes,outAvgrate,inAvgrate= t
+    #print inAvgrate.rstrip('*'), outAvgrate.rstrip('*')
+    #continue
+    if not ip.startswith('10.30'):	#to throw out header rows and 0.0.0.0 type IPs
+      continue
+    tv=int(tv)
+    inAvgrate = int(inAvgrate.rstrip('*'))
+    outAvgrate = int(outAvgrate.rstrip('*'))
+    if not (tv,ip) in avgrates:
+      avgrates[(tv,ip)] = (inAvgrate, outAvgrate)
+    else:
+      inar,outar= avgrates[(tv,ip)]
+      avgrates[(tv,ip)] = (inar + inAvgrate, outar + outAvgrate)
+
+  avgrates = avgrates.items()
+  avgrates = sorted(avgrates, key=lambda t: t[0][0])
+
+
+  if outfile != None:
+    with open(outfile, 'w') as f:
+      for (tv,ip),(inar,outar) in avgrates:
+        #inar, outar = avgrates[(tv,ip)]
+	ts=datetime.fromtimestamp(tv).strftime('%Y-%m-%d %H:%M:%S.000000') + time.strftime('%z')
+        #print ip, inar, outar
+	f.write('%s,%s,%s,%s\n' % (ts, ip, inar, outar))
+      
+  return avgrates
 
 def main():
   parser = argparse.ArgumentParser(description='Process some integers.')
@@ -65,6 +116,9 @@ def main():
 
   if args.cmd == 'bytes':
     aggregate_bytes(args.srcfile, args.dstfile, args.outfile, args.timestamp)
+
+  if args.cmd == 'avgrates':
+    aggregate_avgrates(args.srcfile, args.dstfile, args.outfile, args.timestamp)
  
 if __name__ == '__main__':
   main()

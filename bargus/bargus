@@ -23,6 +23,7 @@ bname=`basename $INPF .gz`
 STATS=/var/log/argus/stats
 DIROUT=$STATS/$YY/$mm/$dd
 BYTESF=$DIROUT/bytes.$bname.csv
+AVGRATESF=$DIROUT/avgrates.$bname.csv
 TS=$bname
 
 if [ ! -d $DIROUT ]; then
@@ -38,14 +39,17 @@ echo storing $BYTESF
 ./barguspy -c bytes -s /tmp/t1 -d /tmp/t2 -o $BYTESF -t $TS
 
 
-###bitrate sent and received by each host
-##
-##rastrip -M -vlan -r $INPF -w - | racluster -m saddr -s saddr daddr sbytes dbytes sload dload -w - - src net 10.30.0.0/16 and tcp | rasort -m dbytes -s saddr daddr sbytes dbytes sload dload | tr -s ' ' 
-##rastrip -M -vlan -r $INPF -w - | racluster -m daddr -s saddr daddr sbytes dbytes sload dload -w - - dst net 10.30.0.0/16 and tcp | rasort -m sbytes -s saddr daddr sbytes dbytes sload dload | tr -s ' '
-##
+#bitrate sent and received by each host
+#bin size is the parameter in -M hard <bin size>
+#PRECISION=2
+PRECISION=0
+BIN_DUR=1m
 
+rastrip -M -vlan -r $INPF -w - | rabins -u -m saddr -M hard time $BIN_DUR -p$PRECISION -s stime saddr daddr sbytes dbytes sload dload - src net 10.30.0.0/16 and tcp | tr -s ' ' > /tmp/t1
+rastrip -M -vlan -r $INPF -w - | rabins -u -m daddr -M hard time $BIN_DUR -p$PRECISION -s stime saddr daddr sbytes dbytes sload dload - dst net 10.30.0.0/16 and tcp | tr -s ' ' > /tmp/t2
 
-
+echo storing $AVGRATESF
+./barguspy -c avgrates -s /tmp/t1 -d /tmp/t2 -o $AVGRATESF
 
 
 
