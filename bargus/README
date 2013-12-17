@@ -2,17 +2,23 @@
 #Note: ubuntu repo has v2.x.x. Make sure to build v3.0.6 from source instead of using apt distributed argus.
 
 sudo mkdir /var/log/argus
+sudo mkdir /var/log/argus/tmp
 sudo cp argusarchive /usr/local/bin/
 sudo cp argus.conf /etc/argus.conf
 sudo argus
+sudo cp barguspy /usr/local/bin
+sudo cp bargus /usr/local/bin
 
 
 sudo crontab -e
-#for every hour (recommended), add this line:   0    *  *   *   *     /usr/local/bin/argusarchive >> /var/log/argus/archive.log 2>&1
-#for every 10 mins, add this line:   */10 *  *   *   *     /usr/local/bin/argusarchive >> /var/log/argus/archive.log 2>&1
+#for every hour, add this line:   0    *  *   *   *     /usr/local/bin/argusarchive >> /var/log/argus/archive.log 2>&1
+#for every hour, add this line:   5    *  *   *   *     /usr/local/bin/bargus >> /var/log/argus/bargus.log 2>&1
 
 
 # sudo cp ra.conf /etc/ra.conf
 # sudo cp ranonymize.conf /etc/ranonymize.conf
 
 # A good tutorial on argus: https://www.usenix.org/system/files/login/articles/73520/josephsen.pdf
+
+
+#racluster -r argus.2013.12.15.20.00.01.gz -m saddr -w - - src net 10.30.0.0/16 | rasort -m bytes -s stime saddr daddr spkts dpkts sbytes dbytes | head
