@@ -13,11 +13,9 @@ HH=`date +%H`
 #MM=`date +%M`
 HHMM=$HH
 
-for dd in `seq 15 21`; do
-#for dd in `seq 17 17`; do
-  for HH in `seq -w 0 23`; do
-  #for HH in `seq -w 18 23`; do
-    HHMM=$HH
+#for dd in `seq 15 21`; do
+#  for HH in `seq -w 0 23`; do
+#    HHMM=$HH
 
 PATH=/usr/local/bin:$PATH
 
@@ -88,5 +86,5 @@ BIN_DUR=1m
 ##echo storing $AVGRATESF
 ##./barguspy -c avgrates -s /tmp/t1 -d /tmp/t2 -o $AVGRATESF
 
-  done
-done
+#  done
+#done
