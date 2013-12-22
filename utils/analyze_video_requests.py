@@ -20,7 +20,7 @@ def analyze_youtube_requests(fname, fname_out):
         meta_line = lines[2*i]
         req_line = string.split(lines[2*i + 1],' ')[1]
         vals = string.split(meta_line,' ')
-        tstamp = vals[1] + "-" + vals[2]
+        tstamp = vals[1] + " " + vals[2] + "-0700"
         ip_src = string.split(vals[3],':')[0]
         ip_dst = string.split(vals[5],':')[0]
 
@@ -56,7 +56,7 @@ def analyze_netflix_requests(fname, fname_out):
         meta_line = lines[2*i]
         req_line = lines[2*i + 1]
         vals = string.split(meta_line,' ')
-        tstamp = vals[1] + "-" + vals[2]
+        tstamp = vals[1] + " " + vals[2] + "-0700"
         ip_src = string.split(vals[3],':')[0]
         ip_dst = string.split(vals[5],':')[0]
 	
