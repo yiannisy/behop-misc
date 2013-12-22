@@ -6,6 +6,70 @@ from datetime import datetime
 
 #bargus -c bytes -s /tmp/t1 -d /tmp/t2
 
+
+#                              vlan            vlan
+def aggregate_bytes_v(dstdown, srcup, srcdown, dstup, outfile, timestamp):
+  print timestamp
+  timestamp=tuple(timestamp.split('.')[1:])
+  timestamp='%s-%s-%s %s:%s:%s.000000' % timestamp
+  ts=timestamp+time.strftime('%z')
+
+  bytes = {}
+  with open(dstdown, 'r') as f:
+    l1 = f.readlines()
+  sl1 = [l.strip() for l in l1]
+  tl1 = [tuple(l.split(' ')) for l in sl1]
+  tl1 = [(ip,ig,0,inPkts,0,inBytes) for (ip,ig,outPkts,inPkts,outBytes,inBytes) in tl1]		#keep only inPkts and inBytes from this
+
+  #vlan tagged uplink
+  with open(srcup, 'r') as f:
+    l2 = f.readlines()
+  sl2 = [l.strip() for l in l2]
+  tl2 = [tuple(l.split(' ')) for l in sl2]
+  (ip,ig,outPkts,inPkts,outBytes,inBytes)
+  tl2 = [(ip,ig,outPkts,0,outBytes,0) for (ip,ig,outPkts,inPkts,outBytes,inBytes) in tl2]		#keep only outPkts and outBytes from this
+
+  with open(srcdown, 'r') as f:
+    l3 = f.readlines()
+  sl3 = [l.strip() for l in l3]
+  tl3 = [tuple(l.split(' ')) for l in sl3]
+  tl3 = [(ip,ig,0,inPkts,0,inBytes) for (ig,ip,inPkts,outPkts,inBytes,outBytes) in tl3]		#keep only inPkts and inBytes from this
+
+  #vlan tagged uplink
+  with open(dstup, 'r') as f:
+    l4 = f.readlines()
+  sl4 = [l.strip() for l in l4]
+  tl4 = [tuple(l.split(' ')) for l in sl4]
+  tl4 = [(ip,ig,outPkts,0,outBytes,0) for (ig,ip,inPkts,outPkts,inBytes,outBytes) in tl4]		#keep only outPkts and outBytes from this
+
+  lt = tl1 + tl2 + tl3 + tl4
+
+  for t in lt:
+    #print t
+    ip,_,outPkts,inPkts,outBytes,inBytes = t
+    if not ip.startswith('10.30'):	#to throw out header rows and 0.0.0.0 type IPs
+      continue
+    inPkts = int(inPkts)
+    outPkts = int(outPkts)
+    inBytes = int(inBytes)
+    outBytes = int(outBytes)
+    if not ip in bytes:
+      bytes[ip] = (inPkts, outPkts, inBytes, outBytes)
+    else:
+      inpkts,outpkts,inby,outby= bytes[ip]
+      bytes[ip] = (inpkts+inPkts, outpkts + outPkts, inby + inBytes, outby + outBytes)
+
+
+  if outfile != None:
+    with open(outfile, 'w') as f:
+      for ip in bytes:
+        inPkts, outPkts, inBy, outBy = bytes[ip]
+        #print ip, inBy, outBy
+	f.write('%s,%s,%s,%s,%s,%s\n' % (ts, ip, inPkts, outPkts, inBy, outBy))
+      
+  return bytes
+
+
 def aggregate_bytes(srcfile, dstfile, outfile=None, timestamp=None):
   #ts=datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')+time.strftime('%z')
   print timestamp
@@ -33,21 +97,23 @@ def aggregate_bytes(srcfile, dstfile, outfile=None, timestamp=None):
     ip,_,outPkts,inPkts,outBytes,inBytes = t
     if not ip.startswith('10.30'):	#to throw out header rows and 0.0.0.0 type IPs
       continue
+    inPkts = int(inPkts)
+    outPkts = int(outPkts)
     inBytes = int(inBytes)
     outBytes = int(outBytes)
     if not ip in bytes:
-      bytes[ip] = (inBytes, outBytes)
+      bytes[ip] = (inPkts, outPkts, inBytes, outBytes)
     else:
-      inby,outby= bytes[ip]
-      bytes[ip] = (inby + inBytes, outby + outBytes)
+      inpkts,outpkts,inby,outby= bytes[ip]
+      bytes[ip] = (inpkts+inPkts, outpkts + outPkts, inby + inBytes, outby + outBytes)
 
 
   if outfile != None:
     with open(outfile, 'w') as f:
       for ip in bytes:
-        inBy, outBy = bytes[ip]
+        inPkts, outPkts, inBy, outBy = bytes[ip]
         #print ip, inBy, outBy
-	f.write('%s,%s,%s,%s\n' % (ts, ip, inBy, outBy))
+	f.write('%s,%s,%s,%s,%s,%s\n' % (ts, ip, inPkts, outPkts, inBy, outBy))
       
   return bytes
 
@@ -106,16 +172,26 @@ def aggregate_avgrates(srcfile, dstfile, outfile=None, timestamp=None):
 def main():
   parser = argparse.ArgumentParser(description='Process some integers.')
   parser.add_argument('-c', '--cmd', dest='cmd', action='store', help='command to process')
-  parser.add_argument('-s', '--src_file', dest='srcfile', action='store', help='file with src filter')
-  parser.add_argument('-d', '--dst_file', dest='dstfile', action='store', help='file with dst filter')
+
+  #parser.add_argument('-s', '--src_file', dest='srcfile', action='store', help='file with src filter')
+  #parser.add_argument('-d', '--dst_file', dest='dstfile', action='store', help='file with dst filter')
+
+  parser.add_argument('--dstdown', action='store')
+  parser.add_argument('--srcup', action='store')
+  parser.add_argument('--srcdown', action='store')
+  parser.add_argument('--dstup', action='store')
+
   parser.add_argument('-o', '--out_file', dest='outfile', action='store', help='output file')
   parser.add_argument('-t', '--timestamp', dest='timestamp', action='store', help='timestamp upto seconds')
 
   args = parser.parse_args()
   #print args
 
-  if args.cmd == 'bytes':
-    aggregate_bytes(args.srcfile, args.dstfile, args.outfile, args.timestamp)
+  #if args.cmd == 'bytes':
+  #  aggregate_bytes(args.srcfile, args.dstfile, args.outfile, args.timestamp)
+
+  if args.cmd == 'bytes_v':
+    aggregate_bytes_v(args.dstdown, args.srcup, args.srcdown, args.dstup, args.outfile, args.timestamp)
 
   if args.cmd == 'avgrates':
     aggregate_avgrates(args.srcfile, args.dstfile, args.outfile, args.timestamp)
