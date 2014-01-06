@@ -6,6 +6,7 @@ tmp_dir=.tmp_${pcapfile}
 TCPTRACE_PATH=/home/yiannis/tcptrace-mod
 YOUTUBE_REQUESTS_ALL=/home/yiannis/be-hop-misc/data/captures/youtube_requests_all.txt
 NETFLIX_REQUESTS_ALL=/home/yiannis/be-hop-misc/data/captures/netflix_requests_all.txt
+LOCATION=S5
 
 mkdir ${tmp_dir}
 
@@ -80,41 +81,27 @@ cd ../
 
 if [ -e ${tmp_dir}/netflix.log ]
 then
-    echo "timestamp,client,dest,bits,rate,dur,range" > ${tmp_dir}/netflix_db.log
+    echo "location,timestamp,client,dest,bits,rate,dur,range" > ${tmp_dir}/netflix_db.log
+    sed -i -e 's/^/${LOCATION},/' ${tmp_dir}/netflix.log
     sed 's/\//-/g' ${tmp_dir}/netflix.log >> ${tmp_dir}/netflix_db.log
-    scp ${tmp_dir}/netflix_db.log mg-xen2.stanford.edu:/tmp/
-    ssh mg-xen2.stanford.edu <<EOF
-cd /home/yiannis/behop_dashboard
-echo "Inserting Netflix logs!"
-python manage.py csvimport --mappings='' --model='logs.NetflixLog' /tmp/netflix_db.log
-EOF
+    ./add_csv_to_db.sh ${tmp_dir}/netflix_db.log logs.NetflixLog
 fi
 
 if [ -e ${tmp_dir}/youtube.log ]
 then
-    echo "timestamp,client,dest,bits,rate,dur,range" > ${tmp_dir}/youtube_db.log
+    echo "location,timestamp,client,dest,bits,rate,dur,range" > ${tmp_dir}/youtube_db.log
+    sed -i -e 's/^/${LOCATION},/' ${tmp_dir}/youtube.log
     sed 's/\//-/g' ${tmp_dir}/youtube.log >> ${tmp_dir}/youtube_db.log
-    scp ${tmp_dir}/youtube_db.log mg-xen2.stanford.edu:/tmp/
-    ssh mg-xen2.stanford.edu <<EOF
-cd /home/yiannis/behop_dashboard
-echo "Inserting Youtube Logs!"
-python manage.py csvimport --mappings='' --model='logs.YoutubeLog' /tmp/youtube_db.log
-EOF
+    ./add_csv_to_db.sh ${tmp_dir}/youtube_db.log logs.YoutubeLog
 fi
 
 if [ -e ${tmp_dir}/rtt_all.csv ]
 then
-    echo "client,timestamp,seq,rtt" > ${tmp_dir}/rtt_all.log
+    echo "location,client,timestamp,seq,rtt" > ${tmp_dir}/rtt_all.log
+    sed -i -e 's/^/${LOCATION},/' ${tmp_dir}/rtt_all.csv
     cat ${tmp_dir}/rtt_all.csv >> ${tmp_dir}/rtt_all.log
-    scp ${tmp_dir}/rtt_all.log mg-xen2.stanford.edu:/tmp/
-    ssh mg-xen2.stanford.edu <<EOF
-cd /home/yiannis/behop_dashboard
-echo "Inserting RttLogs!"
-python manage.py csvimport --mappings='' --model='logs.RttLog' /tmp/rtt_all.log
-EOF
+    ./add_csv_to_db.sh ${tmp_dir}/rtt_all.log logs.RttLog
 fi
-
-ssh mg-xen2.stanford.edu "rm /tmp/netflix_db.log /tmp/youtube_db.log /tmp/rtt_all.log"
 
 rm -rf ${tmp_dir}
 rm -f ${pcapfile}
