@@ -42,6 +42,6 @@ then
     ./add_csv_to_db.sh ${tmp_dir}/youtube_db_s6.log logs.YoutubeLog
 fi
 
-#rm -rf ${tmp_dir}
+rm -rf ${tmp_dir}
 #rm -f ${tmp_dir}/${pcapfile}
 echo "done with ${tmp_dir}"
