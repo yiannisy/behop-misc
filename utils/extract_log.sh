@@ -81,8 +81,8 @@ cd ../
 
 if [ -e ${tmp_dir}/netflix.log ]
 then
-    echo "location,timestamp,client,dest,bits,rate,dur,range" > ${tmp_dir}/netflix_db.log
-    sed -i -e 's/^/${LOCATION},/' ${tmp_dir}/netflix.log
+    echo "location,timestamp,client,dest,bits,rate,dur,range,session_id" > ${tmp_dir}/netflix_db.log
+    sed -i -e 's/^/S5,/' ${tmp_dir}/netflix.log
     sed 's/\//-/g' ${tmp_dir}/netflix.log >> ${tmp_dir}/netflix_db.log
     ./add_csv_to_db.sh ${tmp_dir}/netflix_db.log logs.NetflixLog
 fi
@@ -90,7 +90,7 @@ fi
 if [ -e ${tmp_dir}/youtube.log ]
 then
     echo "location,timestamp,client,dest,bits,rate,dur,range" > ${tmp_dir}/youtube_db.log
-    sed -i -e 's/^/${LOCATION},/' ${tmp_dir}/youtube.log
+    sed -i -e 's/^/S5,/' ${tmp_dir}/youtube.log
     sed 's/\//-/g' ${tmp_dir}/youtube.log >> ${tmp_dir}/youtube_db.log
     ./add_csv_to_db.sh ${tmp_dir}/youtube_db.log logs.YoutubeLog
 fi
@@ -98,7 +98,7 @@ fi
 if [ -e ${tmp_dir}/rtt_all.csv ]
 then
     echo "location,client,timestamp,seq,rtt" > ${tmp_dir}/rtt_all.log
-    sed -i -e 's/^/${LOCATION},/' ${tmp_dir}/rtt_all.csv
+    sed -i -e 's/^/S5,/' ${tmp_dir}/rtt_all.csv
     cat ${tmp_dir}/rtt_all.csv >> ${tmp_dir}/rtt_all.log
     ./add_csv_to_db.sh ${tmp_dir}/rtt_all.log logs.RttLog
 fi
