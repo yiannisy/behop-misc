@@ -20,7 +20,7 @@ def analyze_youtube_requests(fname, fname_out):
         meta_line = lines[2*i]
         req_line = string.split(lines[2*i + 1],' ')[1]
         vals = string.split(meta_line,' ')
-        tstamp = vals[1] + " " + vals[2] + "-0700"
+        tstamp = vals[1] + " " + vals[2] + "-0800"
         ip_src = string.split(vals[3],':')[0]
         ip_dst = string.split(vals[5],':')[0]
 
@@ -54,13 +54,13 @@ def analyze_netflix_requests(fname, fname_out):
     print "Processing %d web requests from netflix" % (len(lines)/2)
     for i in range(0,len(lines)/2):
         meta_line = lines[2*i]
-        req_line = lines[2*i + 1]
+        request_line = lines[2*i + 1]
         vals = string.split(meta_line,' ')
-        tstamp = vals[1] + " " + vals[2] + "-0700"
+        tstamp = vals[1] + " " + vals[2] + "-0800"
         ip_src = string.split(vals[3],':')[0]
         ip_dst = string.split(vals[5],':')[0]
 	
-        req_line = string.split(req_line,'?')[0]
+        req_line = string.split(request_line,'?')[0]
         vals = string.split(req_line,'/')
         req_range = vals[-1]
         # calculate the range length
@@ -70,8 +70,20 @@ def analyze_netflix_requests(fname, fname_out):
         req_dur = 4000
         # calculate the rate (rate = length_in_bits/duration)
         req_rate = req_len/req_dur
+
+        param_line = string.split(request_line,'?')[1]
+        vals = string.split(param_line,'&')
+        req = {}
+        for val in vals:
+            _v = string.split(val,'=')
+            req[_v[0]] = _v[1]
+
+        if not req.has_key('p'):
+            print "cannot extract session-id---skip request."
+            continue
+
 	
-        f_out.write("%s,%s,%s,%d,%f,%f,%s\n" % (tstamp,ip_src,ip_dst,req_len,req_rate,req_dur,req_range))
+        f_out.write("%s,%s,%s,%d,%f,%f,%s,%s\n" % (tstamp,ip_src,ip_dst,req_len,req_rate,req_dur,req_range,req['p']))
     f.close()
     f_out.close()
 
