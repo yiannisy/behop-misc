@@ -19,9 +19,9 @@ ifconfig veth3 up
 # update ovs controllers
 ovs-vsctl set-controller br0 ${OFCONTROLLER}
 ovs-vsctl set-manager ${OVSDBCONTROLLER}
+/etc/init.d/openvswitch restart
 ovs-ofctl mod-port br0 2 noflood
 ovs-ofctl mod-port br0 4 noflood
-/etc/init.d/openvswitch restart
 /opt/utils/sta_manager &
 /opt/utils/mon_to_tap -m mon0 -t veth0 &
 /opt/utils/mon_to_tap -m mon1 -t veth2 &
