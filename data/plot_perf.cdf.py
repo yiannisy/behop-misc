@@ -3,6 +3,7 @@ import string
 import sys
 import matplotlib
 matplotlib.use('Agg')
+matplotlib.rcParams.update({'font.size': 22})
 import pylab
 #f1 = open('_snr.log','r')
 #f2 = open('_times.log','r')
@@ -26,16 +27,19 @@ def time_str_to_sec(timestr,base,offset=0):
 
 
 logs = [
-    ('gates-behop-complete','gates-behop'),
+    #('gates-behop-complete','A','b-'),
+    #('studio5-lwapp-indoors','B','r-'),
+    #('caltrain-24ghz-40mhz-1_iperf','C','g-'),
     #'gates-behop-linux-complete',
-    #'gates-wrt-complete',
-    ('boonies-wrt-complete','boonies-behop'),
-    ('studio5-lwapp', 'S5-5GHz-2x2-20MHz'),
-    ('studio5-lwapp-indoors','S5-2GHz-2x2-20MHz-indoors'),
-    ('gates-netgear-behop','Gates-NetGear-behop-5GHz-2x2-20MHz'),
-    ('gates-meraki-complete','Gates-Meraki-5GHz-2x2-40MHz'),
-    ('behop-full-5ghz','Gates-Behop-5GHz-2x2-40MHz'),
-    ('gates-netgear-complete','Gates-NetGear-5GHz-2x2-40MHz'),
+    #('gates-wrt-complete','A'),
+    #('boonies-wrt-complete','A+','b--'),
+    #('studio5-lwapp', 'B+','r--'),
+    #('gates-meraki-2_iperf','C+','g--'),
+    #('gates-netgear-complete','C++','g-.'),
+
+    #('gates-netgear-behop','C+','g--'),
+    #('behop-full-5ghz','C+','g--'),
+
 
     #'malakas_auto_dl',
     #'malakas_no_col_auto_dl',
@@ -45,7 +49,7 @@ logs = [
     #'openwrt-vanilla',
     #'openwrt-vanilla-1',
     #'tp_link_auto_dl',
-    #'meraki_auto_dl',
+
     #'pi_meraki_auto_dl',
     #'pi_openwrt_vanilla_auto_dl'
     ]
@@ -58,22 +62,24 @@ for log in logs:
     throughput = []
     for line in f.readlines():
         vals = string.split(line,',')
-        kbps = int(vals[-1])/1000
+        kbps = int(vals[-1])/1000000.0
         throughput.append(kbps)
 
     x = sorted(throughput)
     y = [(float(i + 1) / len(x)) for i in range(len(x))]
     if lns:
-        lns += pylab.plot(x,y,label=log[1])
+        lns += pylab.plot(x,y,log[2],label=log[1])
     else:
-        lns = pylab.plot(x,y, label=log[1])
+        lns = pylab.plot(x,y, log[2],label=log[1])
     f.close()
 
-labels = [l.get_label() for l in lns]
-pylab.xlabel('TCP-iperf Goodput (kbps)')
+#labels = [l.get_label() for l in lns]
+pylab.xlabel('TCP Goodput (Mbps)')
 #pylab.xscale('log')
 pylab.ylabel('CDF')
-pylab.legend(lns, labels,loc=3)
+#pylab.legend(lns, labels,loc=4)
+pylab.legend()
 pylab.grid()
-pylab.title('WiFi Goodput (%s)' % output)
-pylab.savefig("%s.pdf" % output)
+pylab.xlim([0,200])
+pylab.title('WiFi Performance')
+pylab.savefig("%s.png" % output)
