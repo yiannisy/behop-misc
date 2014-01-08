@@ -13,9 +13,15 @@ HH=`date +%H`
 #MM=`date +%M`
 HHMM=$HH
 
-#for dd in `seq 15 21`; do
+#YY=2014
+#mm=01
+#dates="1 10"
+#YY=2013
+#mm=12
+#dates="1 31"
+#for dd in `seq -w $dates`; do
 #  for HH in `seq -w 0 23`; do
-#    HHMM=$HH
+    HHMM=$HH
 
 PATH=/usr/local/bin:$PATH
 
@@ -25,6 +31,7 @@ DIRIN=$ARCHIVE/$YY/$mm/$dd
 INPF=$DIRIN/argus.$YY.$mm.$dd.$HHMM*.gz
 
 if [ ! -e $INPF ]; then
+  echo Input file $INPF not found, continuing...
   continue
 fi
 
@@ -66,9 +73,11 @@ rastrip -M -vlan -r $INPF -w - | racluster -m daddr -s saddr daddr spkts dpkts s
 
 
 echo storing $BYTESF
-#./barguspy -c bytes -s /tmp/t1 -d /tmp/t2 -o $BYTESF -t $TS
-./barguspy -c bytes_v --dstdown /tmp/t1_dstdown --srcup /tmp/t1_srcup --srcdown /tmp/t2_srcdown --dstup /tmp/t2_dstup -o $BYTESF -t $TS
-grep -vE ",0$" $BYTESF > $BYTESF.upnonz
+#barguspy -c bytes -s /tmp/t1 -d /tmp/t2 -o $BYTESF -t $TS
+barguspy -c bytes_v --dstdown /tmp/t1_dstdown --srcup /tmp/t1_srcup --srcdown /tmp/t2_srcdown --dstup /tmp/t2_dstup -o $BYTESF -t $TS
+
+echo "timestamp,client,in_pkts,out_pkts,in_bytes,out_bytes" > $BYTESF.upnonz
+grep -vE ",0$" $BYTESF >> $BYTESF.upnonz
 
 
 #------------------------------------
@@ -84,7 +93,7 @@ BIN_DUR=1m
 ##rastrip -M -vlan -r $INPF -w - | rabins -u -m daddr -M hard time $BIN_DUR -p$PRECISION -s stime saddr daddr sbytes dbytes sload dload - dst net 10.30.0.0/16 and tcp | tr -s ' ' > /tmp/t2
 ##
 ##echo storing $AVGRATESF
-##./barguspy -c avgrates -s /tmp/t1 -d /tmp/t2 -o $AVGRATESF
+##barguspy -c avgrates -s /tmp/t1 -d /tmp/t2 -o $AVGRATESF
 
 #  done
 #done

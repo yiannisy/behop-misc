@@ -26,7 +26,6 @@ def aggregate_bytes_v(dstdown, srcup, srcdown, dstup, outfile, timestamp):
     l2 = f.readlines()
   sl2 = [l.strip() for l in l2]
   tl2 = [tuple(l.split(' ')) for l in sl2]
-  (ip,ig,outPkts,inPkts,outBytes,inBytes)
   tl2 = [(ip,ig,outPkts,0,outBytes,0) for (ip,ig,outPkts,inPkts,outBytes,inBytes) in tl2]		#keep only outPkts and outBytes from this
 
   with open(srcdown, 'r') as f:

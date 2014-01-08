@@ -13,8 +13,8 @@ fname=$(basename $csv_path)
 
 if [ -e ${csv_fname} ]
 then
-    scp ${csv_path} mg-xen2.stanford.edu:/tmp/
-    ssh mg-xen2.stanford.edu << EOF
+    scp ${csv_path} yiannis@mg-xen2.stanford.edu:/tmp/
+    ssh yiannis@mg-xen2.stanford.edu << EOF
 cd /home/yiannis/behop_dashboard
 echo "Inserting $db_path!"
 python manage.py csvimport --mappings='' --model='${db_path}' /tmp/${fname}

@@ -14,6 +14,9 @@ sudo crontab -e
 #for every hour, add this line:   0    *  *   *   *     /usr/local/bin/argusarchive >> /var/log/argus/archive.log 2>&1
 #for every hour, add this line:   5    *  *   *   *     /usr/local/bin/bargus >> /var/log/argus/bargus.log 2>&1
 
+crontab -e
+#10 *  *   *   *     /home/manub/be-hop-misc/bargus/bargus_to_db.sh >> /home/manub/be-hop-misc/bargus/bargus_to_db.log 2>&1
+
 
 # sudo cp ra.conf /etc/ra.conf
 # sudo cp ranonymize.conf /etc/ranonymize.conf
