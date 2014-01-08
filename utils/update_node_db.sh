@@ -1,6 +1,7 @@
 #!/bin/bash
 BASE_DIR='/home/yiannis/behop-pox-s5'
 UTIL_DIR='/home/yiannis/be-hop-misc/utils'
+DASHBOARD_DIR='/home/yiannis/behop_dashboard'
 CURDIR=`pwd`
 
 cd $BASE_DIR
@@ -17,5 +18,20 @@ cat /tmp/.pox.log | grep LTSTA | grep ASSOC_REQ > /tmp/.assocs.log
 
 cd $UTIL_DIR
 ./update_node_db.py
+
+cd /tmp/
+cat .pox.log | grep FSM > fsm.log
+sed -i 's/ : /|/g' fsm.log
+sed -i 's/| /|/g' fsm.log
+sed -i 's/ (/|/g' fsm.log
+sed -i 's/)/|/g' fsm.log
+sed -i 's/, /|/g' fsm.log
+cat fsm.log | grep -E "> ASSOC|ASSOC -> NONE" | grep -v Probe | awk -F'|' '{ print $1 "|" $3 "|" $4 "|" $5}' > events.log
+sed -i 's/,/./g' events.log
+sed -i 's/|/,/g' events.log
+sed -i '1itimestamp,client,event_name,signal' events.log
+
+cd $DASHBOARD_DIR
+python manage.py csvimport --mappings='' --model='logs.EventLog' /tmp/events.log
 
 cd $CURDIR
