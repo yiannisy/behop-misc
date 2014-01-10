@@ -28,4 +28,6 @@ ovs-ofctl mod-port br0 4 noflood
 /opt/utils/ccol_cmd ${AGGREGATOR} &
 cd /opt/utils/wifisurvey/
 ./chutil_cmd ${SURVEY_AGGREGATOR} &
+echo 0 > /sys/class/leds/ath9k-phy0/brightness
+echo 0 > /sys/class/leds/ath9k-phy1/brightness
 exit 0
