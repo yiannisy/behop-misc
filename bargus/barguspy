@@ -116,6 +116,74 @@ def aggregate_bytes(srcfile, dstfile, outfile=None, timestamp=None):
       
   return bytes
 
+def aggregate_avgrates_v(dstdown, srcup, srcdown, dstup, outfile, timestamp):
+  print timestamp
+  timestamp=tuple(timestamp.split('.')[1:])
+  timestamp='%s-%s-%s %s:%s:%s.000000' % timestamp
+  ts=timestamp+time.strftime('%z')
+
+  avgrates = {}
+  with open(dstdown, 'r') as f:
+    l1 = f.readlines()
+  sl1 = [l.strip() for l in l1]
+  tl1 = [tuple(l.split(' ')) for l in sl1]
+  #slt = [tuple(l.split(' ')) for l in sl]
+  tl1 = [(tv,ip,ig,0,inBytes,"0",inAvgrate) for (tv,ip,ig,outBytes,inBytes,outAvgrate,inAvgrate) in tl1]		#keep only inBytes and inAvgrate from this
+
+  #vlan tagged uplink
+  with open(srcup, 'r') as f:
+    l2 = f.readlines()
+  sl2 = [l.strip() for l in l2]
+  tl2 = [tuple(l.split(' ')) for l in sl2]
+  #dlt = [(tv,ip,ig,outBytes,inBytes,outAvgrate,inAvgrate) for (tv,ig,ip,inBytes,outBytes,inAvgrate,outAvgrate) in dlt]
+  tl2 = [(tv,ip,ig,outBytes,0,      outAvgrate,"0") for (tv,ip,ig,outBytes,inBytes,outAvgrate,inAvgrate) in tl2]		#keep only outBytes and outAvgrate from this
+
+  with open(srcdown, 'r') as f:
+    l3 = f.readlines()
+  sl3 = [l.strip() for l in l3]
+  tl3 = [tuple(l.split(' ')) for l in sl3]
+  tl3 = [(tv,ip,ig,0,inBytes,"0",inAvgrate) for (tv,ig,ip,inBytes,outBytes,inAvgrate,outAvgrate) in tl3]		#keep only inBytes and inAvgrate from this
+
+  #vlan tagged uplink
+  with open(dstup, 'r') as f:
+    l4 = f.readlines()
+  sl4 = [l.strip() for l in l4]
+  tl4 = [tuple(l.split(' ')) for l in sl4]
+  tl4 = [(tv,ip,ig,outBytes,0,outAvgrate,"0") for (tv,ig,ip,inBytes,outBytes,inAvgrate,outAvgrate) in tl4]		#keep only outBytes and outAvgrate from this
+
+  lt = tl1 + tl2 + tl3 + tl4
+
+  for t in lt:
+    #print t, 
+    tv,ip,_,outBytes,inBytes,outAvgrate,inAvgrate= t
+    #print inAvgrate.rstrip('*'), outAvgrate.rstrip('*')
+    #continue
+    if not ip.startswith('10.30'):	#to throw out header rows and 0.0.0.0 type IPs
+      continue
+    tv=int(tv)
+    inAvgrate = int(inAvgrate.rstrip('*'))
+    outAvgrate = int(outAvgrate.rstrip('*'))
+    inBytes = int(inBytes)
+    outBytes = int(outBytes)
+    if not (tv,ip) in avgrates:
+      avgrates[(tv,ip)] = ((inAvgrate, outAvgrate), (inBytes, outBytes))
+    else:
+      (inar,outar),(inbytes,outbytes)= avgrates[(tv,ip)]
+      avgrates[(tv,ip)] = ((inar + inAvgrate, outar + outAvgrate),(inbytes+inBytes,outbytes+outBytes))
+
+  avgrates = avgrates.items()
+  avgrates = sorted(avgrates, key=lambda t: t[0][0])
+
+
+  if outfile != None:
+    with open(outfile, 'w') as f:
+      for (tv,ip),((inar,outar),(inbytes,outbytes)) in avgrates:
+        #print ip, inar, outar
+	f.write('%s,%s,%s,%s,%s,%s\n' % (ts, ip, inbytes, outbytes, inar, outar))
+      
+  return avgrates
+
+
 def aggregate_avgrates(srcfile, dstfile, outfile=None, timestamp=None):
   #ts=datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')+time.strftime('%z')
   #print timestamp
@@ -140,7 +208,7 @@ def aggregate_avgrates(srcfile, dstfile, outfile=None, timestamp=None):
 
   for t in lt:
     #print t, 
-    tv,ip,_,outs,inBytes,outAvgrate,inAvgrate= t
+    tv,ip,_,outBytes,inBytes,outAvgrate,inAvgrate= t
     #print inAvgrate.rstrip('*'), outAvgrate.rstrip('*')
     #continue
     if not ip.startswith('10.30'):	#to throw out header rows and 0.0.0.0 type IPs
@@ -149,10 +217,10 @@ def aggregate_avgrates(srcfile, dstfile, outfile=None, timestamp=None):
     inAvgrate = int(inAvgrate.rstrip('*'))
     outAvgrate = int(outAvgrate.rstrip('*'))
     if not (tv,ip) in avgrates:
-      avgrates[(tv,ip)] = (inAvgrate, outAvgrate)
+      avgrates[(tv,ip)] = ((inAvgrate, outAvgrate), (inBytes, outBytes))
     else:
-      inar,outar= avgrates[(tv,ip)]
-      avgrates[(tv,ip)] = (inar + inAvgrate, outar + outAvgrate)
+      (inar,outar),(inbytes,outbytes)= avgrates[(tv,ip)]
+      avgrates[(tv,ip)] = ((inar + inAvgrate, outar + outAvgrate),(inbytes+inBytes,outbytes+outBytes))
 
   avgrates = avgrates.items()
   avgrates = sorted(avgrates, key=lambda t: t[0][0])
@@ -160,13 +228,39 @@ def aggregate_avgrates(srcfile, dstfile, outfile=None, timestamp=None):
 
   if outfile != None:
     with open(outfile, 'w') as f:
-      for (tv,ip),(inar,outar) in avgrates:
+      for (tv,ip),((inar,outar),(inbytes,outbytes)) in avgrates:
         #inar, outar = avgrates[(tv,ip)]
 	ts=datetime.fromtimestamp(tv).strftime('%Y-%m-%d %H:%M:%S.000000') + time.strftime('%z')
         #print ip, inar, outar
-	f.write('%s,%s,%s,%s\n' % (ts, ip, inar, outar))
+	f.write('%s,%s,%s,%s,%s,%s\n' % (ts, ip, inbytes, outbytes, inar, outar))
       
   return avgrates
+
+def filter_IPs(reffile, datafile, outfile, append=False):
+  with open(reffile, 'r') as f:
+    l_ref = f.readlines()
+  with open(datafile, 'r') as f:
+    l_data = f.readlines()
+
+  #for l in l_ref:
+    #print l
+  #  print 
+  valid_ips = [l.strip().split(',')[1] for l in l_ref]
+  filtered_log = [l.strip() for l in l_data if l.strip().split(',')[1] in valid_ips]
+  #for l in filtered_log:
+  #  print l
+  #print valid_ips
+  print 'writing to', outfile
+  #raw_input()
+  if append:
+    f = open(outfile, 'a')
+  else:
+    f = open(outfile, 'w')
+    #f.write("%s" % filtered_log)
+  for l in filtered_log:
+    print >> f, l
+  f.close()
+
 
 def main():
   parser = argparse.ArgumentParser(description='Process some integers.')
@@ -180,8 +274,12 @@ def main():
   parser.add_argument('--srcdown', action='store')
   parser.add_argument('--dstup', action='store')
 
+  parser.add_argument('--reffile', action='store')
+  parser.add_argument('--datafile', action='store')
+
   parser.add_argument('-o', '--out_file', dest='outfile', action='store', help='output file')
   parser.add_argument('-t', '--timestamp', dest='timestamp', action='store', help='timestamp upto seconds')
+  parser.add_argument('-a', '--append', dest='append', action='store_true')
 
   args = parser.parse_args()
   #print args
@@ -192,8 +290,14 @@ def main():
   if args.cmd == 'bytes_v':
     aggregate_bytes_v(args.dstdown, args.srcup, args.srcdown, args.dstup, args.outfile, args.timestamp)
 
-  if args.cmd == 'avgrates':
-    aggregate_avgrates(args.srcfile, args.dstfile, args.outfile, args.timestamp)
+  #if args.cmd == 'avgrates':
+  #  aggregate_avgrates(args.srcfile, args.dstfile, args.outfile, args.timestamp)
+
+  if args.cmd == 'avgrates_v':
+    aggregate_avgrates_v(args.dstdown, args.srcup, args.srcdown, args.dstup, args.outfile, args.timestamp)
+
+  if args.cmd == 'filter_IPs':
+    filter_IPs(args.reffile, args.datafile, args.outfile, args.append)
  
 if __name__ == '__main__':
   main()
