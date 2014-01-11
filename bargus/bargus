@@ -69,7 +69,7 @@ racluster -r $INPF -m saddr -s saddr daddr spkts dpkts sbytes dbytes -w - - src 
 rastrip -M -vlan -r $INPF -w - | racluster -m daddr -s saddr daddr spkts dpkts sbytes dbytes -w - - dst net 10.30.0.0/16 and tcp | rasort -m sbytes -s saddr daddr spkts dpkts sbytes dbytes | tr -s ' ' > /tmp/t2_srcdown
 
 #dest is a host, collapse all sources, but only look at traffic that is vlan tagged ==> dstBytes are accurate upload bytes
-rastrip -M -vlan -r $INPF -w - | racluster -m daddr -s saddr daddr spkts dpkts sbytes dbytes -w - - dst net 10.30.0.0/16 and tcp and vid 2000 | rasort -m sbytes -s saddr daddr spkts dpkts sbytes dbytes | tr -s ' ' > /tmp/t2_dstup
+racluster -r $INPF -m daddr -s saddr daddr spkts dpkts sbytes dbytes -w - - dst net 10.30.0.0/16 and tcp and vid 2000 | rasort -m sbytes -s saddr daddr spkts dpkts sbytes dbytes | tr -s ' ' > /tmp/t2_dstup
 
 
 echo storing $BYTESF
@@ -84,16 +84,38 @@ grep -vE ",0$" $BYTESF >> $BYTESF.upnonz
 #bitrate sent and received by each host
 #------------------------------------
 
-#bin size is the parameter in -M hard <bin size>
-#PRECISION=2
-PRECISION=0
-BIN_DUR=1m
+##bin size is the parameter in -M hard <bin size>
+##PRECISION=2
+#PRECISION=0
+#BIN_DUR=1m
+#
+###rastrip -M -vlan -r $INPF -w - | rabins -u -m saddr -M hard time $BIN_DUR -p$PRECISION -s stime saddr daddr sbytes dbytes sload dload - src net 10.30.0.0/16 and tcp | tr -s ' ' > /tmp/t1
+###rastrip -M -vlan -r $INPF -w - | rabins -u -m daddr -M hard time $BIN_DUR -p$PRECISION -s stime saddr daddr sbytes dbytes sload dload - dst net 10.30.0.0/16 and tcp | tr -s ' ' > /tmp/t2
+#
+#
+##true uplink traffic is vlan tagged to vlan id 2000
+#
+##source is a host, collapse all destinations ==> dstBytes are accurate download bytes
+#rastrip -M -vlan -r $INPF -w - | rabins -u -m saddr -M hard time $BIN_DUR -p$PRECISION -s stime saddr daddr sbytes dbytes sload dload - src net 10.30.0.0/16 and tcp | tr -s ' ' > /tmp/t1_dstdown
+#
+##source is a host, collapse all destinations, but only look at traffic that is vlan tagged ==> srcBytes are accurate upload bytes
+#rabins -u -r $INPF -m saddr -M hard time $BIN_DUR -p$PRECISION -s stime saddr daddr sbytes dbytes sload dload - src net 10.30.0.0/16 and tcp and vid 2000 | tr -s ' ' > /tmp/t1_srcup
+#
+#
+##dest is a host, collapse all sources ==> srcBytes are accurate download bytes
+#rastrip -M -vlan -r $INPF -w - | rabins -u -m daddr -M hard time $BIN_DUR -p$PRECISION -s stime saddr daddr sbytes dbytes sload dload - dst net 10.30.0.0/16 and tcp | tr -s ' ' > /tmp/t2_srcdown
+#
+##dest is a host, collapse all sources, but only look at traffic that is vlan tagged ==> dstBytes are accurate upload bytes
+#rabins -u -m daddr -M hard time $BIN_DUR -p$PRECISION -s stime saddr daddr sbytes dbytes sload dload - dst net 10.30.0.0/16 and tcp and vid 2000 | tr -s ' ' > /tmp/t2_dstup
+#
+#
+#echo storing $AVGRATESF
+##barguspy -c bytes -s /tmp/t1 -d /tmp/t2 -o $AVGRATESF -t $TS
+#./barguspy -c avgrates_v --dstdown /tmp/t1_dstdown --srcup /tmp/t1_srcup --srcdown /tmp/t2_srcdown --dstup /tmp/t2_dstup -o $AVGRATESF -t $TS
+#
+##echo "timestamp,client,in_pkts,out_pkts,in_bytes,out_bytes" > $AVGRATESF.upnonz
+##grep -vE ",0$" $AVGRATESF >> $AVGRATESF.upnonz
 
-##rastrip -M -vlan -r $INPF -w - | rabins -u -m saddr -M hard time $BIN_DUR -p$PRECISION -s stime saddr daddr sbytes dbytes sload dload - src net 10.30.0.0/16 and tcp | tr -s ' ' > /tmp/t1
-##rastrip -M -vlan -r $INPF -w - | rabins -u -m daddr -M hard time $BIN_DUR -p$PRECISION -s stime saddr daddr sbytes dbytes sload dload - dst net 10.30.0.0/16 and tcp | tr -s ' ' > /tmp/t2
-##
-##echo storing $AVGRATESF
-##barguspy -c avgrates -s /tmp/t1 -d /tmp/t2 -o $AVGRATESF
 
 #  done
 #done
