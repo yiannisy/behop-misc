@@ -1,1 +1,1 @@
-ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -i ~/.ssh/id_rsa.pi-ap $@
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null $@ < /dev/null
