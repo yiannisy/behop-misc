@@ -54,14 +54,14 @@ echo "Setting up Wireless"
 [ -s /tmp/wireless.tmp ] && {
     cat /tmp/wireless.tmp >> /etc/config/wireless
     uci set wireless.radio0.disabled=0
-    uci set wireless.radio0.beacon_int=1000
+    uci set wireless.radio0.beacon_int=200
     uci delete wireless.@wifi-iface[0].network
     uci set wireless.@wifi-iface[0].hidden=1
     uci set wireless.@wifi-iface[0].wmm=1
     uci set wireless.@wifi-iface[0].macaddr=02:00:00:00:00:00
 
     uci set wireless.radio1.disabled=0
-    uci set wireless.radio1.beacon_int=1000
+    uci set wireless.radio1.beacon_int=200
     uci set wireless.radio1.htmode=HT40+
     uci set wireless.radio1.noscan=1
     uci delete.wireless.@wifi-iface[1].network
