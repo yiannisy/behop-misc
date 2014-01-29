@@ -74,7 +74,7 @@ new_line=`echo $line | awk -F',' '{ print $1 "," $3 "," $4 "," $5 ",unknown,WiFi
 echo $d,$new_line >> _events_s6.txt
 done
 sed -i '1i@timestamp,location,client,dpid,event_signal,event_name,category,band' _events_s6.txt
-../add_csv_to_db.sh _events_s6.txt logs_eventlog
+../add_csv_to_db_direct.sh _events_s6.txt logs_eventlog
 
 cd ../
 rm -rf ${tmp_dir}
