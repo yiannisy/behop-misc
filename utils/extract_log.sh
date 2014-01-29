@@ -100,7 +100,7 @@ then
     echo "location,client,timestamp,seq,rtt" > ${tmp_dir}/rtt_all.log
     sed -i -e 's/^/S5,/' ${tmp_dir}/rtt_all.csv
     cat ${tmp_dir}/rtt_all.csv >> ${tmp_dir}/rtt_all.log
-    ./add_csv_to_db.sh ${tmp_dir}/rtt_all.log logs.RttLog
+    #./add_csv_to_db.sh ${tmp_dir}/rtt_all.log logs.RttLog
 fi
 
 rm -rf ${tmp_dir}
