@@ -10,11 +10,13 @@ HH=`date +%H`
 
 
 #YY=2014
-#mm=01
+#mm=02
 #dates="1 10"
 #YY=2013
 #mm=12
 #dates="23 31"
+#dd=03
+#HH=01
 #for dd in `seq -w $dates`; do
 #  for HH in `seq -w 0 23`; do
     HHMM=$HH
@@ -46,6 +48,7 @@ TS=$bname
 eval `ssh-agent`
 ssh-add /home/manub/.ssh/manub-mg-xen
 /home/manub/be-hop-misc/utils/add_csv_to_db.sh $BYTESF.upnonz logs.TransferLog
+/home/manub/be-hop-misc/utils/add_csv_to_db.sh $AVGRATESF.upnonz logs.BandwidthLog
 
 #  done
 #done

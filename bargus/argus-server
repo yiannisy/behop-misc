@@ -1,0 +1,105 @@
+#! /bin/sh
+
+# /etc/init.d/argus. Ripped from exim's init script.
+# Modified by Yotam Rubin <yotam@makif.omer.k12.il>
+
+### BEGIN INIT INFO
+# Provides:          argus-server
+# Required-Start:    $network $remote_fs
+# Required-Stop:     $network $remote_fs
+# Should-Start:      $local_fs
+# Should-Stop:       $local_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Network auditing daemon
+# Description:       Capture all traffic seen and record flow-based information
+### END INIT INFO
+
+set -e
+
+
+DEFAULTS=/etc/default/argus-server
+LOGFILE=/var/log/argus/argus.log
+CONFFILE=/etc/argus.conf
+DAEMON=/usr/sbin/argus
+NAME=argus
+PIDFILE=/var/run/argus.pid
+
+# Check whether argus is disabled by /etc/default/argus-server.
+# Argus is disabled by default, to enable argus please see 
+# /etc/default/argus-server
+
+echo here1
+
+test -f $DEFAULTS || exit 1
+
+echo here2
+. $DEFAULTS
+
+if [ "$STARTUP" = "dialup" ] || [ "$STARTUP" = "none" ]; then
+    exit 1
+fi
+echo here3
+
+if [ ! -f $CONFFILE ]; then
+    exit 1
+fi
+echo here4
+
+testrunning ()
+{
+    if [ -f $PIDFILE ] && [ -n "`ps ax | grep \`cat $PIDFILE\` | grep argus`" ]; 
+    then
+	echo "$DAEMON already running."
+	exit 1
+    fi
+}
+
+testpid ()
+{
+    if [ ! -f $PIDFILE ]; then
+	echo "$DAEMON already stopped."
+	exit 1
+    fi
+}
+test -x $DAEMON || exit 1
+
+echo here5
+case "$1" in
+  start)
+    echo -n "Starting network auditing daemon: "
+    testrunning
+    #$DAEMON -w $LOGFILE -n $PIDFILE
+    $DAEMON
+    echo "argus. "
+    ;;
+  stop)
+    echo -n "Stopping network auditing daemon: "
+    testpid
+    kill `cat $PIDFILE`
+    rm -f "$PIDFILE"
+    echo "argus."
+      ;;
+  restart)
+    echo "Restarting network auditing daemon: "
+    kill `cat $PIDFILE` > /dev/null 2>&1 || true
+    rm -f "$PIDFILE"
+    #$DAEMON -w $LOGFILE -n $PIDFILE
+    $DAEMON
+    echo "argus. "
+    ;;
+  force-reload) 
+    echo "Reloading argus configuration: "
+    kill `cat $PIDFILE` > /dev/null 2>&1 || true
+    rm -f "$PIDFILE"
+    #$DAEMON -w $LOGFILE -n $PIDFILE
+    $DAEMON
+    echo "argus. "
+    ;;
+  *)
+    echo "Usage: /etc/init.d/$NAME {start|stop|force-reload|restart}"
+    exit 1
+    ;;
+esac
+
+exit 0

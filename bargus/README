@@ -8,6 +8,8 @@ sudo cp argus.conf /etc/argus.conf
 sudo argus
 sudo cp barguspy /usr/local/bin
 sudo cp bargus /usr/local/bin
+sudo cp argus-server /etc/init.d/
+sudo update-rc.d argus-server defaults
 
 
 sudo crontab -e
