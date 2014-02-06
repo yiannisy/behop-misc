@@ -46,9 +46,11 @@ TS=$bname
 
 
 eval `ssh-agent`
+pidval=${SSH_AGENT_PID}
 ssh-add /home/manub/.ssh/manub-mg-xen
 /home/manub/be-hop-misc/utils/add_csv_to_db.sh $BYTESF.upnonz logs.TransferLog
 /home/manub/be-hop-misc/utils/add_csv_to_db.sh $AVGRATESF.upnonz logs.BandwidthLog
+kill ${pidval}
 
 #  done
 #done
