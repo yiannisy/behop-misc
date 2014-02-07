@@ -31,15 +31,20 @@ cat fsm.log | grep -E "> ASSOC|ASSOC -> NONE" | grep -v Probe | awk -F'|' '{ pri
 cat fsm.log | grep -E "SNIFF -> RESERVED" | awk -F'|' '{ print $1 "|" $3 "|" $4 "|" $5}' >> events.log
 sed -i 's/,/./g' events.log
 sed -i 's/|/,/g' events.log
-sed -i '1itimestamp,client,event_name,event_signal' events.log
+sed -i 's/^/S5,cafebeef,WiFi,unknown,/g' events.log
+sed -i '1ilocation,dpid,category,band,@timestamp,client,event_name,event_signal' events.log
 
 cat .pox.log | grep PROBE_REQ | awk -F'|' '{ print $5 "," $7 }' | sort | uniq > detected.txt
-d=`date +"%Y-%m-%d %H:%M:%S%z,"`;sed -i "s/^/$d/g" detected.txt
+d=`date +"%Y-%m-%d %H:%M:%S,"`;sed -i "s/^/$d/g" detected.txt
 sed -i "s/^/DETECTED,PROBEREQ,Monitor,/g" detected.txt
-sed -i '1ievent_name,event_signal,category,timestamp,client,band' detected.txt
+sed -i 's/^/S5,cafebeef,/g' detected.txt
+sed -i '1ilocation,dpid,event_name,event_signal,category,@timestamp,client,band' detected.txt
 
 cd $DASHBOARD_DIR
-python manage.py csvimport --mappings='' --model='logs.EventLog' /tmp/events.log
-python manage.py csvimport --mappings='' --model='logs.EventLog' /tmp/detected.txt
+./custom_import.py /tmp/events.log logs_eventlog
+./custom_import.py /tmp/detected.txt logs_eventlog
+
+#python manage.py csvimport --mappings='' --model='logs.EventLog' /tmp/events.log
+#python manage.py csvimport --mappings='' --model='logs.EventLog' /tmp/detected.txt
 
 cd $CURDIR
