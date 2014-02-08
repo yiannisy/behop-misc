@@ -62,8 +62,8 @@ bname=`basename $INPF .gz`
 echo basename=$bname
 
 DIROUT=$STATS/$YY/$mm/$dd
-BYTESF=$DIROUT/${PREFIX}bytes.$bname.csv
-AVGRATESF=$DIROUT/${PREFIX}avgrates.$bname.csv
+BYTESF=$DIROUT/bytes.$bname.csv
+AVGRATESF=$DIROUT/avgrates.$bname.csv
 TS=$bname
 
 if [ ! -d $DIROUT ]; then
