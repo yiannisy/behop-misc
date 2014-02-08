@@ -33,19 +33,20 @@ PATH=/usr/local/bin:$PATH
 
 
 ##### for cargus
-PCAPF_TEST=~/tmp/cw_250_dec.pcap
+#PCAPF_TEST=~/tmp/cw_250_dec.pcap
 ARCHIVE=/var/log/cargus/archive
 STATS=/var/log/cargus/stats
 DIRIN=$ARCHIVE/$YY/$mm/$dd
 if [ ! -d $DIRIN ]; then
   mkdir -p $DIRIN
 fi
-PCAPF=$DIRIN/pcap.$YY.$mm.$dd.${HH}.00.00
-cp $PCAPF_TEST $PCAPF
-INPF=$DIRIN/pcap.$YY.$mm.$dd.$HHMM*
-ARGF=$DIRIN/argus.$YY.$mm.$dd.$HH.00.00
-argus -F /dev/null -r $INPF -w $ARGF
-gzip -f $ARGF
+
+##PCAPF=$DIRIN/pcap.$YY.$mm.$dd.${HH}.00.00
+##cp $PCAPF_TEST $PCAPF
+##INPF=$DIRIN/pcap.$YY.$mm.$dd.$HHMM*
+##ARGF=$DIRIN/argus.$YY.$mm.$dd.$HH.00.00
+##argus -F /dev/null -r $INPF -w $ARGF
+##gzip -f $ARGF
 ##### for cargus
 
 INPF=$DIRIN/argus.$YY.$mm.$dd.$HHMM*.gz
