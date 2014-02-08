@@ -34,6 +34,7 @@
 #define MON_ID_CHANNEL 1
 #define MON_ID_BSSIDMASK 2
 #define MON_ID_POWER 3
+#define MON_ID_BEACON 4
 
 #define MONITOR_OVSDB "{\"method\":\"monitor\",\"params\":[\"Open_vSwitch\",0,{\"Wireless\":[{\"columns\":[\"channel\",\"power\",\"ssid\"]}]}],\"id\":1}"
 
@@ -218,6 +219,9 @@ void add_vbeacon(json_t *update)
 
   fprintf(f,"%hhx:%hhx:%hhx:%hhx:%hhx:%hhx\n",vbssid[0], vbssid[1], vbssid[2],
 	  vbssid[3],vbssid[4],vbssid[5]);
+  printf("Adding vbeacon for vbssid : %hhx:%hhx:%hhx:%hhx:%hhx:%hhx\n",vbssid[0], vbssid[1], vbssid[2],
+	  vbssid[3],vbssid[4],vbssid[5]);
+
   if (f)
     fclose(f);
 }
@@ -257,6 +261,10 @@ void del_vbeacon(json_t *update)
 
   fprintf(f,"%hhx:%hhx:%hhx:%hhx:%hhx:%hhx\n",vbssid[0], vbssid[1], vbssid[2],
 	  vbssid[3],vbssid[4],vbssid[5]);
+
+  printf("Deleting vbeacon for vbssid : %hhx:%hhx:%hhx:%hhx:%hhx:%hhx\n",vbssid[0], vbssid[1], vbssid[2],
+	  vbssid[3],vbssid[4],vbssid[5]);
+
   if (f)
     fclose(f);
 }
@@ -413,7 +421,8 @@ int ovsdb_subscribe(int fd)
   int bytes_sent;
   char * json_dump;
 
-  struct json_t * packed_req_channel, *packed_req_power, *packed_req_bssidmask, * packed_req_sta;
+  struct json_t * packed_req_channel, *packed_req_power, *packed_req_bssidmask, 
+    * packed_req_sta, * packed_req_beacon;
 
   packed_req_sta = json_pack("{s:s,s:[s,i,{s:[{s:{s:b}}]}],s:i}",
 				"method","monitor","params","Wifi_vSwitch",MON_ID_STA,
@@ -427,6 +436,11 @@ int ovsdb_subscribe(int fd)
   packed_req_power = json_pack("{s:s,s:[s,i,{s:[{s:[s,s],s:{s:b}}]}],s:i}",
 			     "method","monitor","params","Wifi_vSwitch",MON_ID_POWER,
 			       "WifiConfig","columns","power","intf","select","initial",0,"id",4);
+  packed_req_beacon = json_pack("{s:s,s:[s,i,{s:[{s:{s:b}}]}],s:i}",
+				"method","monitor","params","Wifi_vSwitch",MON_ID_BEACON,
+				"WifiBeacon","select","initial",0,"id",5);
+
+
 
   json_dump = json_dumps(packed_req_channel, JSON_ENCODE_ANY);
   bytes_sent = write(fd, json_dump, strlen(json_dump));
@@ -441,6 +455,8 @@ int ovsdb_subscribe(int fd)
   json_dump = json_dumps(packed_req_sta, JSON_ENCODE_ANY);
   bytes_sent = write(fd, json_dump, strlen(json_dump));
   
+  json_dump = json_dumps(packed_req_beacon, JSON_ENCODE_ANY);
+  bytes_sent = write(fd, json_dump, strlen(json_dump));
 
   return 0;
 }
@@ -457,10 +473,32 @@ void process_sta_update(struct nl_sock *nl_sock, struct json_t * json_obj){
   json_object_foreach(table_updates, key, val){
     if ((iter = json_object_iter_at(val,"new")) != NULL){
       add_station(nl_sock, val);
-      add_vbeacon(val);
+      //add_vbeacon(val);
     }
     else if((iter = json_object_iter_at(val, "old")) != NULL){
       remove_station(nl_sock, val);
+      //del_vbeacon(val);
+    }
+    else{
+      printf("nothing got detected...\n");
+    }
+  }
+}
+
+void process_vbeacon_update(struct json_t * json_obj){
+  struct json_t * table_updates;
+  void *iter;
+  const char *key;
+  json_t *val;
+
+  /* find whether this is addition or removal */
+  /* pick-up the tables-update part */
+  table_updates = json_object_get(json_array_get(json_object_get(json_obj,"params"), 1), "WifiBeacon");  
+  json_object_foreach(table_updates, key, val){
+    if ((iter = json_object_iter_at(val,"new")) != NULL){
+      add_vbeacon(val);
+    }
+    else if((iter = json_object_iter_at(val, "old")) != NULL){
       del_vbeacon(val);
     }
     else{
@@ -468,6 +506,7 @@ void process_sta_update(struct nl_sock *nl_sock, struct json_t * json_obj){
     }
   }
 }
+
 
 void process_bssidmask_update(struct json_t * update){
   FILE * f = NULL;
@@ -566,6 +605,8 @@ void ovsdb_monitor(int fd, struct nl_sock *nl_sock)
 	case MON_ID_POWER:
 	  process_power_update(json_ret);
 	  break;
+	case MON_ID_BEACON:
+	  process_vbeacon_update(json_ret);
 	default:
 	  break;
 	}
