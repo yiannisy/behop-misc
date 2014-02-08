@@ -1,0 +1,77 @@
+#!/bin/bash
+. bargus_functions.sh
+
+PREFIX=cargus_
+
+#2013.12.16
+#YY=2013
+#mm=12
+#dd=16
+#HHMM=19.00
+
+YY=`date +%Y`
+mm=`date +%m`
+dd=`date +%d`
+HH=`date +%H`
+#MM=`date +%M`
+HHMM=$HH
+
+#YY=2014
+#mm=02
+#dates="1 10"
+#dd='03'
+#HH='01'
+#YY=2013
+#mm=12
+#dates="1 31"
+
+#for dd in `seq -w $dates`; do
+#  for HH in `seq -w 0 23`; do
+    HHMM=$HH
+
+PATH=/usr/local/bin:$PATH
+
+
+##### for cargus
+PCAPF_TEST=~/tmp/cw_250_dec.pcap
+ARCHIVE=/var/log/cargus/archive
+STATS=/var/log/cargus/stats
+DIRIN=$ARCHIVE/$YY/$mm/$dd
+if [ ! -d $DIRIN ]; then
+  mkdir -p $DIRIN
+fi
+PCAPF=$DIRIN/pcap.$YY.$mm.$dd.${HH}.00.00
+cp $PCAPF_TEST $PCAPF
+INPF=$DIRIN/pcap.$YY.$mm.$dd.$HHMM*
+ARGF=$DIRIN/argus.$YY.$mm.$dd.$HH.00.00
+argus -F /dev/null -r $INPF -w $ARGF
+gzip -f $ARGF
+##### for cargus
+
+INPF=$DIRIN/argus.$YY.$mm.$dd.$HHMM*.gz
+
+
+if [ ! -e $INPF ]; then
+  echo Input file $INPF not found, continuing...
+  continue
+fi
+
+
+echo processing $INPF
+bname=`basename $INPF .gz`
+echo basename=$bname
+
+DIROUT=$STATS/$YY/$mm/$dd
+BYTESF=$DIROUT/${PREFIX}bytes.$bname.csv
+AVGRATESF=$DIROUT/${PREFIX}avgrates.$bname.csv
+TS=$bname
+
+if [ ! -d $DIROUT ]; then
+  mkdir -p $DIROUT
+fi
+
+compute_bytes_log
+compute_bitrate_log
+
+#  done
+#done
