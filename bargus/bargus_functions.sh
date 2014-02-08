@@ -27,9 +27,9 @@ compute_bytes_log() {
     racluster -r $INPF -m daddr -s saddr daddr spkts dpkts sbytes dbytes -w - - dst net 10.30.0.0/16 and tcp and vid 2000 | rasort -m sbytes -s saddr daddr spkts dpkts sbytes dbytes | tr -s ' ' > /tmp/${PREFIX}t2_dstup
 
     echo storing $BYTESF
-    barguspy -c bytes_v --dstdown /tmp/${PREFIX}t1_dstdown --srcup /tmp/${PREFIX}t1_srcup --srcdown /tmp/${PREFIX}t2_srcdown --dstup /tmp/${PREFIX}t2_dstup -o $BYTESF -t $TS
+    barguspy -l $LOC -c bytes_v --dstdown /tmp/${PREFIX}t1_dstdown --srcup /tmp/${PREFIX}t1_srcup --srcdown /tmp/${PREFIX}t2_srcdown --dstup /tmp/${PREFIX}t2_dstup -o $BYTESF -t $TS
 
-    echo "timestamp,client,in_pkts,out_pkts,in_bytes,out_bytes" > $BYTESF.upnonz
+    echo "location,@timestamp,client,in_pkts,out_pkts,in_bytes,out_bytes" > $BYTESF.upnonz
     grep -vE ",0$" $BYTESF >> $BYTESF.upnonz
 
 
@@ -50,9 +50,9 @@ compute_bytes_log() {
     racluster -r $INPF -m daddr -s saddr daddr spkts dpkts sbytes dbytes -w - - dst net 10.30.0.0/16 and udp and vid 2000 | rasort -m sbytes -s saddr daddr spkts dpkts sbytes dbytes | tr -s ' ' > /tmp/${PREFIX}t2_dstup_udp
 
     echo storing $BYTESF.udp
-    barguspy -c bytes_v --dstdown /tmp/${PREFIX}t1_dstdown_udp --srcup /tmp/${PREFIX}t1_srcup_udp --srcdown /tmp/${PREFIX}t2_srcdown_udp --dstup /tmp/${PREFIX}t2_dstup_udp -o $BYTESF.udp -t $TS
+    barguspy -l $LOC -c bytes_v --dstdown /tmp/${PREFIX}t1_dstdown_udp --srcup /tmp/${PREFIX}t1_srcup_udp --srcdown /tmp/${PREFIX}t2_srcdown_udp --dstup /tmp/${PREFIX}t2_dstup_udp -o $BYTESF.udp -t $TS
 
-    echo "timestamp,client,in_pkts,out_pkts,in_bytes,out_bytes" > $BYTESF.udp.upnonz
+    echo "location,@timestamp,client,in_pkts,out_pkts,in_bytes,out_bytes" > $BYTESF.udp.upnonz
     grep -vE ",0$" $BYTESF.udp >> $BYTESF.udp.upnonz
 }
 
@@ -87,9 +87,9 @@ compute_bitrate_log() {
 
 
     echo storing $AVGRATESF
-    barguspy -c avgrates_v --dstdown /tmp/${PREFIX}avgrate_t1_dstdown --srcup /tmp/${PREFIX}avgrate_t1_srcup --srcdown /tmp/${PREFIX}avgrate_t2_srcdown --dstup /tmp/${PREFIX}avgrate_t2_dstup -o $AVGRATESF -t $TS
+    barguspy -l $LOC -c avgrates_v --dstdown /tmp/${PREFIX}avgrate_t1_dstdown --srcup /tmp/${PREFIX}avgrate_t1_srcup --srcdown /tmp/${PREFIX}avgrate_t2_srcdown --dstup /tmp/${PREFIX}avgrate_t2_dstup -o $AVGRATESF -t $TS
 
     ### create the filtered avgrates file
-    echo "timestamp,client,in_bytes,out_bytes,in_avgrate_bps,out_avgrate_bps" > $AVGRATESF.upnonz
-    barguspy -c filter_IPs --reffile $BYTESF.upnonz --datafile $AVGRATESF -o $AVGRATESF.upnonz -a
+    echo "location,@timestamp,client,in_bytes,out_bytes,in_avgrate_bps,out_avgrate_bps" > $AVGRATESF.upnonz
+    barguspy -l $LOC -c filter_IPs --reffile $BYTESF.upnonz --datafile $AVGRATESF -o $AVGRATESF.upnonz -a
 }

@@ -3,12 +3,8 @@
 
 sudo mkdir /var/log/argus
 sudo mkdir /var/log/argus/tmp
-sudo cp argusarchive /usr/local/bin/
-sudo cp argus.conf /etc/argus.conf
+sudo make install
 sudo argus
-sudo cp barguspy /usr/local/bin
-sudo cp bargus /usr/local/bin
-sudo cp argus-server /etc/init.d/
 sudo update-rc.d argus-server defaults
 
 

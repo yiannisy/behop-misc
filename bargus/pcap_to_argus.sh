@@ -1,7 +1,11 @@
 #!/bin/bash
 file=$1
 
+#LOG=/var/log/cargus/pcap_to_argus.log
+LOG=/tmp/pcap_to_argus.log
+
 echo "Giving $file to Manu!"
+echo "Giving $file to Manu!" >> $LOG
 
 YY=`date +%Y`
 mm=`date +%m`
@@ -28,10 +32,14 @@ INPF=$PCAPF_TEST
 ARGF=$DIRIN/argus.$YY.$mm.$dd.$HH.$MM.00
 
 echo "Taking in pcap $INPF"
+echo "Taking in pcap $INPF" >> $LOG
 echo "Storing out $ARGF"
+echo "Storing out $ARGF" >> $LOG
 
+#http://comments.gmane.org/gmane.network.argus/8331
 argus -F /dev/null -r $INPF -w $ARGF
 
 echo "gzipping $ARGF to $ARGF.gz"
+echo "gzipping $ARGF to $ARGF.gz" >> $LOG
 gzip -f $ARGF
 ##### for cargus

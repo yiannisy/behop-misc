@@ -4,15 +4,15 @@ import argparse
 import time
 from datetime import datetime
 
-#bargus -c bytes -s /tmp/t1 -d /tmp/t2
+TZ=False
 
-
-#                              vlan            vlan
-def aggregate_bytes_v(dstdown, srcup, srcdown, dstup, outfile, timestamp):
+def aggregate_bytes_v(dstdown, srcup, srcdown, dstup, outfile, timestamp, loc):
   print timestamp
   timestamp=tuple(timestamp.split('.')[1:])
   timestamp='%s-%s-%s %s:%s:%s.000000' % timestamp
-  ts=timestamp+time.strftime('%z')
+  ts=timestamp
+  if TZ:
+    ts+=time.strftime('%z')
 
   bytes = {}
   with open(dstdown, 'r') as f:
@@ -64,18 +64,18 @@ def aggregate_bytes_v(dstdown, srcup, srcdown, dstup, outfile, timestamp):
       for ip in bytes:
         inPkts, outPkts, inBy, outBy = bytes[ip]
         #print ip, inBy, outBy
-	f.write('%s,%s,%s,%s,%s,%s\n' % (ts, ip, inPkts, outPkts, inBy, outBy))
+	f.write('%s,%s,%s,%s,%s,%s,%s\n' % (loc, ts, ip, inPkts, outPkts, inBy, outBy))
       
   return bytes
 
 
 def aggregate_bytes(srcfile, dstfile, outfile=None, timestamp=None):
-  #ts=datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')+time.strftime('%z')
   print timestamp
-  #YY,mm,dd,HH,MM,SS=timestamp.split('.')[1:]
   timestamp=tuple(timestamp.split('.')[1:])
   timestamp='%s-%s-%s %s:%s:%s.000000' % timestamp
-  ts=timestamp+time.strftime('%z')
+  ts=timestamp
+  if TZ:
+    ts+=time.strftime('%z')
 
   bytes = {}
   with open(srcfile, 'r') as f:
@@ -116,13 +116,8 @@ def aggregate_bytes(srcfile, dstfile, outfile=None, timestamp=None):
       
   return bytes
 
-def aggregate_avgrates_v(dstdown, srcup, srcdown, dstup, outfile, timestamp):
+def aggregate_avgrates_v(dstdown, srcup, srcdown, dstup, outfile, timestamp, loc):
   print timestamp
-  #timestamp=tuple(timestamp.split('.')[1:])
-  #timestamp='%s-%s-%s %s:%s:%s.000000' % timestamp
-  #ts=timestamp+time.strftime('%z')
-
-
   avgrates = {}
   with open(dstdown, 'r') as f:
     l1 = f.readlines()
@@ -136,7 +131,6 @@ def aggregate_avgrates_v(dstdown, srcup, srcdown, dstup, outfile, timestamp):
     l2 = f.readlines()
   sl2 = [l.strip() for l in l2]
   tl2 = [tuple(l.split(' ')) for l in sl2]
-  #dlt = [(tv,ip,ig,outBytes,inBytes,outAvgrate,inAvgrate) for (tv,ig,ip,inBytes,outBytes,inAvgrate,outAvgrate) in dlt]
   tl2 = [(tv,ip,ig,outBytes,0,      outAvgrate,"0") for (tv,ip,ig,outBytes,inBytes,outAvgrate,inAvgrate) in tl2]		#keep only outBytes and outAvgrate from this
 
   with open(srcdown, 'r') as f:
@@ -182,19 +176,14 @@ def aggregate_avgrates_v(dstdown, srcup, srcdown, dstup, outfile, timestamp):
         #print ip, inar, outar
 
 	ts = time.strftime('%Y-%m-%d %H:%M:%S.000000', time.localtime(tv))
-	f.write('%s,%s,%s,%s,%s,%s\n' % (ts, ip, inbytes, outbytes, inar, outar))
+	if TZ:
+	  ts+=time.strftime('%z')
+	f.write('%s,%s,%s,%s,%s,%s,%s\n' % (loc,ts, ip, inbytes, outbytes, inar, outar))
       
   return avgrates
 
 
 def aggregate_avgrates(srcfile, dstfile, outfile=None, timestamp=None):
-  #ts=datetime.now().strftime('%Y-%m-%d %H:%M:%S.%f')+time.strftime('%z')
-  #print timestamp
-  #YY,mm,dd,HH,MM,SS=timestamp.split('.')[1:]
-  #timestamp=tuple(timestamp.split('.')[1:])
-  #timestamp='%s-%s-%s %s:%s:%s.000000' % timestamp
-  #ts=timestamp+time.strftime('%z')
-
   avgrates = {}
   with open(srcfile, 'r') as f:
     sl = f.readlines()
@@ -233,7 +222,9 @@ def aggregate_avgrates(srcfile, dstfile, outfile=None, timestamp=None):
     with open(outfile, 'w') as f:
       for (tv,ip),((inar,outar),(inbytes,outbytes)) in avgrates:
         #inar, outar = avgrates[(tv,ip)]
-	ts=datetime.fromtimestamp(tv).strftime('%Y-%m-%d %H:%M:%S.000000') + time.strftime('%z')
+	ts=datetime.fromtimestamp(tv).strftime('%Y-%m-%d %H:%M:%S.000000') 
+	if TZ:
+	  ts+=time.strftime('%z')
         #print ip, inar, outar
 	f.write('%s,%s,%s,%s,%s,%s\n' % (ts, ip, inbytes, outbytes, inar, outar))
       
@@ -248,8 +239,8 @@ def filter_IPs(reffile, datafile, outfile, append=False):
   #for l in l_ref:
     #print l
   #  print 
-  valid_ips = [l.strip().split(',')[1] for l in l_ref]
-  filtered_log = [l.strip() for l in l_data if l.strip().split(',')[1] in valid_ips]
+  valid_ips = [l.strip().split(',')[2] for l in l_ref]
+  filtered_log = [l.strip() for l in l_data if l.strip().split(',')[2] in valid_ips]
   #for l in filtered_log:
   #  print l
   #print valid_ips
@@ -266,6 +257,8 @@ def filter_IPs(reffile, datafile, outfile, append=False):
 
 
 def main():
+  global TZ
+
   parser = argparse.ArgumentParser(description='Process some integers.')
   parser.add_argument('-c', '--cmd', dest='cmd', action='store', help='command to process')
 
@@ -284,6 +277,9 @@ def main():
   parser.add_argument('-t', '--timestamp', dest='timestamp', action='store', help='timestamp upto seconds')
   parser.add_argument('-a', '--append', dest='append', action='store_true')
 
+  parser.add_argument('-z', '--timezone', dest='tz', action='store_true')
+  parser.add_argument('-l', '--location', dest='loc', action='store', help='location identifier')
+
   args = parser.parse_args()
   #print args
 
@@ -291,16 +287,19 @@ def main():
   #  aggregate_bytes(args.srcfile, args.dstfile, args.outfile, args.timestamp)
 
   if args.cmd == 'bytes_v':
-    aggregate_bytes_v(args.dstdown, args.srcup, args.srcdown, args.dstup, args.outfile, args.timestamp)
+    aggregate_bytes_v(args.dstdown, args.srcup, args.srcdown, args.dstup, args.outfile, args.timestamp, args.loc)
 
   #if args.cmd == 'avgrates':
   #  aggregate_avgrates(args.srcfile, args.dstfile, args.outfile, args.timestamp)
 
   if args.cmd == 'avgrates_v':
-    aggregate_avgrates_v(args.dstdown, args.srcup, args.srcdown, args.dstup, args.outfile, args.timestamp)
+    aggregate_avgrates_v(args.dstdown, args.srcup, args.srcdown, args.dstup, args.outfile, args.timestamp, args.loc)
 
   if args.cmd == 'filter_IPs':
     filter_IPs(args.reffile, args.datafile, args.outfile, args.append)
+
+  if args.tz:
+    TZ=True
  
 if __name__ == '__main__':
   main()

@@ -1,7 +1,8 @@
 #!/bin/bash
-. bargus_functions.sh
+. /usr/local/bin/bargus_functions.sh
 
 PREFIX=cargus_
+LOC=S4
 
 #2013.12.16
 #YY=2013
