@@ -42,7 +42,7 @@ while read p;do
 	    ;;
     esac
     echo "Setting channel $channel at studio $studio"
-    ./pssh root@studio5-$studio-pi.sunet "uci set wireless.radio1.channel=$channel;uci commit"
+    ./pssh_script root@studio5-$studio-pi.sunet "uci set wireless.radio1.channel=$channel;uci commit"
 done < $fname
 exit
 
