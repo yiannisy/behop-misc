@@ -64,7 +64,7 @@ echo "Setting up Wireless"
     uci set wireless.radio1.beacon_int=200
     uci set wireless.radio1.htmode=HT40+
     uci set wireless.radio1.noscan=1
-    uci delete.wireless.@wifi-iface[1].network
+    uci delete wireless.@wifi-iface[1].network
     uci set wireless.@wifi-iface[1].hidden=1
     uci set wireless.@wifi-iface[1].wmm=1
     uci set wireless.@wifi-iface[1].macaddr=06:00:00:00:00:00
