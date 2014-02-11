@@ -1,3 +1,4 @@
+
 #!/bin/bash
 
 #file=test1.pcap
@@ -76,7 +77,9 @@ done
 sed -i '1i@timestamp,location,client,dpid,event_signal,event_name,category,band' _events_s4.txt
 ../add_csv_to_db_direct.sh _events_s4.txt logs_eventlog
 
-../extract_capwap_data_s4.sh $file
+outfile=capwap_data.pcap
+#../extract_capwap_data_s4.sh $file $outfile
+#pcap_to_argus.sh $outfile
 
 cd ../
 rm -rf ${tmp_dir}

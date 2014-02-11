@@ -1,6 +1,7 @@
 #!/bin/bash
 
 file=$1
+outfile=$2
 
 # filter first frame packets only
 tcpdump -nnn -r ${file} 'udp[14:2] & 0xfff8 = 0x00' -w dl_f0.pcap
@@ -12,6 +13,6 @@ tcpdump -nnn -r dl_f0.pcap 'udp[9:1] & 0xf8 = 0x20 and udp[25:1] = 0x08' -w test
 bittwiste -I test_l4.pcap -O test_l4_data.pcap -D 1-76
 
 # Create a unified pcap file
-mergecap test_l2_data.pcap test_l4_data.pcap -w test_data.pcap
+mergecap test_l2_data.pcap test_l4_data.pcap -w $outfile
 
 echo "Created data stream for studio5 lwapp!"
