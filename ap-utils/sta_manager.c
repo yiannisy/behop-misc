@@ -28,6 +28,7 @@
 #define WLAN1_BSSIDMASK_DEBUGFS_FILE "/sys/kernel/debug/ieee80211/phy1/ath9k/bssidmask"
 #define WLAN1_ADD_VBEACON_DEBUGFS_FILE "/sys/kernel/debug/ieee80211/phy1/ath9k/addbeacon"
 #define WLAN1_DEL_VBEACON_DEBUGFS_FILE "/sys/kernel/debug/ieee80211/phy1/ath9k/delbeacon"
+#define STA_MANAGER_LOG_FNAME "/var/log/stamanager.log"
 
 
 #define MON_ID_STA 0
@@ -41,6 +42,9 @@
 int send_sync(struct nl_sock * sk, struct nl_msg * msg);
 void str_to_mac(const char * str, uint8_t * addr);
 struct json_t;
+
+static FILE * f_log = NULL;
+static char * log_fname = STA_MANAGER_LOG_FNAME;
 
 static const char ifname[] = "wlan1";
 //static size_t sta_rates_len = 9;
@@ -88,14 +92,14 @@ static int wifi_set_ap_mode(struct nl_sock * sock)
   NLA_PUT_U32(msg, NL80211_ATTR_IFTYPE, NL80211_IFTYPE_AP);
 
   if ((err = send_sync(sock, msg)) < 0){
-    printf("message to set AP mode sent with error : %d (%s)\n", err, strerror(err));
+    fprintf(f_log,"message to set AP mode sent with error : %d (%s)\n", err, strerror(err));
   }
   else
     return 0;
 
 nla_put_failure:
   nlmsg_free(msg);
-  printf("failed to change mode to AP\n");
+  fprintf(f_log,"failed to change mode to AP\n");
   return ret;
 }
 
@@ -111,12 +115,13 @@ void remove_station(struct nl_sock *sock, json_t * update)
   struct station *tmp;
 
   /* Get station from ovsdb update. */
-  //printf("%s\n",json_dumps(update, JSON_ENCODE_ANY));
+  //fprintf(f_log,"%s\n",json_dumps(update, JSON_ENCODE_ANY));
   addr_str = json_string_value(json_object_get(json_object_get(update,"old"), "addr"));
   intf = json_string_value(json_object_get(json_object_get(update,"old"),"intf"));
   str_to_mac(addr_str, addr);
 
-  printf("Removing Station :  address : %s \n",addr_str);
+  fprintf(f_log,"Removing Station :  address : %s \n",addr_str);
+  fflush(f_log);
 
   /* Get the id for nl80211 */
   nl80211_id = genl_ctrl_resolve(sock,"nl80211");
@@ -126,9 +131,9 @@ void remove_station(struct nl_sock *sock, json_t * update)
   NLA_PUT_U32(msg, NL80211_ATTR_IFINDEX, if_nametoindex(intf));
   NLA_PUT(msg, NL80211_ATTR_MAC, ETH_ALEN, addr);
   
-  //printf("About to send nl msg to remove station : %s\n", addr_str);
+  //fprintf(f_log,"About to send nl msg to remove station : %s\n", addr_str);
   if ((err = send_sync(sock, msg)) < 0){
-    //printf("message sent with error : %d (%s)\n", err, strerror(err));
+    //fprintf(f_log,"message sent with error : %d (%s)\n", err, strerror(err));
   }
   else {
     /* delete the station if it's on the list */
@@ -141,13 +146,14 @@ void remove_station(struct nl_sock *sock, json_t * update)
     }
   }
 
-  printf("Removed Station :  address : %s \n",addr_str);
-  //printf("Sent nl msg to remove station : %s\n", addr_str);
+  fprintf(f_log,"Removed Station :  address : %s \n",addr_str);
+  fflush(f_log);
+  //fprintf(f_log,"Sent nl msg to remove station : %s\n", addr_str);
   return;
   
  nla_put_failure:
   nlmsg_free(msg);
-  //printf("failure\n");
+  //fprintf(f_log,"failure\n");
 
 }
 
@@ -212,14 +218,14 @@ void add_vbeacon(json_t *update)
 
 
   if ((f = fopen(vbeacon_fname,"w")) == NULL){
-    printf("cannot open addbeacon file...\n");
+    fprintf(f_log,"cannot open addbeacon file...\n");
     return;
   }
   str_to_mac(vbssid_str, vbssid);
 
   fprintf(f,"%hhx:%hhx:%hhx:%hhx:%hhx:%hhx\n",vbssid[0], vbssid[1], vbssid[2],
 	  vbssid[3],vbssid[4],vbssid[5]);
-  printf("Adding vbeacon for vbssid : %hhx:%hhx:%hhx:%hhx:%hhx:%hhx\n",vbssid[0], vbssid[1], vbssid[2],
+  fprintf(f_log,"Adding vbeacon for vbssid : %hhx:%hhx:%hhx:%hhx:%hhx:%hhx\n",vbssid[0], vbssid[1], vbssid[2],
 	  vbssid[3],vbssid[4],vbssid[5]);
 
   if (f)
@@ -239,7 +245,7 @@ void del_vbeacon(json_t *update)
   intf = json_string_value(json_object_get(json_object_get(update,"old"),"intf"));
 
   if (!vbssid_str || !intf){
-    printf("cannot parse vbssid or intf---skipping...\n");
+    fprintf(f_log,"cannot parse vbssid or intf---skipping...\n");
     return;
   }
 
@@ -250,11 +256,11 @@ void del_vbeacon(json_t *update)
     vbeacon_fname = WLAN1_DEL_VBEACON_DEBUGFS_FILE;
   }
 
-  printf("deleting vbeacon\n");
-  printf("using %s\n",vbeacon_fname);
+  fprintf(f_log,"deleting vbeacon\n");
+  fprintf(f_log,"using %s\n",vbeacon_fname);
 
   if ((f = fopen(vbeacon_fname,"w")) == NULL){
-    printf("cannot open delbeacon file...\n");
+    fprintf(f_log,"cannot open delbeacon file...\n");
     return;
   }
   str_to_mac(vbssid_str, vbssid);
@@ -262,7 +268,7 @@ void del_vbeacon(json_t *update)
   fprintf(f,"%hhx:%hhx:%hhx:%hhx:%hhx:%hhx\n",vbssid[0], vbssid[1], vbssid[2],
 	  vbssid[3],vbssid[4],vbssid[5]);
 
-  printf("Deleting vbeacon for vbssid : %hhx:%hhx:%hhx:%hhx:%hhx:%hhx\n",vbssid[0], vbssid[1], vbssid[2],
+  fprintf(f_log,"Deleting vbeacon for vbssid : %hhx:%hhx:%hhx:%hhx:%hhx:%hhx\n",vbssid[0], vbssid[1], vbssid[2],
 	  vbssid[3],vbssid[4],vbssid[5]);
 
   if (f)
@@ -291,7 +297,7 @@ int add_station(struct nl_sock * sock, json_t * update)
   struct ieee80211_ht_capabilities ht_capa;
 
   /* Get station and vbssid from ovsdb update. */
-  printf("%s\n",json_dumps(update, JSON_ENCODE_ANY));
+  fprintf(f_log,"%s\n",json_dumps(update, JSON_ENCODE_ANY));
   addr_str = json_string_value(json_object_get(json_object_get(update,"new"), "addr"));
   vbssid_str = json_string_value(json_object_get(json_object_get(update,"new"), "vbssid"));
   intf = json_string_value(json_object_get(json_object_get(update,"new"),"intf"));
@@ -308,7 +314,7 @@ int add_station(struct nl_sock * sock, json_t * update)
   ht_capa.tx_bf_capability_info = json_integer_value(json_object_get(json_object_get(update,"new"), "ht_capa_txbf"));
   ht_capa.asel_capabilities = json_integer_value(json_object_get(json_object_get(update,"new"), "ht_capa_asel"));
 
-  printf("Adding Station :  address : %s | vbssid : %s | sta_aid : %d | sta_interval : %d | sup_rates : %s | ext_rates : %s\n",
+  fprintf(f_log,"Adding Station :  address : %s | vbssid : %s | sta_aid : %d | sta_interval : %d | sup_rates : %s | ext_rates : %s\n",
 	 addr_str, vbssid_str, sta_aid, sta_interval, sta_rates_str, ext_rates_str);
   
   str_to_mac(vbssid_str, vbssid);
@@ -359,7 +365,7 @@ int add_station(struct nl_sock * sock, json_t * update)
 
   err = send_sync(sock, msg);
   if (err < 0 && err != -6){
-    printf("message sent with error : %d (%s)\n", err, strerror(err));
+    fprintf(f_log,"message sent with error : %d (%s)\n", err, strerror(err));
   } 
   else {
     /* add station to our list if it's not already there... */
@@ -371,7 +377,7 @@ int add_station(struct nl_sock * sock, json_t * update)
     if(!sta_exists){
       sta = (struct station *) malloc(sizeof(struct station));
       if (!sta){
-	printf("Cannot allocate memory for new sta...\n");
+	fprintf(f_log,"Cannot allocate memory for new sta...\n");
 	return -ENOMEM;
       }
       memcpy(sta->addr, addr, ETH_ALEN);
@@ -384,7 +390,7 @@ int add_station(struct nl_sock * sock, json_t * update)
  nla_put_failure:
   nlmsg_free(msg);
   return -1;
-  //printf("failure\n");
+  //fprintf(f_log,"failure\n");
 
 }
   
@@ -398,7 +404,7 @@ int ovsdb_connect()
   memset(buf, '0',sizeof(buf));
 
   if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0){
-    printf("Cannot allocate socket\n");
+    fprintf(f_log,"Cannot allocate socket\n");
     return -1;
   }
     
@@ -407,7 +413,7 @@ int ovsdb_connect()
   strcpy(serv_addr.sun_path,OVSDB_UNIX_FILE);
   len = strlen(serv_addr.sun_path) + sizeof(serv_addr.sun_family);
   if (connect(fd, (struct sockaddr *)&serv_addr, len) < 0){
-    printf("Cannot connect to ovsdb-server (%d : %s)\n",-1,strerror(errno));
+    fprintf(f_log,"Cannot connect to ovsdb-server (%d : %s)\n",-1,strerror(errno));
     close(fd);
     return -1;
   }
@@ -480,7 +486,7 @@ void process_sta_update(struct nl_sock *nl_sock, struct json_t * json_obj){
       //del_vbeacon(val);
     }
     else{
-      printf("nothing got detected...\n");
+      fprintf(f_log,"nothing got detected...\n");
     }
   }
 }
@@ -502,7 +508,7 @@ void process_vbeacon_update(struct json_t * json_obj){
       del_vbeacon(val);
     }
     else{
-      printf("nothing got detected...\n");
+      fprintf(f_log,"nothing got detected...\n");
     }
   }
 }
@@ -525,7 +531,7 @@ void process_bssidmask_update(struct json_t * update){
       bssidmask_str = json_string_value(json_object_get(json_object_get(val,"new"), "bssidmask"));
       intf = json_string_value(json_object_get(json_object_get(val,"new"),"intf"));
       if (!bssidmask_str || !intf){
-	printf("cannot decode bssidmask/intf - skipping\n");
+	fprintf(f_log,"cannot decode bssidmask/intf - skipping\n");
 	return;
       }
       break;
@@ -541,11 +547,11 @@ void process_bssidmask_update(struct json_t * update){
 
   /* now write the value to debugfs */
   if ((f = fopen(bssid_fname, "w")) == NULL){
-    printf("cannot open bssidmask file...\n");
+    fprintf(f_log,"cannot open bssidmask file...\n");
     return;
   }
   
-  printf("Updating BSSIDMASK : %hhx:%hhx:%hhx:%hhx:%hhx:%hhx\n",bssidmask[0], bssidmask[1], bssidmask[2],
+  fprintf(f_log,"Updating BSSIDMASK : %hhx:%hhx:%hhx:%hhx:%hhx:%hhx\n",bssidmask[0], bssidmask[1], bssidmask[2],
 	 bssidmask[3],bssidmask[4],bssidmask[5]);
   
   fprintf(f,"%hhx:%hhx:%hhx:%hhx:%hhx:%hhx\n",bssidmask[0], bssidmask[1], bssidmask[2],
@@ -555,12 +561,12 @@ void process_bssidmask_update(struct json_t * update){
 }
 
 void process_channel_update(struct json_t * update){
-  printf("channel update not supported yet\n");
+  fprintf(f_log,"channel update not supported yet\n");
   return;
 }
 
 void process_power_update(struct json_t * update){
-  printf("power update not supported yet\n");
+  fprintf(f_log,"power update not supported yet\n");
   return;
 }
 
@@ -577,7 +583,7 @@ void ovsdb_monitor(int fd, struct nl_sock *nl_sock)
     while((decoded < n) && (decoded >= 0)){
       json_ret = json_loads(buf + decoded,JSON_DISABLE_EOF_CHECK,&json_err);
       if (!json_ret){
-	printf("Cannot decode json message - skipping (%s)\n",buf);
+	fprintf(f_log,"Cannot decode json message - skipping (%s)\n",buf);
 	memset(buf,0,sizeof(buf));
 	break;
       }
@@ -592,6 +598,7 @@ void ovsdb_monitor(int fd, struct nl_sock *nl_sock)
       if (!strcmp(method,"update")){
 	/* Look at the MON_ID to see what is being updated. */
 	int mon_id = json_integer_value(json_array_get(json_object_get(json_ret,"params"),0));
+	fprintf(f_log,"Processing an update for MON_ID : %d\n",mon_id);
 	switch(mon_id) {
 	case MON_ID_STA:
 	  process_sta_update(nl_sock, json_ret);
@@ -607,12 +614,14 @@ void ovsdb_monitor(int fd, struct nl_sock *nl_sock)
 	  break;
 	case MON_ID_BEACON:
 	  process_vbeacon_update(json_ret);
+	  break;
 	default:
 	  break;
 	}
       }
     }
     memset(buf,0,sizeof(buf));
+    fflush(f_log);
   }
 }
 
@@ -621,7 +630,15 @@ int main()
   struct nl_sock * nl_sock;
   int ovsdb_fd;
 
-
+  if ((f_log = fopen(log_fname,"w")) == NULL){
+    printf("Cannot open log file---closing...\n");
+    return -1;
+  }
+  else{
+    printf("Logging!\n");
+    fprintf(f_log,"sta_manager starting...\n");
+    fflush(f_log);
+  }
   /* Initialize a list for stations */
   
   INIT_LIST_HEAD(&(stations.list));
@@ -630,18 +647,19 @@ int main()
   nl_sock = nl_socket_alloc();
 
   if(genl_connect(nl_sock)){
-    printf("nl80211: Failed to connect to generic netlink\n");
+    fprintf(f_log,"nl80211: Failed to connect to generic netlink\n");
   }
 
   if ((ovsdb_fd = ovsdb_connect()) < 0){
-    printf("cannot connect to ovsdb-server - quit...\n");
+    fprintf(f_log,"cannot connect to ovsdb-server - quit...\n");
     return 0;
   }
 
-  printf("Connected to ovsdb-server\n");
+  fprintf(f_log,"Connected to ovsdb-server\n");
   ovsdb_subscribe(ovsdb_fd);
     
   ovsdb_monitor(ovsdb_fd, nl_sock);
   
+  fclose(f_log);
   return 0;
 }
