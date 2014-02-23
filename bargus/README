@@ -9,11 +9,12 @@ sudo update-rc.d argus-server defaults
 
 
 sudo crontab -e
-#for every hour, add this line:   0    *  *   *   *     /usr/local/bin/argusarchive >> /var/log/argus/archive.log 2>&1
-#for every hour, add this line:   5    *  *   *   *     /usr/local/bin/bargus >> /var/log/argus/bargus.log 2>&1
+*/10 *  *   *   *     /usr/local/bin/argusarchive >> /var/log/argus/archive.log 2>&1
+2,12,22,32,42,52 *  *   *   *     /usr/local/bin/bargus >> /var/log/argus/bargus.log 2>&1
+
 
 crontab -e
-#10 *  *   *   *     /home/manub/be-hop-misc/bargus/bargus_to_db.sh >> /home/manub/be-hop-misc/bargus/bargus_to_db.log 2>&1
+5,15,25,35,45,55 *  *   *   *     /home/manub/be-hop-misc/bargus/bargus_to_db.sh >> /home/manub/be-hop-misc/bargus/bargus_to_db.log 2>&1
 
 
 # sudo cp ra.conf /etc/ra.conf

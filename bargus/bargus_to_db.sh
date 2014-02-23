@@ -6,7 +6,9 @@ YY=`date +%Y`
 mm=`date +%m`
 dd=`date +%d`
 HH=`date +%H`
-#MM=`date +%M`
+MM=`date +%M`
+M=${MM:0:1}	#0'th character
+HHMM=$HH.$M
 
 
 #YY=2014
@@ -19,7 +21,7 @@ HH=`date +%H`
 #HH=01
 #for dd in `seq -w $dates`; do
 #  for HH in `seq -w 0 23`; do
-    HHMM=$HH
+    HHMM=$HH.$M
 
 PATH=/usr/local/bin:$PATH
 

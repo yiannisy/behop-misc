@@ -14,8 +14,9 @@ YY=`date +%Y`
 mm=`date +%m`
 dd=`date +%d`
 HH=`date +%H`
-#MM=`date +%M`
-HHMM=$HH
+MM=`date +%M`
+M=${MM:0:1}	#0'th character
+HHMM=$HH.$M
 
 #YY=2014
 #mm=02
@@ -28,7 +29,7 @@ HHMM=$HH
 
 #for dd in `seq -w $dates`; do
 #  for HH in `seq -w 0 23`; do
-    HHMM=$HH
+    HHMM=$HH.$M
 
 PATH=/usr/local/bin:$PATH
 
@@ -39,7 +40,8 @@ INPF=$DIRIN/argus.$YY.$mm.$dd.$HHMM*.gz
 
 if [ ! -e $INPF ]; then
   echo Input file $INPF not found, continuing...
-  continue
+  #continue
+  exit
 fi
 
 echo processing $INPF
