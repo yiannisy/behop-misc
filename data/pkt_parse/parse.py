@@ -3,9 +3,22 @@
 import sys
 import dpkt
 import pcap
+import matplotlib
+matplotlib.use('Agg')
+import pylab
+import pickle
 from ieee80211_params import *
+from plot_timeline import *
 
-RT_HDR_LEN=34
+rates_n = {'40_sgi':{0x0f:270,0xe:243,0xd:216,0xc:162,0xb:108,0xa:81,9:54,8:27}}
+
+RT_HDR_LEN=13
+
+def plot_timeline(packets):
+    pylab.figure()
+    for pkt in packets:
+        pylab.axhspan(1,2,pkt[0],pkt[0]+pkt[1])
+    pylab.savefig('timeline.png')
 
 def DIV_ROUND_UP(n,d):
     return (((n) + (d) -1)/(d))
@@ -64,6 +77,11 @@ def ieee80211_frame_duration(phymode,length,rate,short_preamble,
         
     return dur
 
+def ieee80211_frame_duration_simple(phymode,length,rate,short_preamble,
+                                    shortslot,pkt_type,pkt_stype,qos_class,retries):
+    return length*8/float(rate)
+
+
 def ieee80211_ftype(pkt_type):
     if (pkt_type == IEEE80211_FTYPE_MGMT):
         return "MGMT"
@@ -72,6 +90,8 @@ def ieee80211_ftype(pkt_type):
     elif (pkt_type == IEEE80211_FTYPE_DATA):
         return "DATA"
     else: 
+        print "unknown ftype : %x" % pkt_type
+        sys.exit(0)
         return -1
 
 def ieee80211_stype(pkt_stype):
@@ -99,32 +119,57 @@ pcap = dpkt.pcap.Reader(f)
 
 durs = []
 second_start = -1
+i= 1
+packets = []
 for ts,buf,buf_len in pcap:
     if second_start < 0:
         second_start = ts
     rt = dpkt.radiotap.Radiotap(buf)
+    rt_hdr_len = rt.length >> 8
+    #print dir(rt)
+    #sys.exit()
     # radiotap doesn't parse this correctly, so hardcode it here.
-    wlan_pkt = dpkt.ieee80211.IEEE80211(buf[RT_HDR_LEN:])
+    try:
+        wlan_pkt = dpkt.ieee80211.IEEE80211(buf[rt_hdr_len:])
+    except dpkt.dpkt.NeedData:
+        print "%d. cannot decode packet---skipping..." % i
+        i+= 1
+        continue
     ftype = ieee80211_ftype(wlan_pkt.type)
     stype = ieee80211_stype(wlan_pkt.subtype)
 
-    if rt.rate_present:
+
+    if (rt.rx_flags_present and rt.present_flags and rt.present_flags & 0x00000800):
+        
+        print "pkt %d has ht-80211 info (GI:%d,MCS:%d,BW:%d)" % (i,buf[27]
+        rate = 300
+    elif rt.rate_present:
         # rates are in 500kbps increments.
         rate = int(rt.rate.val)/2
     else:
         # set rate to the lowest n rate when we don't know what it is.
+        #print "cannot extract rate value."
         rate = 65
     if rt.flags_present:
         flags = rt.flags.val
     else:
         flags = 0 
+        #sys.exit(0)
     #if wlan_pkt.type == IEEE80211_FTYPE_DATA:
         #print "packet is not data %d" % (wlan_pkt.type)
     #    continue
-    duration = ieee80211_frame_duration(flags & PHY_FLAG_MODE_MASK, buf_len,
+    duration = ieee80211_frame_duration_simple(flags & PHY_FLAG_MODE_MASK, buf_len - rt_hdr_len,
                              rate, flags & PHY_FLAG_SHORTPRE,
                              0, wlan_pkt.type,wlan_pkt.subtype, 0,wlan_pkt.retry)
     durs.append(duration)
-    print "%f,%d,%s,%s" % (ts, duration, ftype, stype)     
+    packets.append((ts,duration,ftype,stype,rate,buf_len-rt_hdr_len))
+    #print "%d. %f,%d,%s,%s" % (i,ts, duration, ftype, stype)     
+    i+= 1
 
-f.close()                    
+f.close()            
+process_durs(packets)
+
+f = open('packets.pkl','wb')        
+pickle.dump(packets,f)
+f.close()
+#plot_timeline(packets)
