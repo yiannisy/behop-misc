@@ -2,7 +2,7 @@
 # Requires dpkt-1.7 for radiotap headers.
 import sys
 import dpkt
-import pcap
+#import pcap
 import matplotlib
 matplotlib.use('Agg')
 import pylab
@@ -10,7 +10,15 @@ import pickle
 from ieee80211_params import *
 from plot_timeline import *
 
-rates_n = {'40_sgi':{0x0f:270,0xe:243,0xd:216,0xc:162,0xb:108,0xa:81,9:54,8:27}}
+rates_n = {'40_sgi':{0x0:15,0x1:30,0x2:45,0x3:60,0x4:90,0x5:120,0x6:135,0x7:150,
+                     0x8:30,0x9:60,0xa:90,0xb:120,0xc:180,0xd:240,0xe:270,0xf:300},
+           '40_lgi':{0x0:13.5,0x1:27,0x2:40.5,0x3:54,0x4:81,0x5:108,0x6:121.5,0x7:135,
+                     0x8:27,0x9:54,0xa:81,0xb:108,0xc:162,0xd:216,0xe:243,0xf:270},
+           '20_sgi':{0x0:7.2,0x1:14.4,0x2:21.7,0x3:28.9,0x4:43.3,0x5:57.8,0x6:65,0x7:72.2,
+                     0x8:14.4,0x9:28.9,0xa:43.3,0xb:57.8,0xc:86.7,0xd:115.6,0xe:130,0xf:144.4},
+           '20_lgi':{0x0:6.5,0x1:13,0x2:19.5,0x3:26,0x4:39,0x5:52,0x6:58.5,0x7:65,
+                     0x8:13,0x9:26,0xa:39,0xb:52,0xc:78,0xd:104,0xe:117,0xf:130}
+           }
 
 RT_HDR_LEN=13
 
@@ -121,6 +129,7 @@ durs = []
 second_start = -1
 i= 1
 packets = []
+
 for ts,buf,buf_len in pcap:
     if second_start < 0:
         second_start = ts
@@ -138,10 +147,23 @@ for ts,buf,buf_len in pcap:
     ftype = ieee80211_ftype(wlan_pkt.type)
     stype = ieee80211_stype(wlan_pkt.subtype)
 
-
-    if (rt.rx_flags_present and rt.present_flags and rt.present_flags & 0x00000800):
-        
-        print "pkt %d has ht-80211 info (GI:%d,MCS:%d,BW:%d)" % (i,buf[27]
+    if (rt.rx_flags_present and rt.present_flags and rt.htinfo_present):
+        #print "htinfo : %08x,%x,%08x,%08x,%x,%x,%x" % (rt.present_flags, rt.htinfo_present,rt.htinfo.mcs,
+        #                                               rt.htinfo.mcs_info,rt.htinfo.mcs_index,
+        #                                               rt.ant.index,rt.rx_flags.val)
+                                                       
+        bw = rt.htinfo.mcs_info & 0x3
+        sgi = rt.htinfo.mcs_info & 0x4
+        if bw == 1:
+            mcs_category = '40_'
+        else:
+            mcs_category = '20_'
+        if sgi:
+            mcs_category = mcs_category + 'sgi'
+        else:
+            mcs_category = mcs_category + 'lgi'
+        rate = rates_n[mcs_category][rt.htinfo.mcs_index]
+    elif (not rt.rx_flags_present and not rt.rate_present):
         rate = 300
     elif rt.rate_present:
         # rates are in 500kbps increments.

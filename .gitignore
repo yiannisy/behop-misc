@@ -3,3 +3,5 @@ data/*pdf
 data/logs/*
 *html
 *.o
+*pcap
+*png
