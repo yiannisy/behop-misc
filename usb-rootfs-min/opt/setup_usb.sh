@@ -45,6 +45,7 @@ cp ${EXTRA_FILES}/crontab_root /etc/crontabs/root
 cp ${EXTRA_FILES}/authorized_keys /etc/dropbear
 cp ${EXTRA_FILES}/passwd /etc/
 cp ${EXTRA_FILES}/shadow /etc/
+cp ${EXTRA_FILES}/get_wifi_stats.sh /opt/utils
 
 # Copy collector/survey.
 cp -r ${EXTRA_FILES}/wifisurvey /opt/utils/
