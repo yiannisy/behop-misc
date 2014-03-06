@@ -9,6 +9,7 @@ mv $file ${tmp_dir}/
 cd $tmp_dir
 
 date=`date +%Y.%m.%d-%H.%M`
+start_date=`date +%H.%M.%S`
 
 # Downlink traffic
 # Get only downlink traffic.
@@ -78,8 +79,11 @@ sed -i '1i@timestamp,location,client,dpid,event_signal,event_name,category,band'
 ../add_csv_to_db_direct.sh _events_s4.txt logs_eventlog
 
 outfile=capwap_data.pcap
-#../extract_capwap_data_s4.sh $file $outfile
-#pcap_to_argus.sh $outfile
+../extract_capwap_data_s4.sh $file $outfile
+sudo pcap_to_argus.sh $outfile
 
 cd ../
 rm -rf ${tmp_dir}
+
+end_date=`date +%H.%M.%S`
+echo "START : ${start_date} | END : ${end_date}" >> studio4_processing.log
