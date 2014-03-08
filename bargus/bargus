@@ -1,57 +1,36 @@
 #!/bin/bash
 . /usr/local/bin/bargus_functions.sh
 
+N_ARGS=4
 PREFIX=bargus_
 LOC=S5
 
-#2013.12.16
-#YY=2013
-#mm=12
-#dd=16
-#HHMM=19.00
-
-YY=`date +%Y`
-mm=`date +%m`
-dd=`date +%d`
-HH=`date +%H`
-MM=`date +%M`
-M=${MM:0:1}	#0'th character
-HHMM=$HH.$M
-
-#YY=2014
-#mm=02
-#dates="1 10"
-#dd='03'
-#HH='01'
-#YY=2013
-#mm=12
-#dates="1 31"
-
-#for dd in `seq -w $dates`; do
-#  for HH in `seq -w 0 23`; do
-    HHMM=$HH.$M
-
-PATH=/usr/local/bin:$PATH
-
-#/var/log/argus/archive/2013/12/15
-ARCHIVE=/var/log/argus/archive
-DIRIN=$ARCHIVE/$YY/$mm/$dd
-INPF=$DIRIN/argus.$YY.$mm.$dd.$HHMM*.gz
-
-if [ ! -e $INPF ]; then
-  echo Input file $INPF not found, continuing...
-  #continue
-  exit
+if [ $# -ne "$N_ARGS" ]
+then
+    YY=`date +%Y`
+    MM=`date +%m`
+    DD=`date +%d`
+    HH=`date +%H`
+else
+    YY=$1
+    MM=$2
+    DD=$3
+    HH=$4
 fi
 
+PATH=/usr/local/bin:$PATH
+ARCHIVE=/var/log/argus/archive
+DIRIN=$ARCHIVE/$YY/$MM/$DD
+INPF=$DIRIN/argus.$YY.$MM.$DD.$HH
+
+bname=`basename $INPF`
 echo processing $INPF
-bname=`basename $INPF .gz`
 
 STATS=/var/log/argus/stats
-DIROUT=$STATS/$YY/$mm/$dd
+DIROUT=$STATS/$YY/$MM/$DD
 BYTESF=$DIROUT/bytes.$bname.csv
 AVGRATESF=$DIROUT/avgrates.$bname.csv
-TS=$bname
+TS="malakas.$YY.$MM.$DD.$HH.59.00"
 
 if [ ! -d $DIROUT ]; then
   mkdir -p $DIROUT
@@ -61,5 +40,3 @@ fi
 compute_bytes_log
 compute_bitrate_log
 
-#  done
-#done

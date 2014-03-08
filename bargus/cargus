@@ -19,9 +19,6 @@ else
 fi
 
 PATH=/usr/local/bin:$PATH
-
-
-##### for cargus
 ARCHIVE=/var/log/cargus/archive
 STATS=/var/log/cargus/stats
 DIRIN=$ARCHIVE/$YY/$MM/$DD
@@ -30,14 +27,10 @@ if [ ! -d $DIRIN ]; then
 fi
 
 ##### for cargus
-echo "yiannis-1"
 INPF=$DIRIN/argus.$YY.$MM.$DD.$HH
-echo $INPF
-echo "yiannis-2"
 
 echo processing $INPF
-bname=`basename $INPF .gz`
-echo basename=$bname
+bname=`basename $INPF`
 
 DIROUT=$STATS/$YY/$MM/$DD
 BYTESF=$DIROUT/bytes.$bname.csv
@@ -49,7 +42,4 @@ if [ ! -d $DIROUT ]; then
 fi
 
 compute_bytes_log
-#compute_bitrate_log
 
-#  done
-#done

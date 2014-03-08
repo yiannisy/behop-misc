@@ -4,27 +4,23 @@ compute_bytes_log() {
     #bytes sent and received by each host
     #------------------------------------
 
-    #rastrip -M -vlan -r $INPF -w - | racluster -m saddr -s saddr daddr spkts dpkts sbytes dbytes -w - - src net 10.30.0.0/16 and tcp | rasort -m dbytes -s saddr daddr spkts dpkts sbytes dbytes | tr -s ' ' > /tmp/${PREFIX}t1
-    #rastrip -M -vlan -r $INPF -w - | racluster -m daddr -s saddr daddr spkts dpkts sbytes dbytes -w - - dst net 10.30.0.0/16 and tcp | rasort -m sbytes -s saddr daddr spkts dpkts sbytes dbytes | tr -s ' ' > /tmp/${PREFIX}t2
-
-
     #-------------
     # TCP
     #-------------
     #true uplink traffic is vlan tagged to vlan id 2000
 
     #source is a host, collapse all destinations ==> dstBytes are accurate download bytes
-    rastrip -M -vlan -r $INPF -w - | racluster -m saddr -s saddr daddr spkts dpkts sbytes dbytes -w - - src net 10.30.0.0/16 and tcp | rasort -m dbytes -s saddr daddr spkts dpkts sbytes dbytes | tr -s ' ' > /tmp/${PREFIX}t1_dstdown
+    rastrip -M -vlan -r ${INPF}* -w - | racluster -m saddr -s saddr daddr spkts dpkts sbytes dbytes -w - - src net 10.30.0.0/16 and tcp | rasort -m dbytes -s saddr daddr spkts dpkts sbytes dbytes | tr -s ' ' > /tmp/${PREFIX}t1_dstdown
 
     #source is a host, collapse all destinations, but only look at traffic that is vlan tagged ==> srcBytes are accurate upload bytes
-    racluster -r $INPF -m saddr -s saddr daddr spkts dpkts sbytes dbytes -w - - src net 10.30.0.0/16 and tcp and vid 2000 | rasort -m dbytes -s saddr daddr spkts dpkts sbytes dbytes | tr -s ' ' > /tmp/${PREFIX}t1_srcup
+    racluster -r ${INPF}* -m saddr -s saddr daddr spkts dpkts sbytes dbytes -w - - src net 10.30.0.0/16 and tcp and vid 2000 | rasort -m dbytes -s saddr daddr spkts dpkts sbytes dbytes | tr -s ' ' > /tmp/${PREFIX}t1_srcup
 
 
     #dest is a host, collapse all sources ==> srcBytes are accurate download bytes
-    rastrip -M -vlan -r $INPF -w - | racluster -m daddr -s saddr daddr spkts dpkts sbytes dbytes -w - - dst net 10.30.0.0/16 and tcp | rasort -m sbytes -s saddr daddr spkts dpkts sbytes dbytes | tr -s ' ' > /tmp/${PREFIX}t2_srcdown
+    rastrip -M -vlan -r ${INPF}* -w - | racluster -m daddr -s saddr daddr spkts dpkts sbytes dbytes -w - - dst net 10.30.0.0/16 and tcp | rasort -m sbytes -s saddr daddr spkts dpkts sbytes dbytes | tr -s ' ' > /tmp/${PREFIX}t2_srcdown
 
     #dest is a host, collapse all sources, but only look at traffic that is vlan tagged ==> dstBytes are accurate upload bytes
-    racluster -r $INPF -m daddr -s saddr daddr spkts dpkts sbytes dbytes -w - - dst net 10.30.0.0/16 and tcp and vid 2000 | rasort -m sbytes -s saddr daddr spkts dpkts sbytes dbytes | tr -s ' ' > /tmp/${PREFIX}t2_dstup
+    racluster -r ${INPF}* -m daddr -s saddr daddr spkts dpkts sbytes dbytes -w - - dst net 10.30.0.0/16 and tcp and vid 2000 | rasort -m sbytes -s saddr daddr spkts dpkts sbytes dbytes | tr -s ' ' > /tmp/${PREFIX}t2_dstup
 
     echo storing $BYTESF
     barguspy -l $LOC -c bytes_v --dstdown /tmp/${PREFIX}t1_dstdown --srcup /tmp/${PREFIX}t1_srcup --srcdown /tmp/${PREFIX}t2_srcdown --dstup /tmp/${PREFIX}t2_dstup -o $BYTESF -t $TS
@@ -37,17 +33,17 @@ compute_bytes_log() {
     # UDP
     #-------------
     #source is a host, collapse all destinations ==> dstBytes are accurate download bytes
-    rastrip -M -vlan -r $INPF -w - | racluster -m saddr -s saddr daddr spkts dpkts sbytes dbytes -w - - src net 10.30.0.0/16 and udp | rasort -m dbytes -s saddr daddr spkts dpkts sbytes dbytes | tr -s ' ' > /tmp/${PREFIX}t1_dstdown_udp
+    rastrip -M -vlan -r ${INPF}* -w - | racluster -m saddr -s saddr daddr spkts dpkts sbytes dbytes -w - - src net 10.30.0.0/16 and udp | rasort -m dbytes -s saddr daddr spkts dpkts sbytes dbytes | tr -s ' ' > /tmp/${PREFIX}t1_dstdown_udp
 
     #source is a host, collapse all destinations, but only look at traffic that is vlan tagged ==> srcBytes are accurate upload bytes
-    racluster -r $INPF -m saddr -s saddr daddr spkts dpkts sbytes dbytes -w - - src net 10.30.0.0/16 and udp and vid 2000 | rasort -m dbytes -s saddr daddr spkts dpkts sbytes dbytes | tr -s ' ' > /tmp/${PREFIX}t1_srcup_udp
+    racluster -r ${INPF}* -m saddr -s saddr daddr spkts dpkts sbytes dbytes -w - - src net 10.30.0.0/16 and udp and vid 2000 | rasort -m dbytes -s saddr daddr spkts dpkts sbytes dbytes | tr -s ' ' > /tmp/${PREFIX}t1_srcup_udp
 
 
     #dest is a host, collapse all sources ==> srcBytes are accurate download bytes
-    rastrip -M -vlan -r $INPF -w - | racluster -m daddr -s saddr daddr spkts dpkts sbytes dbytes -w - - dst net 10.30.0.0/16 and udp | rasort -m sbytes -s saddr daddr spkts dpkts sbytes dbytes | tr -s ' ' > /tmp/${PREFIX}t2_srcdown_udp
+    rastrip -M -vlan -r ${INPF}* -w - | racluster -m daddr -s saddr daddr spkts dpkts sbytes dbytes -w - - dst net 10.30.0.0/16 and udp | rasort -m sbytes -s saddr daddr spkts dpkts sbytes dbytes | tr -s ' ' > /tmp/${PREFIX}t2_srcdown_udp
 
     #dest is a host, collapse all sources, but only look at traffic that is vlan tagged ==> dstBytes are accurate upload bytes
-    racluster -r $INPF -m daddr -s saddr daddr spkts dpkts sbytes dbytes -w - - dst net 10.30.0.0/16 and udp and vid 2000 | rasort -m sbytes -s saddr daddr spkts dpkts sbytes dbytes | tr -s ' ' > /tmp/${PREFIX}t2_dstup_udp
+    racluster -r ${INPF}* -m daddr -s saddr daddr spkts dpkts sbytes dbytes -w - - dst net 10.30.0.0/16 and udp and vid 2000 | rasort -m sbytes -s saddr daddr spkts dpkts sbytes dbytes | tr -s ' ' > /tmp/${PREFIX}t2_dstup_udp
 
     echo storing $BYTESF.udp
     barguspy -l $LOC -c bytes_v --dstdown /tmp/${PREFIX}t1_dstdown_udp --srcup /tmp/${PREFIX}t1_srcup_udp --srcdown /tmp/${PREFIX}t2_srcdown_udp --dstup /tmp/${PREFIX}t2_dstup_udp -o $BYTESF.udp -t $TS
@@ -73,17 +69,17 @@ compute_bitrate_log() {
     #true uplink traffic is vlan tagged to vlan id 2000
 
     #source is a host, collapse all destinations ==> dstBytes are accurate download bytes
-    rastrip -M -vlan -r $INPF -w - | rabins -u -m saddr -M hard time $BIN_DUR -p$PRECISION -s stime saddr daddr sbytes dbytes sload dload - src net 10.30.0.0/16 and tcp | tr -s ' ' > /tmp/${PREFIX}avgrate_t1_dstdown
+    rastrip -M -vlan -r ${INPF}* -w - | rabins -u -m saddr -M hard time $BIN_DUR -p$PRECISION -s stime saddr daddr sbytes dbytes sload dload - src net 10.30.0.0/16 and tcp | tr -s ' ' > /tmp/${PREFIX}avgrate_t1_dstdown
 
     #source is a host, collapse all destinations, but only look at traffic that is vlan tagged ==> srcBytes are accurate upload bytes
-    rabins -u -r $INPF -m saddr -M hard time $BIN_DUR -p$PRECISION -s stime saddr daddr sbytes dbytes sload dload - src net 10.30.0.0/16 and tcp and vid 2000 | tr -s ' ' > /tmp/${PREFIX}avgrate_t1_srcup
+    rabins -u -r ${INPF}* -m saddr -M hard time $BIN_DUR -p$PRECISION -s stime saddr daddr sbytes dbytes sload dload - src net 10.30.0.0/16 and tcp and vid 2000 | tr -s ' ' > /tmp/${PREFIX}avgrate_t1_srcup
 
 
     #dest is a host, collapse all sources ==> srcBytes are accurate download bytes
-    rastrip -M -vlan -r $INPF -w - | rabins -u -m daddr -M hard time $BIN_DUR -p$PRECISION -s stime saddr daddr sbytes dbytes sload dload - dst net 10.30.0.0/16 and tcp | tr -s ' ' > /tmp/${PREFIX}avgrate_t2_srcdown
+    rastrip -M -vlan -r ${INPF}* -w - | rabins -u -m daddr -M hard time $BIN_DUR -p$PRECISION -s stime saddr daddr sbytes dbytes sload dload - dst net 10.30.0.0/16 and tcp | tr -s ' ' > /tmp/${PREFIX}avgrate_t2_srcdown
 
     #dest is a host, collapse all sources, but only look at traffic that is vlan tagged ==> dstBytes are accurate upload bytes
-    rabins -u -r $INPF -m daddr -M hard time $BIN_DUR -p$PRECISION -s stime saddr daddr sbytes dbytes sload dload - dst net 10.30.0.0/16 and tcp and vid 2000 | tr -s ' ' > /tmp/${PREFIX}avgrate_t2_dstup
+    rabins -u -r ${INPF}* -m daddr -M hard time $BIN_DUR -p$PRECISION -s stime saddr daddr sbytes dbytes sload dload - dst net 10.30.0.0/16 and tcp and vid 2000 | tr -s ' ' > /tmp/${PREFIX}avgrate_t2_dstup
 
 
     echo storing $AVGRATESF

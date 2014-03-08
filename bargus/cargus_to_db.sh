@@ -1,6 +1,6 @@
 #!/bin/bash
-LOGF=/home/manub/be-hop-misc/bargus/bargus_to_db.log
-echo `date`": this is bargus to db, over" >> $LOGF
+LOGF=/home/manub/be-hop-misc/bargus/cargus_to_db.log
+echo `date`": this is cargus to db, over" >> $LOGF
 
 N_ARGS=4
 if [ $# -ne "$N_ARGS" ]
@@ -18,14 +18,14 @@ fi
 
 PATH=/usr/local/bin:$PATH
 
-ARCHIVE=/var/log/argus/archive
+ARCHIVE=/var/log/cargus/archive
 DIRIN=$ARCHIVE/$YY/$MM/$DD
 INPF=$DIRIN/argus.$YY.$MM.$DD.$HH
 
 echo processing $INPF
 bname=`basename $INPF`
 
-STATS=/var/log/argus/stats
+STATS=/var/log/cargus/stats
 DIROUT=$STATS/$YY/$MM/$DD
 BYTESF=$DIROUT/bytes.$bname.csv
 AVGRATESF=$DIROUT/avgrates.$bname.csv
@@ -38,7 +38,7 @@ bargus_to_db_django(){
 
 bargus_to_db_direct(){
 /home/manub/be-hop-misc/utils/add_csv_to_db_direct.sh $BYTESF.upnonz logs_transferlog
-/home/manub/be-hop-misc/utils/add_csv_to_db_direct.sh $AVGRATESF.upnonz logs_bandwidthlog
+#/home/manub/be-hop-misc/utils/add_csv_to_db_direct.sh $AVGRATESF.upnonz logs_bandwidthlog
 }
 
 eval `ssh-agent`

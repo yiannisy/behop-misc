@@ -15,7 +15,7 @@ else
 fi
 
 
-/usr/local/bin/bargus $YY $MM $DD $HH >> /var/log/argus/bargus.log 2>&1
-/usr/local/bin/bargus_to_db.sh >> /var/log/argus/bargus_to_db.log 2>&1
-/usr/local/bin/cargus  $YY $MM $DD $HH >> /var/log/argus/cargus.log 2>&1
-/usr/local/bin/cargus_to_db.sh >> /var/log/argus/cargus_to_db.log 2>&1
+/usr/local/bin/bargus $YY $MM $DD $HH >> /var/log/argus/bargus.log 
+/usr/local/bin/bargus_to_db.sh $YY $MM $DD $HH >> /var/log/argus/bargus_to_db.log
+/usr/local/bin/cargus  $YY $MM $DD $HH >> /var/log/argus/cargus.log
+/usr/local/bin/cargus_to_db.sh $YY $MM $DD $HH >> /var/log/argus/cargus_to_db.log
