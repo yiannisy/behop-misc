@@ -20,12 +20,13 @@ PATH=/usr/local/bin:$PATH
 ARGUS_PREFIX=/var/log/argus/archive
 day=$YY.$MM.$DD
 date="$YY/$MM/$DD"
+date_hour="$YY/$MM/$DD $HH"
 ARGUS_DIR=$ARGUS_PREFIX/$date
 UTIL_DIR=/home/yiannis/be-hop-misc/utils/
 
 
 # Get all the netflix flows for this day.
-cat /home/yiannis/be-hop-misc/data/captures/netflix_requests_all.log | grep $date | awk -F'[ :]' '{ print $6,$9 }' | sort | uniq -c | sort -n > /tmp/netflix_flows.txt
+cat /home/yiannis/be-hop-misc/data/captures/netflix_requests_all.log | grep $date_hour | awk -F'[ :]' '{ print $6,$9 }' | sort | uniq -c | sort -n > /tmp/netflix_flows.txt
 
 my_pcap_expr="host 172.24.74.179"
 cd $ARGUS_DIR
@@ -53,7 +54,7 @@ sed -i '/StartTime/d' ${fname}
 sed -i 's/^ *//g' ${fname}
 sed -i "s/^/${day}-/g" ${fname}
 sed -i 's/^/S5,/g' ${fname}
-sed -i '/-23:5/d' ${fname}
+#sed -i '/-23:5/d' ${fname}
 sed -i 's/ /,/g' ${fname}
 sed -i 's/*//g' ${fname}
 sed -i 's/\.,/,/g' ${fname}
