@@ -48,7 +48,7 @@ else
     echo "processing argus data for $pcap_expr"
 fi
 fname=/tmp/youtube_${day}.txt
-rabins -r * -M 1m hard -m saddr daddr - $pcap_expr -w - | rasort -r - -m stime -s stime saddr daddr sload dload | tr -s ' ' > ${fname}
+rabins -r argus.$YY.$MM.$DD.$HH.* -M 1m hard -m saddr daddr - $pcap_expr -w - | rasort -r - -m stime -s stime saddr daddr sload dload | tr -s ' ' > ${fname}
 cp ${fname} ${fname}.orig
 sed -i '/StartTime/d' ${fname}
 sed -i 's/^ *//g' ${fname}
