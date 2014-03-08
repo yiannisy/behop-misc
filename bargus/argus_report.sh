@@ -15,15 +15,10 @@ else
 fi
 
 
-eval `ssh-agent`
-pidval=${SSH_AGENT_PID}
-ssh-add /home/manub/.ssh/manub-mg-xen
-
-#/usr/local/bin/bargus $YY $MM $DD $HH >> /var/log/argus/bargus.log 
-#/usr/local/bin/bargus_to_db.sh $YY $MM $DD $HH >> /var/log/argus/bargus_to_db.log
-#/usr/local/bin/cargus  $YY $MM $DD $HH >> /var/log/argus/cargus.log
-#/usr/local/bin/cargus_to_db.sh $YY $MM $DD $HH >> /var/log/argus/cargus_to_db.log
+/usr/local/bin/bargus $YY $MM $DD $HH >> /var/log/argus/bargus.log 
+/usr/local/bin/bargus_to_db.sh $YY $MM $DD $HH >> /var/log/argus/bargus_to_db.log
+/usr/local/bin/cargus  $YY $MM $DD $HH >> /var/log/argus/cargus.log
+/usr/local/bin/cargus_to_db.sh $YY $MM $DD $HH >> /var/log/argus/cargus_to_db.log
 /usr/local/bin/bargus_netflix.sh $YY $MM $DD $HH >> /var/log/argus/bargus_netflix.log
 /usr/local/bin/bargus_youtube.sh $YY $MM $DD $HH >> /var/log/argus/bargus_youtube.log
 
-kill ${pidval}

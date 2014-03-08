@@ -67,7 +67,7 @@ if [ "$lines" -gt "$thres" ];then
 	#sed -i "${lines}d" ${fname}
     sed -i '1ilocation,@timestamp,client,target,bitrate_up,bitrate_down' ${fname}
     cd ${UTIL_DIR}/
-    ./add_csv_to_db_direct.sh ${fname} logs_netflixbitratelog
+    add_csv_to_db_direct.sh ${fname} logs_netflixbitratelog
     cd -
 fi
 #done < /tmp/netflix_flows.txt

@@ -11,6 +11,10 @@ csv_path=$1
 db_path=$2
 fname=$(basename $csv_path)
 
+eval `ssh-agent`
+pidval=${SSH_AGENT_PID}
+ssh-add /home/manub/.ssh/manub-mg-xen
+
 if [ -e ${csv_fname} ]
 then
     scp ${csv_path} yiannis@mg-xen2.stanford.edu:/tmp/
@@ -22,3 +26,5 @@ echo "Inserting $db_path!"
 rm /tmp/${fname}
 EOF
 fi
+
+kill ${pidval}
