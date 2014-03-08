@@ -37,19 +37,9 @@ bargus_to_db_django(){
 }
 
 bargus_to_db_direct(){
-/home/manub/be-hop-misc/utils/add_csv_to_db_direct.sh $BYTESF.upnonz logs_transferlog
-/home/manub/be-hop-misc/utils/add_csv_to_db_direct.sh $AVGRATESF.upnonz logs_bandwidthlog
+add_csv_to_db_direct.sh $BYTESF.upnonz logs_transferlog
+add_csv_to_db_direct.sh $AVGRATESF.upnonz logs_bandwidthlog
 }
 
-#eval `ssh-agent`
-#pidval=${SSH_AGENT_PID}
-#ssh-add /home/manub/.ssh/manub-mg-xen
-
-#bargus_to_db_django
 bargus_to_db_direct
 
-#kill ${pidval}
-
-
-#  done
-#done
