@@ -42,4 +42,5 @@ if [ ! -d $DIROUT ]; then
 fi
 
 compute_bytes_log
+compute_bitrate_log
 

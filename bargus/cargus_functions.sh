@@ -64,17 +64,17 @@ compute_bitrate_log() {
     #true uplink traffic is vlan tagged to vlan id 2000
 
     #source is a host, collapse all destinations ==> dstBytes are accurate download bytes
-    rastrip -M -vlan -r $INPF -w - | rabins -u -m saddr -M hard time $BIN_DUR -p$PRECISION -s stime saddr daddr sbytes dbytes sload dload - src net 10.30.0.0/16 and tcp | tr -s ' ' > /tmp/${PREFIX}avgrate_t1_dstdown
+    rabins -r ${INPF}* -u -m saddr -M hard time $BIN_DUR -p$PRECISION -s stime saddr daddr sbytes dbytes sload dload - src net 10.30.0.0/16 and tcp | tr -s ' ' > /tmp/${PREFIX}avgrate_t1_dstdown
 
     #source is a host, collapse all destinations, but only look at traffic that is vlan tagged ==> srcBytes are accurate upload bytes
-    rabins -u -r $INPF -m saddr -M hard time $BIN_DUR -p$PRECISION -s stime saddr daddr sbytes dbytes sload dload - src net 10.30.0.0/16 and tcp and vid 2000 | tr -s ' ' > /tmp/${PREFIX}avgrate_t1_srcup
+    rabins -u -r ${INPF}* -m saddr -M hard time $BIN_DUR -p$PRECISION -s stime saddr daddr sbytes dbytes sload dload - src net 10.30.0.0/16 and tcp | tr -s ' ' > /tmp/${PREFIX}avgrate_t1_srcup
 
 
     #dest is a host, collapse all sources ==> srcBytes are accurate download bytes
-    rastrip -M -vlan -r $INPF -w - | rabins -u -m daddr -M hard time $BIN_DUR -p$PRECISION -s stime saddr daddr sbytes dbytes sload dload - dst net 10.30.0.0/16 and tcp | tr -s ' ' > /tmp/${PREFIX}avgrate_t2_srcdown
+    rabins -r ${INPF}* -u -m daddr -M hard time $BIN_DUR -p$PRECISION -s stime saddr daddr sbytes dbytes sload dload - dst net 10.30.0.0/16 and tcp | tr -s ' ' > /tmp/${PREFIX}avgrate_t2_srcdown
 
     #dest is a host, collapse all sources, but only look at traffic that is vlan tagged ==> dstBytes are accurate upload bytes
-    rabins -u -r $INPF -m daddr -M hard time $BIN_DUR -p$PRECISION -s stime saddr daddr sbytes dbytes sload dload - dst net 10.30.0.0/16 and tcp and vid 2000 | tr -s ' ' > /tmp/${PREFIX}avgrate_t2_dstup
+    rabins -u -r ${INPF}* -m daddr -M hard time $BIN_DUR -p$PRECISION -s stime saddr daddr sbytes dbytes sload dload - dst net 10.30.0.0/16 and tcp | tr -s ' ' > /tmp/${PREFIX}avgrate_t2_dstup
 
 
     echo storing $AVGRATESF

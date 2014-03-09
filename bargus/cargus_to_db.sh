@@ -38,7 +38,7 @@ bargus_to_db_django(){
 
 bargus_to_db_direct(){
 add_csv_to_db_direct.sh $BYTESF.upnonz logs_transferlog
-#/home/manub/be-hop-misc/utils/add_csv_to_db_direct.sh $AVGRATESF.upnonz logs_bandwidthlog
+add_csv_to_db_direct.sh $AVGRATESF.upnonz logs_bandwidthlog
 }
 
 bargus_to_db_direct
