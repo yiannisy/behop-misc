@@ -7,29 +7,34 @@ LOG=/tmp/pcap_to_argus.log
 echo "Giving $file to Manu!"
 echo "Giving $file to Manu!" >> $LOG
 
-YY=`date +%Y`
-mm=`date +%m`
-dd=`date +%d`
-HH=`date +%H`
-MM=`date +%M`
-#HHMM=$HH
+N_ARGS=4
+
+if [ $# -ne "$N_ARGS" ]
+then
+    YY=`date +%Y`
+    MM=`date +%m`
+    DD=`date +%d`
+    HH=`date +%H`
+else
+    YY=$1
+    MM=$2
+    DD=$3
+    HH=$4
+fi
 
 PATH=/usr/local/bin:$PATH
 
 ##### for cargus
-#PCAPF_TEST=~/tmp/cw_250_dec.pcap
 PCAPF_TEST=$1
 ARCHIVE=/var/log/cargus/archive
 STATS=/var/log/cargus/stats
-DIRIN=$ARCHIVE/$YY/$mm/$dd
+DIRIN=$ARCHIVE/$YY/$MM/$DD
 if [ ! -d $DIRIN ]; then
   mkdir -p $DIRIN
 fi
-#PCAPF=$DIRIN/pcap.$YY.$mm.$dd.${HH}.00.00
-#cp $PCAPF_TEST $PCAPF
-#INPF=$DIRIN/pcap.$YY.$mm.$dd.$HHMM*
+
 INPF=$PCAPF_TEST
-ARGF=$DIRIN/argus.$YY.$mm.$dd.$HH.$MM.00
+ARGF=$DIRIN/argus.$YY.$MM.$DD.$HH.59.00
 
 echo "Taking in pcap $INPF"
 echo "Taking in pcap $INPF" >> $LOG

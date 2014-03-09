@@ -2,8 +2,6 @@
 
 #file=test1.pcap
 
-#load behop-vars
-. BEHOP_VARS
 file=$1
 tmp_dir=.tmp_capwap_${file}
 mkdir $tmp_dir
@@ -13,12 +11,6 @@ cd $tmp_dir
 date=`date +%Y.%m.%d-%H.%M`
 start_date=`date +%H.%M.%S`
 
-if [[ -z "$LOC" ]]
-then
-    echo "No location variable set---quitting."
-else
-    echo "Extacting CAPWAP for ${LOC}"
-fi
 
 # Downlink traffic
 # Get only downlink traffic.

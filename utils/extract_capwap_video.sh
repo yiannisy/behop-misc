@@ -1,4 +1,7 @@
-#/bin/bash
+#!/bin/bash
+
+S4_IP="128.12.164.253"
+S6_ip="128.12.172.253"
 
 file=$1
 tmp_dir=.tmp_capwap_${file}
@@ -7,12 +10,19 @@ mkdir $tmp_dir
 mv $file ${tmp_dir}/
 cd $tmp_dir
 
-if [[ -z "$LOC" ]]
+ipaddr=`ifconfig eth0 | grep "inet addr" | tr -s ' ' | awk -F'[ :]' '{print $4}'`
+echo "Running at $ipaddr"
+if [[ "$ipaddr" == "$S4_IP" ]]
 then
-    echo "No location variable set---quitting."
+    LOC='S4'
+elif [[ $"ipaddr" == "$S6_IP" ]]
+then 
+    LOC='S6'
 else
-    echo "Extacting CAPWAP for ${LOC}"
+    echo "No location variable set---quitting."
+    exit
 fi
+echo "Extacting CAPWAP for ${LOC}"
 
 date=`date +%Y.%m.%d-%H.%M`
 start_date=`date +%H.%M.%S`
