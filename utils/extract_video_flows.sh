@@ -11,7 +11,6 @@ LOCATION=S5
 mkdir ${tmp_dir}
 start_date=`date +%H.%M.%S`
 
-
 # ANONYMIZING
 # Split outgoing traffic and incoming traffic. Throw DNS traffic and content.
 echo "Splitting in/out, removing DNS and content..."
@@ -48,7 +47,7 @@ then
     echo "location,timestamp,client,dest,bits,rate,dur,range,session_id" > ${tmp_dir}/netflix_db.log
     sed -i -e 's/^/S5,/' ${tmp_dir}/netflix.log
     sed 's/\//-/g' ${tmp_dir}/netflix.log >> ${tmp_dir}/netflix_db.log
-    ./add_csv_to_db.sh ${tmp_dir}/netflix_db.log logs.NetflixLog
+    #add_csv_to_db.sh ${tmp_dir}/netflix_db.log logs.NetflixLog
 fi
 
 if [ -e ${tmp_dir}/youtube.log ]
@@ -56,7 +55,7 @@ then
     echo "location,timestamp,client,dest,bits,rate,dur,range" > ${tmp_dir}/youtube_db.log
     sed -i -e 's/^/S5,/' ${tmp_dir}/youtube.log
     sed 's/\//-/g' ${tmp_dir}/youtube.log >> ${tmp_dir}/youtube_db.log
-    ./add_csv_to_db.sh ${tmp_dir}/youtube_db.log logs.YoutubeLog
+    #add_csv_to_db.sh ${tmp_dir}/youtube_db.log logs.YoutubeLog
 fi
 
 rm -rf ${tmp_dir}

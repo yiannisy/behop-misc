@@ -15,6 +15,7 @@ then
     MM=`date +%m`
     DD=`date +%d`
     HH=`date +%H`
+    mm=`date +%M`
 else
     YY=$1
     MM=$2
@@ -34,7 +35,7 @@ if [ ! -d $DIRIN ]; then
 fi
 
 INPF=$PCAPF_TEST
-ARGF=$DIRIN/argus.$YY.$MM.$DD.$HH.59.00
+ARGF=$DIRIN/argus.$YY.$MM.$DD.$HH.$mm.00
 
 echo "Taking in pcap $INPF"
 echo "Taking in pcap $INPF" >> $LOG

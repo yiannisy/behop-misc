@@ -1,6 +1,8 @@
 #!/bin/bash
 
-#file=test1.pcap
+
+S4_IP="128.12.164.253"
+S6_ip="128.12.172.253"
 
 file=$1
 tmp_dir=.tmp_capwap_${file}
@@ -10,6 +12,20 @@ cd $tmp_dir
 
 date=`date +%Y.%m.%d-%H.%M`
 start_date=`date +%H.%M.%S`
+
+ipaddr=`ifconfig eth0 | grep "inet addr" | tr -s ' ' | awk -F'[ :]' '{print $4}'`
+echo "Running at $ipaddr"
+if [[ "$ipaddr" == "$S4_IP" ]]
+then
+    LOC='S4'
+elif [[ $"ipaddr" == "$S6_IP" ]]
+then 
+    LOC='S6'
+else
+    echo "No location variable set---quitting."
+    exit
+fi
+echo "Extacting CAPWAP for ${LOC}"
 
 
 # Downlink traffic
@@ -77,11 +93,11 @@ new_line=`echo $line | awk -F',' '{ print $1 "," $3 "," $4 "," $5 ",unknown,WiFi
 echo $d,$new_line >> _events_${LOC}.txt
 done
 sed -i '1i@timestamp,location,client,dpid,event_signal,event_name,category,band' _events_${LOC}.txt
-../add_csv_to_db_direct.sh _events_${LOC}.txt logs_eventlog
+add_csv_to_db_direct.sh _events_${LOC}.txt logs_eventlog
 
 outfile=capwap_data.pcap
-../extract_capwap_data_${LOC}.sh $file $outfile
-sudo pcap_to_argus.sh $outfile
+../extract_capwap_data.sh $file $outfile
+pcap_to_argus.sh $outfile
 
 cd ../
 rm -rf ${tmp_dir}

@@ -13,7 +13,7 @@ fname=$(basename $csv_path)
 
 eval `ssh-agent`
 pidval=${SSH_AGENT_PID}
-ssh-add /home/manub/.ssh/manub-mg-xen
+ssh-add /home/yiannis/.ssh/mg-xen-rsa
 
 if [ -e ${csv_fname} ]
 then
