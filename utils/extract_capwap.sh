@@ -1,7 +1,9 @@
-
 #!/bin/bash
 
 #file=test1.pcap
+
+#load behop-vars
+. BEHOP_VARS
 file=$1
 tmp_dir=.tmp_capwap_${file}
 mkdir $tmp_dir
@@ -10,6 +12,13 @@ cd $tmp_dir
 
 date=`date +%Y.%m.%d-%H.%M`
 start_date=`date +%H.%M.%S`
+
+if [[ -z "$LOC" ]]
+then
+    echo "No location variable set---quitting."
+else
+    echo "Extacting CAPWAP for ${LOC}"
+fi
 
 # Downlink traffic
 # Get only downlink traffic.
@@ -64,22 +73,22 @@ sed -i 's/DA:/DA!/g' _events.txt
 sed -i 's/BSSID:/BSSID!/g' _events.txt
 sed -i 's/SA:/SA!/g' _events.txt
 sed -i 's/://g' _events.txt
-awk -F'[,!]' '$2=="BSSID" {print $1 "," $5 "," $3 "," $6}' _events.txt > events_s4.txt
-awk -F'[,!]' '$4=="BSSID" {print $1 "," $3 "," $5 "," $6}' _events.txt >> events_s4.txt
+awk -F'[,!]' '$2=="BSSID" {print $1 "," $5 "," $3 "," $6}' _events.txt > events_${LOC}.txt
+awk -F'[,!]' '$4=="BSSID" {print $1 "," $3 "," $5 "," $6}' _events.txt >> events_${LOC}.txt
 
-sed -i 's/^/S4,/g' events_s4.txt
+sed -i "s/^/${LOC},/g" events_${LOC}.txt
 
-cat events_s4.txt | while read line ; do 
+cat events_${LOC}.txt | while read line ; do 
 ts=`echo $line | awk -F',' '{ print $2 }'`
 d=`date -d @${ts} +"%Y-%m-%d %H:%M:%S"`
 new_line=`echo $line | awk -F',' '{ print $1 "," $3 "," $4 "," $5 ",unknown,WiFi,0"}'`  #"," $3 "," $4 "," $5 }'
-echo $d,$new_line >> _events_s4.txt
+echo $d,$new_line >> _events_${LOC}.txt
 done
-sed -i '1i@timestamp,location,client,dpid,event_signal,event_name,category,band' _events_s4.txt
-../add_csv_to_db_direct.sh _events_s4.txt logs_eventlog
+sed -i '1i@timestamp,location,client,dpid,event_signal,event_name,category,band' _events_${LOC}.txt
+../add_csv_to_db_direct.sh _events_${LOC}.txt logs_eventlog
 
 outfile=capwap_data.pcap
-../extract_capwap_data_s4.sh $file $outfile
+../extract_capwap_data_${LOC}.sh $file $outfile
 sudo pcap_to_argus.sh $outfile
 
 cd ../

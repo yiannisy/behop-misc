@@ -3,16 +3,22 @@
 file=$1
 tmp_dir=.tmp_capwap_${file}
 file_out=data.pcap
-LOC=S4
 mkdir $tmp_dir
 mv $file ${tmp_dir}/
 cd $tmp_dir
+
+if [[ -z "$LOC" ]]
+then
+    echo "No location variable set---quitting."
+else
+    echo "Extacting CAPWAP for ${LOC}"
+fi
 
 date=`date +%Y.%m.%d-%H.%M`
 start_date=`date +%H.%M.%S`
 
 
-../extract_capwap_data_s4.sh $file $file_out
+../extract_capwap_data.sh $file $file_out
 
 # Extract youtube/netflix requests before throwing-out content.
 echo "Extracting youtube video requests..."
@@ -27,8 +33,8 @@ echo "Storing results..."
 [ -e netflix_requests.txt ] && cat netflix_requests.txt >> ../../data/captures/netflix_requests_all_${LOC}.log
 
 cd ../
-#rm -rf ${tmp_dir}
-#rm -f ${pcapfile}
+rm -rf ${tmp_dir}
+rm -f ${pcapfile}
 echo "done with ${tmp_dir}"
 end_date=`date +%H.%M.%S`
 echo "START: ${start_date} END: ${end_date}" >> studio4_video_processing.log
