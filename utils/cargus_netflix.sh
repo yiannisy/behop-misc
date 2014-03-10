@@ -9,7 +9,7 @@ echo "Running at $ipaddr"
 if [[ "$ipaddr" == "$S4_IP" ]]
 then
     LOC='S4'
-elif [[ $"ipaddr" == "$S6_IP" ]]
+elif [[ "$ipaddr" == "$S6_IP" ]]
 then 
     LOC='S6'
 else
