@@ -2,7 +2,7 @@
 
 N_ARGS=4
 S4_IP="128.12.164.253"
-S6_ip="128.12.172.253"
+S6_IP="128.12.172.253"
 
 ipaddr=`ifconfig eth0 | grep "inet addr" | tr -s ' ' | awk -F'[ :]' '{print $4}'`
 echo "Running at $ipaddr"

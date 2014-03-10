@@ -2,7 +2,7 @@
 
 
 S4_IP="128.12.164.253"
-S6_ip="128.12.172.253"
+S6_IP="128.12.172.253"
 
 file=$1
 tmp_dir=.tmp_capwap_${file}
@@ -18,7 +18,7 @@ echo "Running at $ipaddr"
 if [[ "$ipaddr" == "$S4_IP" ]]
 then
     LOC='S4'
-elif [[ $"ipaddr" == "$S6_IP" ]]
+elif [[ "$ipaddr" == "$S6_IP" ]]
 then 
     LOC='S6'
 else
