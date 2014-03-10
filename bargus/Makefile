@@ -13,6 +13,8 @@ install:
 	install -m 0755 pcap_to_argus.sh $(prefix)/bin
 	install -m 0755 ../utils/bargus_netflix.sh $(prefix)/bin
 	install -m 0755 ../utils/bargus_youtube.sh $(prefix)/bin
+	install -m 0755 ../utils/cargus_netflix.sh $(prefix)/bin
+	install -m 0755 ../utils/cargus_youtube.sh $(prefix)/bin
 	install -m 0755 ../utils/add_csv_to_db_direct.sh $(prefix)/bin
 	cp argus-server /etc/init.d/
 	cp argus.conf /etc/argus.conf

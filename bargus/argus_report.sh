@@ -21,4 +21,6 @@ fi
 /usr/local/bin/cargus_to_db.sh $YY $MM $DD $HH >> /var/log/argus/cargus_to_db.log
 /usr/local/bin/bargus_netflix.sh $YY $MM $DD $HH >> /var/log/argus/bargus_netflix.log
 /usr/local/bin/bargus_youtube.sh $YY $MM $DD $HH >> /var/log/argus/bargus_youtube.log
+/usr/local/bin/cargus_netflix.sh $YY $MM $DD $HH >> /var/log/argus/cargus_netflix.log
+/usr/local/bin/cargus_youtube.sh $YY $MM $DD $HH >> /var/log/argus/cargus_youtube.log
 
