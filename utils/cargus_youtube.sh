@@ -65,7 +65,7 @@ else
     echo "processing argus data for $pcap_expr"
 fi
 fname=/tmp/youtube_${day}_${LOC}.txt
-rabins -r argus.$YY.$MM.$DD.$HH.* -M 1m hard -m saddr daddr - $pcap_expr -w - | rasort -r - -m stime -s stime saddr daddr sload dload | tr -s ' ' > ${fname}
+rabins -r argus.$YY.$MM.$DD.$HH.* -M 1m hard -m saddr daddr - $pcap_expr -w - | rasort -r - -m stime -s stime saddr daddr sload dload srate drate | tr -s ' ' > ${fname}
 cp ${fname} ${fname}.orig
 sed -i '/StartTime/d' ${fname}
 sed -i 's/^ *//g' ${fname}
@@ -82,7 +82,7 @@ if [ "$lines" -gt "$thres" ];then
     echo "kai twra edw"
     sed -i "1d" ${fname}
 	#sed -i "${lines}d" ${fname}
-    sed -i '1ilocation,@timestamp,client,target,bitrate_up,bitrate_down' ${fname}
+    sed -i '1ilocation,@timestamp,client,target,bitrate_up,bitrate_down,packetrate_up,packetrate_down' ${fname}
     cd ${UTIL_DIR}/
     add_csv_to_db_direct.sh ${fname} logs_youtubebitratelog
     cd -
