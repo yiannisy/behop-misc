@@ -32,10 +32,10 @@ start_date=`date +%H.%M.%S`
 
 # Extract youtube/netflix requests before throwing-out content.
 echo "Extracting youtube video requests..."
-time ngrep "videoplayback\?clen" -t -I $file_out -W byline dst port 80 | grep -v "#" | grep -E 'T |GET'  > youtube_requests.txt
+time ngrep "\/videoplayback" -t -I $file_out -W byline dst port 80 | grep -v "#" | grep -E 'T |GET'  > youtube_requests.txt
 
 echo "Extracting netflix video requests..."
-time ngrep ".ismv/range" -t -I $file_out -W byline dst port 80 | grep -v "#" | grep -E 'T |GET'  > netflix_requests.txt
+time ngrep ".ismv|isma|.aac|.ts.prdy" -t -I $file_out -W byline dst port 80 | grep -v "#" | grep -E 'T |GET'  > netflix_requests.txt
 
 # Store requests locally
 echo "Storing results..."

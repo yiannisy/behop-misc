@@ -21,10 +21,10 @@ time tcpdump -e -r ${pcapfile} -nnn "vlan and not port 53"  -w ${tmp_dir}/studio
 echo "Stripping out vlan tags..."
 tcprewrite --enet-vlan=del --infile=${tmp_dir}/studio5-out.pcap --outfile=${tmp_dir}/studio5-out_novlan.pcap
 echo "Extracting youtube video requests..."
-time ngrep "videoplayback\?clen" -t -I ${tmp_dir}/studio5-out_novlan.pcap -W byline dst port 80 | grep -v "#" | grep -E 'T |GET'  > ${tmp_dir}/youtube_requests.txt
+time ngrep "\/videoplayback" -t -I ${tmp_dir}/studio5-out_novlan.pcap -W byline dst port 80 | grep -v "#" | grep -E 'T |GET'  > ${tmp_dir}/youtube_requests.txt
 
 echo "Extracting netflix video requests..."
-time ngrep ".ismv/range" -t -I ${tmp_dir}/studio5-out_novlan.pcap -W byline dst port 80 | grep -v "#" | grep -E 'T |GET'  > ${tmp_dir}/netflix_requests.txt
+time ngrep "ismv|isma|ts.prdy|.aac" -t -I ${tmp_dir}/studio5-out_novlan.pcap -W byline dst port 80 | grep -v "#" | grep -E 'T |GET'  > ${tmp_dir}/netflix_requests.txt
 
 
 # Analyze video requests
