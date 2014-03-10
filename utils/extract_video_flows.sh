@@ -24,7 +24,7 @@ echo "Extracting youtube video requests..."
 time ngrep "\/videoplayback" -t -I ${tmp_dir}/studio5-out_novlan.pcap -W byline dst port 80 | grep -v "#" | grep -E 'T |GET'  > ${tmp_dir}/youtube_requests.txt
 
 echo "Extracting netflix video requests..."
-time ngrep "ismv|isma|ts.prdy|.aac" -t -I ${tmp_dir}/studio5-out_novlan.pcap -W byline dst port 80 | grep -v "#" | grep -E 'T |GET'  > ${tmp_dir}/netflix_requests.txt
+time ngrep "ismv|isma|\.ts\.prdy|\.aac" -t -I ${tmp_dir}/studio5-out_novlan.pcap -W byline dst port 80 | grep -v "#" | grep -E 'T |GET'  > ${tmp_dir}/netflix_requests.txt
 
 
 # Analyze video requests
