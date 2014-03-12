@@ -4,6 +4,8 @@ N_ARGS=4
 S4_IP="128.12.164.253"
 S6_IP="128.12.172.253"
 
+PATH=/usr/local/bin:/sbin:$PATH
+
 ipaddr=`ifconfig eth0 | grep "inet addr" | tr -s ' ' | awk -F'[ :]' '{print $4}'`
 echo "Running at $ipaddr"
 if [[ "$ipaddr" == "$S4_IP" ]]
@@ -31,7 +33,7 @@ else
     HH=$4
 fi
 
-PATH=/usr/local/bin:$PATH
+
 ARGUS_PREFIX=/var/log/cargus/archive
 day=$YY.$MM.$DD
 date="$YY/$MM/$DD"
