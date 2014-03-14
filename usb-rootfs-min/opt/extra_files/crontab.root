@@ -1,0 +1,4 @@
+* * * * * /sbin/pi_ping_test
+*/2 * * * * /sbin/pi_alive_check
+* * * * * /opt/utils/wifisurvey/get_wifi_stats.sh
+*/5 * * * * /opt/utils/wifisurvey/get_wifi_survey.sh
