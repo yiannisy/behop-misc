@@ -2,4 +2,4 @@
 */2 * * * * /sbin/pi_alive_check
 * * * * * /opt/utils/wifisurvey/get_wifi_stats.sh
 */5 * * * * /opt/utils/wifisurvey/get_wifi_survey.sh
-* * * * * /opt/utils/pi_watchdog.sh
+5 * * * * /opt/utils/pi_watchdog.sh
