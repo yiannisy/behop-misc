@@ -41,11 +41,10 @@ cp ${EXTRA_FILES}/sta_manager /opt/utils
 cp ${EXTRA_FILES}/mon_to_tap /opt/utils
 cp ${EXTRA_FILES}/ccol_cmd /opt/utils
 cp ${EXTRA_FILES}/ccol /opt/utils
-cp ${EXTRA_FILES}/crontab_root /etc/crontabs/root
+cp ${EXTRA_FILES}/crontab.root /etc/crontabs/root
 cp ${EXTRA_FILES}/authorized_keys /etc/dropbear
 cp ${EXTRA_FILES}/passwd /etc/
 cp ${EXTRA_FILES}/shadow /etc/
-cp ${EXTRA_FILES}/get_wifi_stats.sh /opt/utils
 cp ${EXTRA_FILES}/behop_restart_wifi.sh /opt/utils
 
 # Copy collector/survey.
