@@ -1,7 +1,7 @@
 #/bin/bash
 
 pcapfile=$1
-pcapfile_out=anon_${pcapfile}
+pcapfile_out=studio5_anon_${pcapfile}
 tmp_dir=.tmp_${pcapfile}
 TCPTRACE_PATH=/home/yiannis/tcptrace-mod
 YOUTUBE_REQUESTS_ALL=/home/yiannis/be-hop-misc/data/captures/youtube_requests_all.txt
@@ -57,6 +57,20 @@ then
     sed 's/\//-/g' ${tmp_dir}/youtube.log >> ${tmp_dir}/youtube_db.log
     #add_csv_to_db.sh ${tmp_dir}/youtube_db.log logs.YoutubeLog
 fi
+
+# Split outgoing traffic and incoming traffic. Throw DNS traffic and content.
+echo "Splitting in/out, removing DNS and content..."
+time tcpdump -e -r ${pcapfile} -nnn "not vlan and not port 53" -w ${tmp_dir}/studio5-in.pcap
+# Anonymize incoming/outgoing traffic
+echo "Anonymizing traffic..."
+time tcprewrite --srcipmap=0.0.0.0/0:192.0.0.0/8 --infile=${tmp_dir}/studio5-in.pcap --outfile=${tmp_dir}/studio5-in-anon.pcap
+time tcprewrite --dstipmap=0.0.0.0/0:192.0.0.0/8 --infile=${tmp_dir}/studio5-out_novlan.pcap --outfile=${tmp_dir}/studio5-out-anon.pcap
+# Merge anonymized in/out pcaps.
+echo "Merging in/out traffic..."
+time mergecap -w ${tmp_dir}/studio5-anon.pcap ${tmp_dir}/studio5-in-anon.pcap ${tmp_dir}/studio5-out-anon.pcap
+#bittwiste -I ${tmp_dir}/studio5-anon.pcap -O ${tmp_dir}/${pcapfile_out} -D 54-9999
+editcap -s 60 ${tmp_dir}/studio5-anon.pcap ${tmp_dir}/${pcapfile_out}
+mv ${tmp_dir}/${pcapfile_out} ../data/rtt-analysis/
 
 rm -rf ${tmp_dir}
 rm -f ${pcapfile}
