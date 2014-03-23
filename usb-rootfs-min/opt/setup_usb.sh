@@ -12,7 +12,7 @@ echo "Preparing opkg for local updates..."
 cp ${EXTRA_FILES}/opkg.conf /etc/opkg.conf
 opkg update
 echo "Installing dependencies..."
-opkg install jansson python kmod-veth tcpdump kmod-ath9k openvswitch-switch python-pcap mini-snmpd
+opkg install jansson python kmod-veth tcpdump kmod-ath9k openvswitch-switch python-pcap mini-snmpd python-mysql
 
 echo "Setting-up openvswitch"
 /etc/init.d/openvswitch start
