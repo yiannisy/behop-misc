@@ -47,6 +47,7 @@ cp ${EXTRA_FILES}/passwd /etc/
 cp ${EXTRA_FILES}/shadow /etc/
 cp ${EXTRA_FILES}/behop_restart_wifi.sh /opt/utils
 cp ${EXTRA_FILES}/pi_watchdog.sh /opt/utils
+cp ${EXTRA_FILES}/ap_import.py /opt/utils
 
 # Copy collector/survey.
 cp -r ${EXTRA_FILES}/wifisurvey /opt/utils/
