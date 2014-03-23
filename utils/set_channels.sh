@@ -33,16 +33,19 @@ while read p;do
     case "$offset" in
     2)
 	    channel=`echo $p|awk -F',' '{print $2}'`
+	    radio="radio1"
 	    ;;
     3)
 	    channel=`echo $p|awk -F',' '{print $3}'`
+	    radio="radio1"
 	    ;;
     4)
 	    channel=`echo $p|awk -F',' '{print $4}'`
+	    radio="radio0"
 	    ;;
     esac
     echo "Setting channel $channel at studio $studio"
-    ./pssh_script root@studio5-$studio-pi.sunet "uci set wireless.radio1.channel=$channel;uci commit"
+    ./pssh_script root@studio5-$studio-pi.sunet "uci set wireless.${radio}.channel=$channel;uci commit"
 done < $fname
 exit
 
