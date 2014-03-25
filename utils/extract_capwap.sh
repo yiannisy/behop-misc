@@ -98,7 +98,7 @@ add_csv_to_db_direct.sh _events_${LOC}.txt logs_eventlog
 outfile=capwap_data.pcap
 ../extract_capwap_data.sh $file $outfile
 pcap_to_argus.sh $outfile
-#mv $outfile ../../data/rtt-analysis/studio4.${date}.pcap
+mv $outfile ../../data/rtt-analysis/studio4.${date}.pcap
 
 cd ../
 rm -rf ${tmp_dir}
